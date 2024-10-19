@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin\Settings;
+namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use App\Models\AdminPanelSetting;
@@ -39,7 +39,7 @@ class AdminPanelSettingController extends Controller
             if ($setting->system_logo && Storage::exists($setting->system_logo)) {
                 Storage::delete($setting->system_logo);
             }
-            $newLogoPath = Storage::putFile('users/photos', $request->file('system_logo'));
+            $newLogoPath = Storage::putFile('uploads/images/settings', $request->file('system_logo'));
         } else {
             $newLogoPath = $setting->system_logo;
         }

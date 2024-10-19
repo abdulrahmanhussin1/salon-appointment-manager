@@ -38,7 +38,7 @@ class UserController extends Controller
     {
         $photo = NULL;
         if ($request->hasFile('photo')) {
-            $photo = Storage::putFileAs("users/photos", $request->photo,now()->format('Y-m-d').'_'.str_replace(' ','_',$request->name).'_photo.'. $request->photo->getClientOriginalExtension());
+            $photo = Storage::putFileAs("uploads/images/users", $request->photo,now()->format('Y-m-d').'_'.str_replace(' ','_',$request->name).'_photo.'. $request->photo->getClientOriginalExtension());
         }
 
         $user = User::create([
@@ -86,11 +86,11 @@ class UserController extends Controller
     {
         $photo = $user->photo;
         if ($request->hasFile('photo')) {
-            if ($user->photo && Storage::exists($user->photo))  // Delete old photo if exists
+            if ($user->photo && Storage::exists($user->photo))
             {
                 Storage::delete($user->photo);
             }
-            $photo = Storage::putFileAs("users/photos", $request->photo,now()->format('Y-m-d').'_'.str_replace(' ','_',$request->name).'_photo.'. $request->photo->getClientOriginalExtension());
+            $photo = Storage::putFileAs("uploads/images/users", $request->photo,now()->format('Y-m-d').'_'.str_replace(' ','_',$request->name).'_photo.'. $request->photo->getClientOriginalExtension());
         }
 
         $user->update([
@@ -116,6 +116,11 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        if ($user->photo && Storage::exists($user->photo)) {
+            Storage::delete($user->photo);
+        }
+        $user->syncRoles([]);
+        $user->syncPermissions([]);  
         $user->delete();
         Alert::success(__('Success'), __('Deleted Successfully'));
     }

@@ -1,228 +1,198 @@
-  <!-- ======= Sidebar ======= -->
-  <aside id="sidebar" class="sidebar">
+<!-- ======= Sidebar ======= -->
+<aside id="sidebar" class="sidebar">
 
     <ul class="sidebar-nav" id="sidebar-nav">
 
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="{{ route('home.index') }}">
-          <i class="bi bi-grid"></i>
-          <span>{{ __('Dashboard') }}</span>
-        </a>
-      </li><!-- End Dashboard Nav -->
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="{{ route('home.index') }}">
+                <i class="bi bi-grid-fill"></i>
+                <span>{{ __('Dashboard') }}</span>
+            </a>
+        </li>
+            <!-- End Dashboard Nav -->
+            <hr>
+        @if (App\Traits\AppHelper::perUser('product_categories.index') || App\Traits\AppHelper::perUser('products.index'))
 
-      <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#settings-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-gear-wide-connected"></i><span>{{ __('System Settings') }}</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="settings-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="{{ route('admin_panel_settings.index') }}">
-              <i class="bi bi-circle"></i><span>Admin Panel Settings</span>
-            </a>
-          </li>
 
-         {{--  <li>
-            <a href="components-accordion.html">
-              <i class="bi bi-circle"></i><span>Accordion</span>
-            </a>
-          </li>
-          <li>
-            <a href="components-badges.html">
-              <i class="bi bi-circle"></i><span>Badges</span>
-            </a>
-          </li>
-          <li>
-            <a href="components-breadcrumbs.html">
-              <i class="bi bi-circle"></i><span>Breadcrumbs</span>
-            </a>
-          </li>
-          <li>
-            <a href="components-buttons.html">
-              <i class="bi bi-circle"></i><span>Buttons</span>
-            </a>
-          </li>
-          <li>
-            <a href="components-cards.html">
-              <i class="bi bi-circle"></i><span>Cards</span>
-            </a>
-          </li>
-          <li>
-            <a href="components-carousel.html">
-              <i class="bi bi-circle"></i><span>Carousel</span>
-            </a>
-          </li>
-          <li>
-            <a href="components-list-group.html">
-              <i class="bi bi-circle"></i><span>List group</span>
-            </a>
-          </li>
-          <li>
-            <a href="components-modal.html">
-              <i class="bi bi-circle"></i><span>Modal</span>
-            </a>
-          </li>
-          <li>
-            <a href="components-tabs.html">
-              <i class="bi bi-circle"></i><span>Tabs</span>
-            </a>
-          </li>
-          <li>
-            <a href="components-pagination.html">
-              <i class="bi bi-circle"></i><span>Pagination</span>
-            </a>
-          </li>
-          <li>
-            <a href="components-progress.html">
-              <i class="bi bi-circle"></i><span>Progress</span>
-            </a>
-          </li>
-          <li>
-            <a href="components-spinners.html">
-              <i class="bi bi-circle"></i><span>Spinners</span>
-            </a>
-          </li>
-          <li>
-            <a href="components-tooltips.html">
-              <i class="bi bi-circle"></i><span>Tooltips</span>
-            </a>
-          </li> --}}
-        </ul>
-      </li><!-- End settings Nav -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#products-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-tags-fill"></i><span>{{ __('Products') }}</span><i
+                        class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                @if (App\Traits\AppHelper::perUser('product_categories.index'))
+                    <ul id="products-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('product_categories.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Product Categories') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
+                @if (App\Traits\AppHelper::perUser('products.index'))
+                    <ul id="products-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('products.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Products') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
+                @if (App\Traits\AppHelper::perUser('suppliers.index'))
+                <ul id="products-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="{{ route('suppliers.index') }}">
+                            <i class="bi bi-circle"></i><span>{{ __('Suppliers') }}</span>
+                        </a>
+                    </li>
+                </ul>
+            @endif
+            </li>
+        @endif
 
-       <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#users-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-people"></i><span>{{ __('Users & Roles') }}</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="users-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="{{ route('roles.index') }}">
-              <i class="bi bi-circle"></i><span>{{ __('Roles') }}</span>
+        @if (App\Traits\AppHelper::perUser('employees.index') || App\Traits\AppHelper::perUser('employee_levels.index'))
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#employees-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-people-fill"></i><span>{{ __('Employees') }}</span><i
+                        class="bi bi-chevron-down ms-auto"></i>
+                </a>
+
+                @if (App\Traits\AppHelper::perUser('employee_levels.index'))
+                    <ul id="employees-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('employee_levels.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Employee Levels') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
+
+                @if (App\Traits\AppHelper::perUser('employees.index'))
+                    <ul id="employees-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('employees.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Employees') }}</span>
+                            </a>
+                        </li>
+
+                    </ul>
+                @endif
+            </li>
+        @endif
+
+        @if (App\Traits\AppHelper::perUser('service_category.index') || App\Traits\AppHelper::perUser('services.index'))
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#services-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-box-seam-fill"></i><span>{{ __('Services') }}</span><i
+                        class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                @if (App\Traits\AppHelper::perUser('service_category.index'))
+                    <ul id="services-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('service_category.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Service Categories') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
+
+                @if (App\Traits\AppHelper::perUser('services.index'))
+                    <ul id="services-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('services.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Services') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
+            </li>
+
+        @endif
+
+        <hr>
+
+        @if (App\Traits\AppHelper::perUser('units.index')
+        || App\Traits\AppHelper::perUser('tools.index')
+        || App\Traits\AppHelper::perUser('admin_panel_settings.index'))
+
+        <li class="nav-item">
+            <a class="nav-link collapsed" data-bs-target="#settings-nav" data-bs-toggle="collapse" href="#">
+                <i class="bi bi-gear-wide-connected"></i><span>{{ __('Settings') }}</span><i
+                    class="bi bi-chevron-down ms-auto"></i>
             </a>
-          </li>
-          <li>
-            <a href="{{ route('users.index') }}">
-              <i class="bi bi-circle"></i><span>{{ __('Users') }}</span>
+            @if (App\Traits\AppHelper::perUser('units.index'))
+            {{-- units --}}
+            <ul id="settings-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                <li>
+                    <a href="{{ route('units.index') }}">
+                        <i class="bi bi-circle"></i><span>{{ __('Units') }}</span>
+                    </a>
+                </li>
+            </ul>
+@endif
+
+            @if (App\Traits\AppHelper::perUser('tools.index'))
+            {{-- tools --}}
+
+            <ul id="settings-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                <li>
+                    <a href="{{ route('tools.index') }}">
+                        <i class="bi bi-circle"></i><span>{{ __('Tools') }}</span>
+                    </a>
+                </li>
+
+            </ul>
+            @endif
+            @if (App\Traits\AppHelper::perUser('admin_panel_settings.index'))
+            {{-- admin_panel_settings --}}
+
+
+            <ul id="settings-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                <li>
+                    <a href="{{ route('admin_panel_settings.index') }}">
+                        <i class="bi bi-circle"></i><span>{{ __('Admin Panel Settings') }}</span>
+                    </a>
+                </li>
+            </ul>
+            @endif
+
+
+        </li>
+        @endif
+
+        <!-- End settings Nav -->
+
+
+ @if (App\Traits\AppHelper::perUser('roles.index')
+        || App\Traits\AppHelper::perUser('users.index'))
+
+
+        <li class="nav-item">
+            <a class="nav-link collapsed" data-bs-target="#users-nav" data-bs-toggle="collapse" href="#">
+                <i class="bi bi-people-fill"></i><span>{{ __('Users & Roles') }}</span><i
+                    class="bi bi-chevron-down ms-auto"></i>
             </a>
-          </li>
-        </ul>
-      </li><!-- End Forms Nav -->
+            <ul id="users-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                @if (App\Traits\AppHelper::perUser('roles.index'))
 
-      {{--<li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-layout-text-window-reverse"></i><span>Tables</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="tables-general.html">
-              <i class="bi bi-circle"></i><span>General Tables</span>
-            </a>
-          </li>
-          <li>
-            <a href="tables-data.html">
-              <i class="bi bi-circle"></i><span>Data Tables</span>
-            </a>
-          </li>
-        </ul>
-      </li><!-- End Tables Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-bar-chart"></i><span>Charts</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="charts-chartjs.html">
-              <i class="bi bi-circle"></i><span>Chart.js</span>
-            </a>
-          </li>
-          <li>
-            <a href="charts-apexcharts.html">
-              <i class="bi bi-circle"></i><span>ApexCharts</span>
-            </a>
-          </li>
-          <li>
-            <a href="charts-echarts.html">
-              <i class="bi bi-circle"></i><span>ECharts</span>
-            </a>
-          </li>
-        </ul>
-      </li><!-- End Charts Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#icons-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-gem"></i><span>Icons</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="icons-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="icons-bootstrap.html">
-              <i class="bi bi-circle"></i><span>Bootstrap Icons</span>
-            </a>
-          </li>
-          <li>
-            <a href="icons-remix.html">
-              <i class="bi bi-circle"></i><span>Remix Icons</span>
-            </a>
-          </li>
-          <li>
-            <a href="icons-boxicons.html">
-              <i class="bi bi-circle"></i><span>Boxicons</span>
-            </a>
-          </li>
-        </ul>
-      </li><!-- End Icons Nav -->
-
-      <li class="nav-heading">Pages</li>
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="users-profile.html">
-          <i class="bi bi-person"></i>
-          <span>Profile</span>
-        </a>
-      </li><!-- End Profile Page Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-faq.html">
-          <i class="bi bi-question-circle"></i>
-          <span>F.A.Q</span>
-        </a>
-      </li><!-- End F.A.Q Page Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-contact.html">
-          <i class="bi bi-envelope"></i>
-          <span>Contact</span>
-        </a>
-      </li><!-- End Contact Page Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-register.html">
-          <i class="bi bi-card-list"></i>
-          <span>Register</span>
-        </a>
-      </li><!-- End Register Page Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-login.html">
-          <i class="bi bi-box-arrow-in-right"></i>
-          <span>Login</span>
-        </a>
-      </li><!-- End Login Page Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-error-404.html">
-          <i class="bi bi-dash-circle"></i>
-          <span>Error 404</span>
-        </a>
-      </li><!-- End Error 404 Page Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link " href="pages-blank.html">
-          <i class="bi bi-file-earmark"></i>
-          <span>Blank</span>
-        </a>
-      </li><!-- End Blank Page Nav --> --}}
+                <li>
+                    <a href="{{ route('roles.index') }}">
+                        <i class="bi bi-circle"></i><span>{{ __('Roles') }}</span>
+                    </a>
+                </li>
+                @endif
+                @if (App\Traits\AppHelper::perUser('users.index'))
+                <li>
+                    <a href="{{ route('users.index') }}">
+                        <i class="bi bi-circle"></i><span>{{ __('Users') }}</span>
+                    </a>
+                </li>
+                @endif
+            </ul>
+        </li><!-- End Forms Nav -->
+        @endif
 
     </ul>
 
-  </aside>
-  <!-- End Sidebar-->
+</aside>
+<!-- End Sidebar-->

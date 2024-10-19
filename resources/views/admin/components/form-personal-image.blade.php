@@ -6,7 +6,7 @@
         <input type="file" name="{{ $name }}" id="fileInput" class="@error('image') is-invalid @enderror"
             onchange="handleFileSelect()">
         <div class="overlay" onclick="openFileInput()">
-            <i class="icon fa fa-pencil"></i>
+            <i class="icon bi bi-pencil-fill"></i>
         </div>
         @error($name)
             <span class="invalid-feedback" role="alert">

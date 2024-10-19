@@ -14,6 +14,10 @@
     <link href="{{asset('admin-assets')}}/assets/vendor/quill/quill.bubble.css" rel="stylesheet">
     <link href="{{asset('admin-assets')}}/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
     <link href="{{asset('admin-assets')}}/assets/vendor/simple-datatables/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css">
+
+
     <link rel="stylesheet" href="{{ asset('admin-assets/assets/vendor/select2-4.1.0-rc.0/dist/css/select2.min.css') }}">
     <!-- Template Main CSS File -->
     <link href="{{asset('admin-assets')}}/assets/css/style.css" rel="stylesheet">

@@ -35,6 +35,69 @@ class RolesAndPermissionsSeeder extends Seeder
                 'users.create',
                 'users.edit',
                 'users.destroy',
+
+                /* units */
+                'units.index',
+                'units.show',
+                'units.create',
+                'units.edit',
+                'units.destroy',
+
+                /* suppliers */
+                'suppliers.index',
+                'suppliers.show',
+                'suppliers.create',
+                'suppliers.edit',
+                'suppliers.destroy',
+
+                /* product categories */
+                'product_categories.index',
+                'product_categories.show',
+                'product_categories.create',
+                'product_categories.edit',
+                'product_categories.destroy',
+
+                /* products */
+                'products.index',
+                'products.show',
+                'products.create',
+                'products.edit',
+                'products.destroy',
+
+                /* employee_levels */
+                'employee_levels.index',
+                'employee_levels.show',
+                'employee_levels.create',
+                'employee_levels.edit',
+                'employee_levels.destroy',
+
+                /* employees */
+                'employees.index',
+                'employees.show',
+                'employees.create',
+                'employees.edit',
+                'employees.destroy',
+
+                /* tools */
+                'tools.index',
+                'tools.show',
+                'tools.create',
+                'tools.edit',
+                'tools.destroy',
+
+                /* service_category */
+                'service_category.index',
+                'service_category.show',
+                'service_category.create',
+                'service_category.edit',
+                'service_category.destroy',
+
+                /* services */
+                'services.index',
+                'services.show',
+                'services.create',
+                'services.edit',
+                'services.destroy',
             ],
         ];
 

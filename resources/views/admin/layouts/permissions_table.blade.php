@@ -5,7 +5,9 @@
             <thead>
                 <tr>
                     <td class="text-gray-800">{{ __('All Access') }}
-                        <i class="fas fa-exclamation-circle ms-1 " data-bs-toggle="tooltip"
+                        
+
+                            <i class="bi bi-exclamation-circle-fill ms-1" data-bs-toggle="tooltip"
                             title="{{ __('Allows a full access to the system') }}"></i>
                     </td>
                     <td>

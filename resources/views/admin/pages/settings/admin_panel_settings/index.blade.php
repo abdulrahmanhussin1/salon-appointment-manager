@@ -18,9 +18,9 @@
         <div class="card-title mx-3">
             <h4>{{ __('System Settings') }}</h4>
             <div class="d-flex justify-content-end">
-                @if (App\Traits\AppHelper::perUSer('users.create'))
+                @if (App\Traits\AppHelper::perUSer('admin_panel_settings.update'))
                     <x-modal-button target="editAdminPanalSettingsModal" title="Edit">
-                        <i class="fa-solid fa-file-pen me-2"></i>
+                        <i class="bi bi-pencil-square me-2"></i>
                     </x-modal-button>
                 @endif
 

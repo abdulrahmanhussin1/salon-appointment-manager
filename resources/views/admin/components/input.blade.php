@@ -17,7 +17,7 @@
         @if ($id) id="{{ $id }}" @endif
         @if ($required) required @endif
         @if ($value) value="{{ $value }}" @endif
-        @if ($oninput) value="{{ $oninput }}" @endif>
+        @if ($oninput) oninput="{{ $oninput }}" @endif>
 
     @error($name)
         <span class="invalid-feedback" role="alert">

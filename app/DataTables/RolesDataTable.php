@@ -28,7 +28,7 @@ class RolesDataTable extends DataTable
                 $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
             <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2"
             type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
-                <i class="fa-solid fa-ellipsis-vertical "></i>
+               <i class="bi bi-three-dots-vertical"></i>
             </button>
             <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('roles.edit')) {
@@ -47,12 +47,10 @@ class RolesDataTable extends DataTable
             }) */
             ->editColumn('status', function ($model) {
                 if ($model->status == 'active') {
-                    return '<i class="fas fa-circle fa-sm mx-2 text-success"></i>' . ucfirst($model->status);
+                    return '<i class="bi bi-circle-fill mx-2 text-success"></i>' . ucfirst($model->status);
                 } elseif ($model->status == 'inactive') {
-                    return '<i class="fas fa-circle fa-sm mx-2 text-secondary"></i>' . ucfirst($model->status);
-                } else {
-                    return '<i class="fas fa-circle fa-sm mx-2 text-warning"></i>' . ucfirst($model->status);
-                }
+                    return '<i class="bi bi-circle-fill mx-2 text-secondary"></i>' . ucfirst($model->status);
+                } 
             })
 
 
@@ -90,18 +88,17 @@ class RolesDataTable extends DataTable
              ->setTableId('roles-table')
              ->columns($this->getColumns())
              ->minifiedAjax()
-             //->dom('Bfrtip')
+             ->dom('Bfrtip')
              ->orderBy(2,'des')
-             ->selectStyleSingle();
-             /* ->buttons([
+             ->selectStyleSingle()
+            ->buttons([
                  Button::make('excel'),
                  Button::make('csv'),
                  Button::make('pdf'),
                  Button::make('print'),
-                 Button::make('reset'),
-                 Button::make('reload')
-             ]) */
-
+                //  Button::make('reset'),
+                //  Button::make('reload')
+            ]);
      }
 
 

@@ -27,7 +27,7 @@ class UsersDataTable extends DataTable
                 $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
             <button class="btn btn-sm dropdown-toggle "
             type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
-<i class="bi bi-three-dots-vertical"></i>            </button>
+<i class="bi bi-three-dots-vertical"></i>         </button>
             <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('users.edit')) {
                     $html .= '<a href="' . route('users.edit', ['user' => $model]) . '" class="dropdown-item">Edit</a>';
@@ -38,7 +38,7 @@ class UsersDataTable extends DataTable
                 return $html;
             })
             ->addColumn('photo', function ($model) {
-                return $model->photo ? '<img src="'.asset('storage').'/'.$model->photo. '" alt="avatar" style="width:50px">' : '<img src="'.asset('admin-assets/assets/img/avatar.jpg').'" alt="avatar" style="width:50px">';
+                return $model->photo ? '<img src="' . asset('storage') . '/' . $model->photo . '" alt="avatar" style="width:50px">' : '<img src="' . asset('admin-assets/assets/img/avatar.jpg') . '" alt="avatar" style="width:50px">';
             })
 
             ->addColumn('role', function (User $model) {
@@ -47,12 +47,14 @@ class UsersDataTable extends DataTable
                 })->implode('');
             })
 
-            ->editColumn('status', function ($model) {
+            ->addColumn('created_by', function ($model) {
+                return $model->createdBy ? $model->createdBy->name : null;
+            })->editColumn('status', function ($model) {
                 if ($model->status == 'active') {
-                    return '<i class="fas fa-circle fa-sm mx-2 text-success"></i>' . ucfirst($model->status);
+                    return '<i class="bi bi-circle-fill mx-2 text-success"></i>' . ucfirst($model->status);
                 } elseif ($model->status == 'inactive') {
-                    return '<i class="fas fa-circle fa-sm mx-2 text-secondary"></i>' . ucfirst($model->status);
-                } 
+                    return '<i class="bi bi-circle-fill mx-2 text-secondary"></i>' . ucfirst($model->status);
+                }
 
             })
 
@@ -62,7 +64,7 @@ class UsersDataTable extends DataTable
             ->editColumn('updated_at', function ($model) {
                 return $model->updated_at ? $model->created_at->format('Y-m-d H:i:s') : null;
             })
-            ->rawColumns(['role', 'status', 'action','photo'])
+            ->rawColumns(['role', 'status', 'action', 'photo'])
             ->setRowId('id');
     }
 
@@ -83,17 +85,17 @@ class UsersDataTable extends DataTable
             ->setTableId('users-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            //->dom('Bfrtip')
+            ->dom('Bfrtip')
             ->orderBy(1)
             ->selectStyleSingle()
-            /* ->buttons([
+            ->buttons([
                 Button::make('excel'),
                 Button::make('csv'),
                 Button::make('pdf'),
                 Button::make('print'),
-                Button::make('reset'),
-                Button::make('reload')
-            ]) */ ;
+                // Button::make('reset'),
+                // Button::make('reload')
+            ]);
     }
 
     /**
@@ -108,6 +110,7 @@ class UsersDataTable extends DataTable
             Column::make('name')->addClass('text-center'),
             Column::make('role')->addClass('text-center'),
             Column::make('status')->addClass('text-center'),
+            Column::make('created_by')->addClass('text-center'),
 
             Column::make('created_at')->addClass('text-center'),
             Column::make('updated_at')->addClass('text-center'),
