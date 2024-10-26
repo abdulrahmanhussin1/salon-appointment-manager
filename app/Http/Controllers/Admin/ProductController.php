@@ -31,9 +31,9 @@ class ProductController extends Controller
     {
         $suppliers = Supplier::where('status', 'active')->select('id', 'name')->get();
         $units = Unit::where('status', 'active')->select('id', 'name')->get();
-        $product_categories = ProductCategory::where('status', 'active')->select('id', 'name')->get();
+        $productCategories = ProductCategory::where('status', 'active')->select('id', 'name')->get();
 
-        return view('admin.pages.products.products.create_edit', compact('suppliers', 'units', 'product_categories'));
+        return view('admin.pages.products.products.create_edit', compact('suppliers', 'units', 'productCategories'));
     }
 
     /**
@@ -49,8 +49,8 @@ class ProductController extends Controller
         Product::create([
             'name' => $request->name,
             'description' => $request->description,
-            'supplier_price' => $request->price,
-            'customer_price' => $request->selling_price,
+            'supplier_price' => $request->supplier_price,
+            'customer_price' => $request->customer_price,
             'unit_id' => $request->unit_id,
             'supplier_id' => $request->supplier_id,
             'category_id' => $request->category_id,
@@ -78,9 +78,9 @@ class ProductController extends Controller
     {
         $suppliers = Supplier::where('status', 'active')->select('id', 'name')->get();
         $units = Unit::where('status', 'active')->select('id', 'name')->get();
-        $product_categories = ProductCategory::where('status', 'active')->select('id', 'name')->get();
+        $productCategories = ProductCategory::where('status', 'active')->select('id', 'name')->get();
 
-        return view('admin.pages.products.products.create_edit', compact('product', 'suppliers', 'units', 'product_categories'));
+        return view('admin.pages.products.products.create_edit', compact('product', 'suppliers', 'units', 'productCategories'));
     }
 
     /**
@@ -100,8 +100,8 @@ class ProductController extends Controller
         $product->update([
             'name' => $request->name,
             'description' => $request->description,
-            'supplier_price' => $request->price,
-            'customer_price' => $request->selling_price,
+            'supplier_price' => $request->supplier_price,
+            'customer_price' => $request->customer_price,
             'unit_id' => $request->unit_id,
             'supplier_id' => $request->supplier_id,
             'category_id' => $request->category_id,

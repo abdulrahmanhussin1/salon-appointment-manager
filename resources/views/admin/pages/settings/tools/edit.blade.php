@@ -44,7 +44,7 @@
                     </x-form-select>
                     <x-file-input name='image' id="image" label="Image" />
                     <div class="text-center mt-2">
-                        <x-form-submit-button label='Confirm' />
+                        <x-submit-button label='Confirm' />
                     </div>
                 </div>
             </form>

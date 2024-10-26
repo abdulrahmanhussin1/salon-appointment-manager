@@ -1,6 +1,6 @@
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
-    <div class="copyright">
+    <div class="copyright mt-3">
         &copy; Copyright <strong><span>Salon Management System</span></strong>. All Rights Reserved
       </div>
       <div class="credits" >

@@ -1,21 +1,21 @@
 @extends('admin.layouts.app')
 @section('title')
-    {{ __('Product Categories Page ') }}
+    {{ __('Employee Levels Page ') }}
 @endsection
 @section('content')
     {{-- Start breadcrumbs --}}
-    <x-breadcrumb pageName="Product Categories">
+    <x-breadcrumb pageName="Employee Levels">
         <x-breadcrumb-item>
             <a class="active" href="{{ route('home.index') }}">{{ __('Home') }}</a>
         </x-breadcrumb-item>
-        <x-breadcrumb-item>{{ __('Product Categories') }}</x-breadcrumb-item>
+        <x-breadcrumb-item>{{ __('Employee Levels') }}</x-breadcrumb-item>
     </x-breadcrumb>
     {{-- End breadcrumbs --}}
 
     <section class="section">
         <div class="d-flex justify-content-end">
-            @if (App\Traits\AppHelper::perUSer('product_categories.create'))
-                <x-modal-button title="Product Category" target="ProductCategoryModal"><i class="bi bi-plus-lg me-2"></i></x-modal-button>
+            @if (App\Traits\AppHelper::perUSer('employee_levels.create'))
+                <x-modal-button title="Employee Level" target="employeeLevelsModal"><i class="bi bi-plus-lg me-2"></i></x-modal-button>
             @endif
         </div>
         @include('admin.layouts.alerts')
@@ -25,19 +25,19 @@
     </section>
 
 
-    <x-modal id="ProductCategoryModal" title="Create Product Category">
-        <form action="{{ route('product_categories.store') }}" method="POST" id="ProductCategoryForm" enctype="multipart/form-data">
+    <x-modal id="employeeLevelsModal" title="Create Employee Level">
+        <form action="{{ route('employee_levels.store') }}" method="POST" id="employeeLevelsForm" enctype="multipart/form-data">
             @csrf
             <div class="modal-body">
                 <x-input type='text' value="{{ old('name') }}" label="Name" name='name'
-                    placeholder='Product Category Name' id="name" oninput="" required />
+                    placeholder='Employee Level Name' id="name" oninput="" required />
 
                 <x-form-description value="{{ old('description') }}" label="description" name='description'
-                    placeholder='Product Category description' />
+                    placeholder='Employee Level description' />
                 <x-form-select name='status' id="status" label="status" required>
-                    <option @if (isset($productCategory) && $productCategory->status == 'active') selected @endif value="active">
+                    <option @if (isset($employeeLevels) && $employeeLevels->status == 'active') selected @endif value="active">
                         {{ __('Active') }}</option>
-                    <option @if (isset($productCategory) && $productCategory->status == 'inactive') selected @endif value="inactive">
+                    <option @if (isset($employeeLevels) && $employeeLevels->status == 'inactive') selected @endif value="inactive">
                         {{ __('Inactive') }}</option>
                 </x-form-select>
             </div>
@@ -53,16 +53,16 @@
     <script>
         $(document).ready(function() {
             $("#status").select2({
-                dropdownParent: $("#ProductCategoryModal")
+                dropdownParent: $("#employeeLevelsModal")
             });
-            $(document).on('click', '.delete-this-product_category', function(e) {
+            $(document).on('click', '.delete-this-employee_level', function(e) {
                 e.preventDefault();
                 let el = $(this);
                 let url = el.attr('data-url');
                 let id = el.attr('data-id');
 
                 Swal.fire({
-                    title: "Are you sure you really want to delete this Product Category?",
+                    title: "Are you sure you really want to delete this Employee Level?",
                     text: "You won't be able to revert this!",
                     icon: "warning",
                     showCancelButton: true,
@@ -84,13 +84,13 @@
                             },
                             success: function(msg) {
                                 window.location.href =
-                                "{{ route('product_categories.index') }}";
+                                "{{ route('employee_levels.index') }}";
                             }
                         });
                     } else if (result.dismiss === Swal.DismissReason.cancel) {
                         Swal.fire({
                             title: "Cancelled",
-                            text: "Product Category is safe :)",
+                            text: "Employee Level is safe :)",
                             icon: "error"
                         });
                     }

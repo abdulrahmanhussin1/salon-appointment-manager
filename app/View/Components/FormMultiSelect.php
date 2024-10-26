@@ -2,11 +2,12 @@
 
 namespace App\View\Components;
 
+
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class FormSubmitButton extends Component
+class FormMultiSelect extends Component
 {
     /**
      * Create a new component instance.
@@ -21,6 +22,6 @@ class FormSubmitButton extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('admin.components.form-submit-button');
+        return view('admin.components.form-multi-select');
     }
 }

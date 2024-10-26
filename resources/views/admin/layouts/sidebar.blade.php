@@ -79,17 +79,17 @@
             </li>
         @endif
 
-        @if (App\Traits\AppHelper::perUser('service_category.index') || App\Traits\AppHelper::perUser('services.index'))
+        @if (App\Traits\AppHelper::perUser('service_categories.index') || App\Traits\AppHelper::perUser('services.index'))
 
             <li class="nav-item">
                 <a class="nav-link collapsed" data-bs-target="#services-nav" data-bs-toggle="collapse" href="#">
                     <i class="bi bi-box-seam-fill"></i><span>{{ __('Services') }}</span><i
                         class="bi bi-chevron-down ms-auto"></i>
                 </a>
-                @if (App\Traits\AppHelper::perUser('service_category.index'))
+                @if (App\Traits\AppHelper::perUser('service_categories.index'))
                     <ul id="services-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
                         <li>
-                            <a href="{{ route('service_category.index') }}">
+                            <a href="{{ route('service_categories.index') }}">
                                 <i class="bi bi-circle"></i><span>{{ __('Service Categories') }}</span>
                             </a>
                         </li>

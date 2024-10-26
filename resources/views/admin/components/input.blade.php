@@ -7,13 +7,11 @@
     'oninput' => false,
     'id' => false,
     'required' => false,
-    'disabled' => false,
 ])
 <div class="mb-3">
     <label for="{{ $id }}" class="form-label">{{ Str::ucfirst(__($label)) }}</label>
     <input type="{{ $type }}" name="{{ $name }}"
         class="form-control form-control-sm @error($name) is-invalid @enderror" placeholder="{{ $placeholder }}"
-        {{ $disabled ? 'disabled' : '' }}
         @if ($id) id="{{ $id }}" @endif
         @if ($required) required @endif
         @if ($value) value="{{ $value }}" @endif

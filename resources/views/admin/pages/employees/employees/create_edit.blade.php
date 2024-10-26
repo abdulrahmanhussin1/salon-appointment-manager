@@ -1,10 +1,11 @@
 @extends('admin.layouts.app')
 @section('title')
-    {{ isset($user) ? __('Edit User ') : __('Create User') }}
+    {{ isset($employee) ? __('Edit Employee ') : __('Create Employee') }}
 @endsection
 @section('css')
     <link href="{{ asset('admin-assets/assets/vendor/choices/choices.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('admin-assets/assets/vendor/choices/theme.min.css') }}" type="text/css" rel="stylesheet" id="style-default">
+    <link href="{{ asset('admin-assets/assets/vendor/choices/theme.min.css') }}" type="text/css" rel="stylesheet"
+        id="style-default">
     <style>
         .custom-avatar {
             display: inline-block;
@@ -51,90 +52,374 @@
 @endsection
 @section('content')
     {{-- Start breadcrumbs --}}
-    <x-breadcrumb pageName="Roles">
+    <x-breadcrumb pageName="Employee">
         <x-breadcrumb-item>
             <a class="active" href="{{ route('home.index') }}">{{ __('Home') }}</a>
         </x-breadcrumb-item>
         <x-breadcrumb-item>
-            <a href="{{ route('users.index') }}">{{ __('Users') }}</a>
+            <a href="{{ route('employees.index') }}">{{ __('Employees') }}</a>
         </x-breadcrumb-item>
         <x-breadcrumb-item active="{{ isset($role) }}">
-            {{ isset($role) ? __('Edit :type', ['type' => $role->name]) : __('Create New User') }}
+            {{ isset($role) ? __('Edit :type', ['type' => $role->name]) : __('Create New Employee') }}
         </x-breadcrumb-item>
 
 
     </x-breadcrumb>
-{{-- End breadcrumbs --}}
+    {{-- End breadcrumbs --}}
+
+
+
+
+
+
+
     <div class="container">
-        <div class="card radius-15 border-lg-top-primary">
+        @include('admin.layouts.alerts')
+        <div class="card">
             <div class="card-title">
-                <h4 class="m-3 mb-0">{{ isset($user) ? __('Edit :type', ['type' => $user->name]) : __('Create New User') }}
+                <h4 class="m-3 mb-0">
+                    {{ isset($employee) ? __('Edit :type', ['type' => $employee->name]) : __('Create New Employee') }}
                 </h4>
             </div>
             <hr>
-            <form method="POST"
-                action="{{ isset($user) ? route('users.update', ['user' => $user]) : route('users.store') }}"
-                enctype="multipart/form-data" id="userForm">
-                @csrf
-                @if (isset($user))
-                    @method('PUT')
-                @endif
-                <div class="card-body">
-                    <div class="col-lg-12">
-                        <x-form-personal-image :src="isset($user) && isset($user->photo)
-                            ? asset('storage/' . $user->photo)
-                            : asset('admin-assets/assets/img/avatar.jpg')" name="photo" />
-                    </div>
 
-                    <div class="row">
-                        <div class="col-6">
-                            <x-input type='text' :value="isset($user) ? $user->name : old('name')" label="Name" name='name'
-                                placeholder='User Name' id="name" oninput="" required />
-                        </div>
-                        <div class="col-6">
-                            <x-input type='email' :value="isset($user) ? $user->email : old('email')" label="email" name='email'
-                                placeholder='User Email' id="email" oninput="" required />
-                        </div>
-                    </div>
-
-                    @if(!isset($user))
-                    <div class="row">
-                        <div class="col-6">
-                            <x-input type="password" :value="old('password')" label="password" name='password' placeholder='Your Password'
-                                id="password" />
-                        </div>
-                        <div class="col-6">
-                            <x-input type="password" :value="old('password_confirmation')" label="Confirm Password" name='password_confirmation'
-                                placeholder='Confirm Your Password ' id="password_confirmation" />
-                        </div>
-                    </div>
+            <div class="card-body">
+                <form method="POST"
+                    action="{{ isset($employee) ? route('employees.update', ['employee' => $employee]) : route('employees.store') }}"
+                    enctype="multipart/form-data" id="employeeForm">
+                    @csrf
+                    @if (isset($employee))
+                        @method('PUT')
                     @endif
-                    <div class="row">
-                        <div class="col-6">
-                            <x-form-select name='status' id="status" label="status" required>
-                                <option @if (isset($user) && $user->status == 'active') selected @endif value="active">
-                                    {{ __('Active') }}</option>
-                                <option @if (isset($user) && $user->status == 'inactive') selected @endif value="inactive">
-                                    {{ __('Inactive') }}</option>
-                            </x-form-select>
-                        </div>
-                        <div class="col-6">
-                            <x-form-select name="role_id" id="role_id" label='Role' required>
-                                @foreach (\Spatie\Permission\Models\Role::where('status', 'active')->pluck('name', 'id')->toArray() as $id => $name)
-                                    <option
-                                        @if (isset($user) && in_array($id, $user->roles()->pluck('id')->toArray())) selected="selected"
-                            @elseif(old('role_id') && in_array($id, old('role_id'))) selected="selected" @endif
-                                        value="{{ $id }}">{{ $name }}</option>
-                                @endforeach
-                            </x-form-select>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-center mt-2">
-                    <x-form-submit-button label='Confirm' />
+                    <!-- Default Accordion -->
+                    <div class="accordion" id="accordionExample">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button " type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    {{ __('Employee Data') }}
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                                data-bs-parent="#accordionExample" style="">
+                                <div class="accordion-body">
+                                    <div class="col-lg-12">
+                                        <x-form-personal-image :src="isset($employee) && isset($employee->photo)
+                                            ? asset('storage/' . $employee->photo)
+                                            : asset('admin-assets/assets/img/avatar.jpg')" name="photo" />
+                                    </div>
 
-                </div>
-            </form>
+                                    <div class="row">
+
+
+                                        <div class="col-12">
+                                            <x-form-select name="employee_level_id" id="employee_level_id"
+                                                label='Employee Level' required>
+                                                <option value="">{{ __('Select one Employe Level') }}</option>
+                                                @foreach ($employeeLevels as $employeeLevel)
+                                                    <option @if (isset($employee) &&
+                                                            ($employee->employee_level_id == $employeeLevel->id || old('employee_level_id') == $employeeLevel->id)) selected="selected" @endif
+                                                        value="{{ $employeeLevel->id }}">{{ $employeeLevel->name }}
+                                                    </option>
+                                                @endforeach
+                                            </x-form-select>
+                                        </div>
+                                        <div class="col-6">
+                                            <x-input type='text' :value="isset($employee) ? $employee->name : old('name')" label="Name" name='name'
+                                                placeholder='employee Name' id="name" oninput="" required />
+                                        </div>
+
+                                        <div class="col-6">
+                                            <x-input type="text" value="{{ $employee->phone ?? old('phone') }}"
+                                                label="Phone" id="phone" name='phone' placeholder="Phone"
+                                                oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')" required />
+                                        </div>
+
+                                        <div class="col-6">
+                                            <label class="form-label" for="hiring_date">{{ __('Hiring Date') }}</label>
+                                            <input type="date" name="hiring_date" class="form-control  @error('hiring_date') is-invalid @enderror" id="hiring_date"
+                                                value="{{ isset($employee) ? $employee->hiring_date : old('hiring_date', date('Y-m-d')) }}"
+                                                required>
+                                                @error('hiring_date')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-6">
+                                            <label class="form-label" for="dob">{{ __('Date Of birth') }}</label>
+                                            <input type="date" name="dob" class="form-control @error('dob') is-invalid @enderror" id="dob"
+                                                value="{{ isset($employee) ? $employee->dob : old('dob', date('Y-m-d')) }}">
+                                                @error('dob')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-6">
+                                            <x-input type='email' :value="isset($employee) ? $employee->email : old('email')" label="email" name='email'
+                                                placeholder='employee Email' id="email" oninput="" />
+                                        </div>
+                                        <div class="col-6">
+                                            <x-input type='text' :value="isset($employee) ? $employee->job_title : old('job_title')" label="Job Title" name='job_title'
+                                                placeholder='employee Job title' id="job_title" oninput="" />
+                                        </div>
+
+                                        <div class="col-6">
+                                            <x-input type='text' :value="isset($employee)
+                                                ? $employee->finger_print_code
+                                                : old('finger_print_code')" label="Finger Print code "
+                                                name='finger_print_code' placeholder='employee Finger Print code '
+                                                id="finger_print_code" oninput="" />
+                                        </div>
+
+
+
+
+
+                                        <div class="col-6">
+                                            <x-form-select name='gender' id="gender" label="gender" required>
+                                                <option @if (isset($employee) && $employee->gender == 'male') selected @endif value="male">
+                                                    {{ __('Male') }}</option>
+                                                <option @if (isset($employee) && $employee->gender == 'female') selected @endif value="female">
+                                                    {{ __('Female') }}</option>
+                                            </x-form-select>
+                                        </div>
+
+
+                                        <div class="col-6">
+                                            <x-input type="text"
+                                                value="{{ $employee->national_id ?? old('national_id') }}"
+                                                label="National ID" id="national_id" name='national_id'
+                                                placeholder="National ID"
+                                                oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
+                                        </div>
+
+                                        <div class="col-6">
+                                            <label for="idCardInput"
+                                                class="form-label">{{ __('National Id Card') }}</label>
+                                            <input class="form-control @error('id_card') is-invalid @enderror" type="file" name="id_card" id="idCardInput">
+                                            @error('id_card')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                        </div>
+
+                                        <div class="col-4">
+                                            <x-form-select name='status' id="status" label="status" required>
+                                                <option @if (isset($employee) && $employee->status == 'active') selected @endif value="active">
+                                                    {{ __('Active') }}</option>
+                                                <option @if (isset($employee) && $employee->status == 'inactive') selected @endif value="inactive">
+                                                    {{ __('Inactive') }}</option>
+                                            </x-form-select>
+                                        </div>
+
+                                        <div class="col-4">
+                                            <x-input type='text' :value="isset($employee)
+                                                ? $employee->inactive_reason
+                                                : old('inactive_reason')" label="Inactive Reason"
+                                                name='inactive_reason' placeholder='employee Inactive Reason'
+                                                id="inactive_reason" oninput="" />
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="form-label" for="termination_date">{{ __('Termination Date') }}</label>
+                                            <input type="date" name="termination_date" class="form-control @error('termination_date')  is-invalid @enderror" id="termination_date"
+                                                value="{{ isset($employee) ? $employee->termination_date : old('termination_date', date('Y-m-d')) }}"
+                                                required>
+                                                @error('termination_date')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                        </div>
+
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <x-form-description value="{{ $employee->address ?? old('address') }}"
+                                                label="address" name='address' placeholder='Employee address' />
+
+                                        </div>
+                                        <div class="col-6">
+                                            <x-form-description value="{{ $employee->notes ?? old('notes') }}"
+                                                label="notes" name='notes' placeholder='Employee notes' />
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    {{ __('Employee Wage') }}
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                                data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <x-form-select name='salary_type' id="salary_type" label="salary type">
+                                                <option @if (isset($employeeWage) && $employeeWage->salary_type == 'monthly') selected @endif value="monthly">
+                                                    {{ __('Monthly') }}</option>
+                                                <option @if (isset($employeeWage) && $employeeWage->salary_type == 'weekly') selected @endif value="weekly">
+                                                    {{ __('Weekly') }}</option>
+                                                <option @if (isset($employeeWage) && $employeeWage->salary_type == 'daily') selected @endif value="daily">
+                                                    {{ __('Daily') }}</option>
+                                                <option @if (isset($employeeWage) && $employeeWage->salary_type == 'commission') selected @endif
+                                                    value="commission">{{ __('Commission') }}</option>
+                                            </x-form-select>
+                                        </div>
+
+                                        <div class="col-6">
+                                            <x-form-select name='sales_target_settings' id="sales_target_settings"
+                                                label="target settings">
+                                                <option value="">{{ __('Select one Tareget Setting') }}</option>
+                                                <option @if (isset($employeeWage) && $employeeWage->sales_target_settings == 'no') selected @endif value="no">
+                                                    {{ __('No') }}</option>
+                                                <option @if (isset($employeeWage) && $employeeWage->sales_target_settings == 'total_sales') selected @endif
+                                                    value="total_sales">
+                                                    {{ __('Total sales') }}</option>
+                                                <option @if (isset($employeeWage) && $employeeWage->sales_target_settings == 'employee_daily_service') selected @endif
+                                                    value="employee_daily_service">
+                                                    {{ __('employee daily service') }}</option>
+                                            </x-form-select>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row">
+
+                                        <div class="col-6">
+                                            <x-input type="text"
+                                                value="{{ $employeeWage->basic_salary ?? old('basic_salary') }}"
+                                                label="Basic Salary" id="basic_salary" name='basic_salary'
+                                                placeholder="Basic Salary"
+                                                oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')" />
+                                        </div>
+
+                                        <div class="col-6">
+                                            <x-input type="text"
+                                                value="{{ $employeeWage->bonus_salary ?? old('bonus_salary') }}"
+                                                label="Bouns Salary" id="bonus_salary" name='bonus_salary'
+                                                placeholder="Bouns Salary"
+                                                oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')" />
+                                        </div>
+
+                                        <div class="col-4">
+                                            <x-input type="text"
+                                                value="{{ $employeeWage->allowance1 ?? old('allowance1') }}"
+                                                label="Allowance1" id="allowance1" name='allowance1'
+                                                placeholder="Allowance1"
+                                                oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')" />
+                                        </div>
+                                        <div class="col-4">
+                                            <x-input type="text"
+                                                value="{{ $employeeWage->allowance2 ?? old('allowance2') }}"
+                                                label="Allowance2" id="allowance2" name='allowance2'
+                                                placeholder="Allowance2"
+                                                oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')" />
+                                        </div>
+
+                                        <div class="col-4">
+                                            <x-input type="text"
+                                                value="{{ $employeeWage->allowance3 ?? old('allowance3') }}"
+                                                label="Allowance3" id="allowance3" name='allowance3'
+                                                placeholder="Allowance3"
+                                                oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')" />
+                                        </div>
+
+                                        <div class="col-12 my-3">
+                                            <label class="form-label" for="total_salary">{{ __('Total Salary') }}</label>
+                                            <input type="text" id="total_salary" name="total_salary"
+                                                class="form-control form-control-lg text-danger text-center" style="background-color: lightgray"
+                                                value="0.00" readonly>
+                                        </div>
+
+                                        <hr>
+
+                                        <div class="col-4">
+                                            <x-input type="text"
+                                                value="{{ $employeeWage->working_hours ?? old('working_hours') }}"
+                                                label="working hours" id="working_hours" name='working_hours'
+                                                placeholder="working hours"
+                                                oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')" />
+                                        </div>
+                                        <div class="col-4">
+                                            <label for="inputTime"
+                                                class="form-label">{{ __('Start Working Time') }}</label>
+                                            <input type="time" class="form-control @error('start_working_time') is-invalid @enderror" name="start_working_time"
+                                                id="inputTime" value="{{ $employeeWage->start_working_time ?? old('start_working_time') }}">
+
+                                                @error('start_working_time')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                        </div>
+
+                                        <div class="col-4">
+                                            <x-input type="text"
+                                                value="{{ $employeeWage->overtime_rate ?? old('overtime_rate') }}"
+                                                label="overtime rate" id="overtime_rate" name='overtime_rate'
+                                                placeholder="overtime rate"
+                                                oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')" />
+                                        </div>
+
+
+                                        <div class="col-6">
+                                            <x-input type="text"
+                                                value="{{ $employeeWage->penalty_late_hour ?? old('penalty_late_hour') }}"
+                                                label="penalty late hour" id="penalty_late_hour" name='penalty_late_hour'
+                                                placeholder="penalty late hour"
+                                                oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')" />
+                                        </div>
+
+
+                                        <div class="col-6">
+                                            <x-input type="text"
+                                                value="{{ $employeeWage->penalty_absence_day ?? old('penalty_absence_day') }}"
+                                                label="penalty absence day" id="penalty_absence_day"
+                                                name='penalty_absence_day' placeholder="penalty absence day"
+                                                oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')" />
+                                        </div>
+
+
+                                        <div class="col-6">
+                                            <label for="inputTime" class="form-label">{{ __('Break Time') }}</label>
+                                            <input type="time" class="form-control  @error('break_time') is-invalid @enderror" name="break_time" id="inputTime" value="{{ $employeeWage->break_time ?? old('break_time') }}">
+                                            @error('break_time')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                        </div>
+
+                                        <div class="col-6">
+                                            <x-input type="text"
+                                                value="{{ $employeeWage->break_duration ?? old('break_duration') }}"
+                                                label="Break duration (in minutes)" id="break_duration" name='break_duration'
+                                                placeholder="Break duration (in minutes)"
+                                                oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')" />
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- End Default Accordion Example -->
+                    <div class="text-center mt-3">
+                        <x-submit-button label='Confirm' />
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 @endsection
@@ -163,71 +448,210 @@
         }
     </script>
 
+
     <script>
         $(document).ready(function() {
-            $('#userForm').validate({
+            // Function to calculate the total salary
+            function calculateTotalSalary() {
+                // Get values from the input fields, parsing them as numbers (or 0 if empty)
+                let basicSalary = parseFloat($('#basic_salary').val()) || 0;
+                let bonusSalary = parseFloat($('#bonus_salary').val()) || 0;
+                let allowance1 = parseFloat($('#allowance1').val()) || 0;
+                let allowance2 = parseFloat($('#allowance2').val()) || 0;
+                let allowance3 = parseFloat($('#allowance3').val()) || 0;
+
+                // Calculate the total
+                let totalSalary = basicSalary + bonusSalary + allowance1 + allowance2 + allowance3;
+
+                // Update the total salary input field
+                $('#total_salary').val(totalSalary.toFixed(2)); // Rounds to 2 decimal places
+            }
+
+            // Attach event listener to update total salary on each input change
+            $('#basic_salary, #bonus_salary, #allowance1, #allowance2, #allowance3').on('input', function() {
+                calculateTotalSalary();
+            });
+            calculateTotalSalary();
+        });
+    </script>
+
+
+    <script>
+        $(document).ready(function() {
+            $('#employeeForm').validate({
                 rules: {
                     name: {
                         required: true,
-                        maxlength: 150
+                        maxlength: 255
                     },
                     email: {
-                        required: true,
                         email: true,
                     },
-                    password: {
+                    phone: {
                         required: true,
-                        minlength: 8
+                        maxlength: 15,
                     },
-                    password_confirmation: {
+                    national_id: {
+                        maxlength: 20,
+                    },
+                    address: {
+                        maxlength: 500
+                    },
+                    notes: {
+                        maxlength: 500
+                    },
+                    hiring_date: {
                         required: true,
-                        equalTo: '#password'
+                        date: true
                     },
-                    photo: {
-                        accept: 'image/png,image/jpeg,image/gif,image/svg',
-                        filesize: 2048
+                    dob: {
+                        date: true,
+                        max: new Date().toISOString().split("T")[0]
                     },
-                    title_type: {
-                        required: true,
+                    finger_print_code: {
+                        maxlength: 50,
                     },
+                    job_title: {
+                        maxlength: 255
+                    },
+
                     status: {
-                        required: true
-                    },
-                    'role_id[]': {
                         required: true,
-                    }
+                    },
+                    employee_level_id: {
+                        required: true,
+                        digits: true
+                    },
+                    salary_type: {
+                        required: false,
+                    },
+                    basic_salary: {
+                        number: true,
+                        min: 0
+                    },
+                    bonus_salary: {
+                        number: true,
+                        min: 0
+                    },
+                    allowance1: {
+                        number: true,
+                        min: 0
+                    },
+                    allowance2: {
+                        number: true,
+                        min: 0
+                    },
+                    allowance3: {
+                        number: true,
+                        min: 0
+                    },
+                    total_salary: {
+                        number: true,
+                        min: 0
+                    },
+                    working_hours: {
+                        number: true,
+                        min: 0
+                    },
+                    overtime_rate: {
+                        number: true,
+                        min: 0
+                    },
+                    penalty_late_hour: {
+                        number: true,
+                        min: 0
+                    },
+                    penalty_absence_day: {
+                        number: true,
+                        min: 0
+                    },
+                    sales_target_settings: {
+                        required: false,
+                    },
                 },
                 messages: {
                     name: {
-                        required: 'Please enter your name.',
-                        maxlength: 'Name must not exceed 150 characters.'
+                        required: "The name is required.",
+                        maxlength: "The name must not exceed 255 characters."
                     },
                     email: {
-                        required: 'Please enter your email address.',
-                        email: 'Please enter a valid email address.',
+                        email: "Please enter a valid email address.",
                     },
-                    password: {
-                        required: 'Please enter your password.',
-                        minlength: 'Password must be at least 6 characters long.'
+                    phone: {
+                        required: "The phone number is required.",
+                        maxlength: "The phone number must not exceed 15 characters.",
                     },
-                    password_confirmation: {
-                        required: 'Please confirm your password.',
-                        equalTo: 'Passwords do not match.'
+                    national_id: {
+                        maxlength: "The national ID must not exceed 20 characters.",
                     },
-                    image: {
-                        accept: 'Please upload an photo of type: png, jpg, jpeg, gif, svg.',
-                        filesize: 'File size must be less than 2MB.'
+                    address: {
+                        maxlength: "The address must not exceed 500 characters."
                     },
-                    title_type: {
-                        required: 'Please enter title.',
-
+                    notes: {
+                        maxlength: "Notes must not exceed 500 characters."
+                    },
+                    hiring_date: {
+                        required: "Hiring date is required.",
+                        date: "Please enter a valid date."
+                    },
+                    dob: {
+                        date: "Please enter a valid date.",
+                        max: "Date of birth must be before today."
+                    },
+                    finger_print_code: {
+                        maxlength: "Fingerprint code must not exceed 50 characters.",
+                    },
+                    job_title: {
+                        maxlength: "Job title must not exceed 255 characters."
                     },
                     status: {
-                        required: 'Please select a status.'
+                        required: "Status is required.",
                     },
-                    'role_id[]': {
-                        required: 'Please select a role.'
-                    }
+                    employee_level_id: {
+                        required: "Employee level is required.",
+                        digits: "Please select a valid employee level ID."
+                    },
+                    basic_salary: {
+                        number: "Please enter a valid number for Basic Salary.",
+                        min: "Basic Salary cannot be less than 0."
+                    },
+                    bonus_salary: {
+                        number: "Please enter a valid number for Bonus Salary.",
+                        min: "Bonus Salary cannot be less than 0."
+                    },
+                    allowance1: {
+                        number: "Please enter a valid number for Allowance 1.",
+                        min: "Allowance 1 cannot be less than 0."
+                    },
+                    allowance2: {
+                        number: "Please enter a valid number for Allowance 2.",
+                        min: "Allowance 2 cannot be less than 0."
+                    },
+                    allowance3: {
+                        number: "Please enter a valid number for Allowance 3.",
+                        min: "Allowance 3 cannot be less than 0."
+                    },
+                    total_salary: {
+                        number: "Please enter a valid number for Total Salary.",
+                        min: "Total Salary cannot be less than 0."
+                    },
+                    working_hours: {
+                        number: "Please enter a valid number for Working Hours.",
+                        min: "Working Hours cannot be less than 0."
+                    },
+                    overtime_rate: {
+                        number: "Please enter a valid number for Overtime Rate.",
+                        min: "Overtime Rate cannot be less than 0."
+                    },
+                    penalty_late_hour: {
+                        number: "Please enter a valid number for Penalty for Late Hour.",
+                        min: "Penalty for Late Hour cannot be less than 0."
+                    },
+                    penalty_absence_day: {
+                        number: "Please enter a valid number for Penalty for Absence Day.",
+                        min: "Penalty for Absence Day cannot be less than 0."
+                    },
+
                 },
                 errorClass: "error text-danger fs--1",
                 errorElement: "span",
@@ -239,6 +663,9 @@
                     $(element).removeClass(errorClass).addClass(validClass);
                     $(element.form).find("label[for=" + element.id + "]").removeClass(errorClass);
                 },
+                submitHandler: function(form) {
+                    form.submit();
+                }
             });
         });
     </script>

@@ -43,7 +43,7 @@
                         {{ __('Inactive') }}</option>
                 </x-form-select>
                     <div class="text-center mt-2">
-                        <x-form-submit-button label='Confirm' />
+                        <x-submit-button label='Confirm' />
                     </div>
                 </div>
             </form>

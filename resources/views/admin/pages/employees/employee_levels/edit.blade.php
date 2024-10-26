@@ -1,20 +1,20 @@
 @extends('admin.layouts.app')
 @section('title')
-    {{  __('Edit Product Category ')  }}
+    {{  __('Edit Employee Level ')  }}
 @endsection
 @section('css')
 @endsection
 @section('content')
     {{-- Start breadcrumbs --}}
-    <x-breadcrumb pageName="Product Category">
+    <x-breadcrumb pageName="Employee Level">
         <x-breadcrumb-item>
             <a class="active" href="{{ route('home.index') }}">{{ __('Home') }}</a>
         </x-breadcrumb-item>
         <x-breadcrumb-item>
-            <a href="{{ route('product_categories.index') }}">{{ __('Product Categories') }}</a>
+            <a href="{{ route('employee_levels.index') }}">{{ __('Employee Levels') }}</a>
         </x-breadcrumb-item>
-        <x-breadcrumb-item active="{{ isset($productCategory) }}">
-            {{  __('Edit :type', ['type' => $productCategory->name])  }}
+        <x-breadcrumb-item active="{{ isset($employeeLevel) }}">
+            {{  __('Edit :type', ['type' => $employeeLevel->name])  }}
         </x-breadcrumb-item>
     </x-breadcrumb>
 {{-- End breadcrumbs --}}
@@ -24,26 +24,26 @@
         <div class="card-body">
             <div class="card-title">
                 <h4 class="mb-0">
-                    {{  __('Edit :type', ['type' => $productCategory->name])  }}</h4>
+                    {{  __('Edit :type', ['type' => $employeeLevel->name])  }}</h4>
             </div>
             <hr>
-            <form method="POST" id="product_categoryForm" enctype="multipart/form-data" id="product_categoryForm"
-                action="{{ route('product_categories.update', ['product_category' => $productCategory]) }}">
+            <form method="POST" id="employyeLevelForm" enctype="multipart/form-data" id="employee_levelForm"
+                action="{{ route('employee_levels.update', ['employee_level' => $employeeLevel]) }}">
                 @csrf @method('PUT')
 
                 <div class="card-body">
-                    <x-input type='text' value="{{ $productCategory->name ?? old('name') }}" label="Name" name='name'
-                    placeholder='Product Category Name' id="name" oninput="" required />
-                <x-form-description value="{{ $productCategory->description ?? old('description') }}" label="description" name='description'
-                    placeholder='Product Category description' />
+                    <x-input type='text' value="{{ $employeeLevel->name ?? old('name') }}" label="Name" name='name'
+                    placeholder='Employee Level Name' id="name" oninput="" required />
+                <x-form-description value="{{ $employeeLevel->description ?? old('description') }}" label="description" name='description'
+                    placeholder='Employee Level description' />
                 <x-form-select name='status' id="status" label="status" required>
-                    <option @if (isset($productCategory) && $productCategory->status == 'active') selected @endif value="active">
+                    <option @if (isset($employeeLevel) && $employeeLevel->status == 'active') selected @endif value="active">
                         {{ __('Active') }}</option>
-                    <option @if (isset($productCategory) && $productCategory->status == 'inactive') selected @endif value="inactive">
+                    <option @if (isset($employeeLevel) && $employeeLevel->status == 'inactive') selected @endif value="inactive">
                         {{ __('Inactive') }}</option>
                 </x-form-select>
                     <div class="text-center mt-2">
-                        <x-form-submit-button label='Confirm' />
+                        <x-submit-button label='Confirm' />
                     </div>
                 </div>
             </form>
@@ -54,7 +54,7 @@
 @section('js')
 <script>
     $(document).ready(function() {
-       $('#product_categoryForm').validate({
+       $('#employyeLevelForm').validate({
            rules: {
                name: {
                    required: true,

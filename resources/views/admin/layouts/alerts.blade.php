@@ -1,7 +1,5 @@
 <div class="container">
     @if ($errors->any())
-
-
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="bi bi-exclamation-octagon me-1"></i>
             @foreach ($errors->all() as $error)
@@ -11,7 +9,9 @@
           </div>
     @endif
     @if (session()->has('error'))
-        <div class="alert alert-soft-danger alert-dismissible fade show" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-octagon me-1"></i>
+
             <strong>{{ session()->get('error') }}</strong>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 

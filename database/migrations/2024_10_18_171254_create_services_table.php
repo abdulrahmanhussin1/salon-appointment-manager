@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('services', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->time('time');
+            $table->string('name')->unique();
+            $table->text('notes')->nullable();
+            $table->unsignedTinyInteger('duration')->nullable();
             $table->decimal('price', 10, 2);
+            $table->string('image')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->foreignId('service_category_id')->nullable()->constrained('service_categories','id')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('created_by')->nullable()->constrained('users','id')->cascadeOnUpdate()->cascadeOnDelete();
@@ -29,8 +30,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('service_id')->constrained('services','id')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('employee_id')->constrained('employees','id')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->unsignedTinyInteger('commission_percentage')->nullable()->defaultValue(0);
+            $table->unsignedDecimal('commission_amount')->nullable()->default(0);
             $table->timestamps();
         });
+
         Schema::create('service_tools', function (Blueprint $table) {
             $table->id();
             $table->foreignId('service_id')->constrained('services','id')->cascadeOnUpdate()->cascadeOndelete();

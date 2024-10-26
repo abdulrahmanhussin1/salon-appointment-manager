@@ -86,11 +86,11 @@ class RolesAndPermissionsSeeder extends Seeder
                 'tools.destroy',
 
                 /* service_category */
-                'service_category.index',
-                'service_category.show',
-                'service_category.create',
-                'service_category.edit',
-                'service_category.destroy',
+                'service_categories.index',
+                'service_categories.show',
+                'service_categories.create',
+                'service_categories.edit',
+                'service_categories.destroy',
 
                 /* services */
                 'services.index',

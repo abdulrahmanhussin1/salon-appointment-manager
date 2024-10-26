@@ -33,6 +33,9 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                 if (AppHelper::perUser('employees.edit')) {
                     $html .= '<a href="' . route('employees.edit', ['employee' => $model]) . '" class="dropdown-item">Edit</a>';
                 }
+                if (AppHelper::perUser('employees.show')) {
+                    $html .= '<a href="' . route('employees.show', ['employee' => $model]) . '" class="dropdown-item">Show</a>';
+                }
                 if (AppHelper::perUser('employees.destroy')) {
                     $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-employee" data-id="' . $model->id . '" data-url="' . route('employees.destroy', ['employee' => $model]) . '">Delete</a></div></div>';
                 }
@@ -52,9 +55,9 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
             ->editColumn('finger_print_code', function ($model) {
                 return $model->finger_print_code ?? null;
             })
-            ->editColumn('image', function ($model) {
-                if ($model->image) {
-                    return '<img src="' . asset('storage/' . $model->image) . '" alt="' . $model->name . '" style="max-width: 75px; max-height: 75px;">';
+            ->editColumn('photo', function ($model) {
+                if ($model->photo) {
+                    return '<img src="' . asset('storage/' . $model->photo) . '" alt="' . $model->name . '" style="max-width: 75px; max-height: 75px;">';
                 }
                 return '<img src="' . asset('admin-assets/assets/img/avatar.jpg') . '" alt="' . $model->name . '" style="max-width: 75px; max-height: 75px;">';
             })
@@ -82,7 +85,7 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                 return $model->createdBy ? $model->createdBy->name : null;
             })
 
-            ->rawColumns(['action', 'status','image'])->setRowId('id');
+            ->rawColumns(['action', 'status','photo'])->setRowId('id');
     }
 
     /**
@@ -122,7 +125,7 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
     {
         return [
             Column::make('id')->addClass('text-center'),
-            Column::make('image')->addClass('text-center'),
+            Column::make('photo')->addClass('text-center'),
             Column::make('name')->addClass('text-center'),
             Column::make('phone')->addClass('text-center'),
             Column::make('hiring_date')->addClass('text-center')->title('Hiring Date'),

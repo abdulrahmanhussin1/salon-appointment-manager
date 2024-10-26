@@ -64,7 +64,7 @@
                 } else if (result.dismiss === Swal.DismissReason.cancel) {
                     Swal.fire({
                         title: "Cancelled",
-                        text: "Role is safe :)",
+                        text: "User is safe :)",
                         icon: "error"
                     });
                 }

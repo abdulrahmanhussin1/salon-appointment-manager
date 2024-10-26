@@ -58,7 +58,7 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
 
         ->addColumn('created_by', function ($model) {
             return $model->createdBy ? $model->createdBy->name : null;
-        })            ->setRowId('id');
+        })           ->rawColumns(['action', 'status']) ->setRowId('id');
     }
 
     /**

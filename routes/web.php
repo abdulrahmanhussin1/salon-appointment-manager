@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('home.index');
 });
 
 
@@ -56,7 +56,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::resource('employee_levels', EmployeeLevelController::class);
     Route::resource('employees', EmployeeController::class);
     Route::resource('tools', ToolController::class);
-    Route::resource('service_category', ServiceCategoryController::class);
+    Route::resource('service_categories', ServiceCategoryController::class);
     Route::resource('services', ServiceController::class);
 
 });

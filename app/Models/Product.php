@@ -8,14 +8,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Product extends Model
 {
-    use HasUserActions;
+    use HasFactory,HasUserActions;
 
     protected $guarded = ['id'];
     protected $table = 'products';
 
     public function productCategory()
     {
-        return $this->belongsTo(ProductCategory::class);
+        return $this->belongsTo(ProductCategory::class,'category_id');
     }
 
     public function unit()

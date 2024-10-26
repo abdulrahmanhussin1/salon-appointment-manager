@@ -1,22 +1,22 @@
 @extends('admin.layouts.app')
 @section('title')
-{{ __('Users Page ') }}
+{{ __('Employees Page ') }}
 
 @endsection
 @section('content')
     {{-- Start breadcrumbs --}}
-    <x-breadcrumb pageName="Users">
+    <x-breadcrumb pageName="Employees">
         <x-breadcrumb-item>
             <a class="active" href="{{ route('home.index') }}">{{ __('Home') }}</a>
         </x-breadcrumb-item>
-        <x-breadcrumb-item>{{ __('Users') }}</x-breadcrumb-item>
+        <x-breadcrumb-item>{{ __('Employees') }}</x-breadcrumb-item>
     </x-breadcrumb>
     {{-- End breadcrumbs --}}
 
     <section class="section">
         <div class="d-flex justify-content-end">
-            @if (App\Traits\AppHelper::perUSer('users.create'))
-                <x-create-button title="User" route="users.create" />
+            @if (App\Traits\AppHelper::perUSer('employees.create'))
+                <x-create-button title="Employee" route="employees.create" />
             @endif
         </div>
         <div>
@@ -30,14 +30,14 @@
 <script>
     $(document).ready(function() {
 
-        $(document).on('click', '.delete-this-user', function(e) {
+        $(document).on('click', '.delete-this-employee', function(e) {
             e.preventDefault();
             let el = $(this);
             let url = el.attr('data-url');
             let id = el.attr('data-id');
 
             Swal.fire({
-                title: "Are you sure you really want to delete this User?",
+                title: "Are you sure you really want to delete this Employee?",
                 text: "You won't be able to revert this!",
                 icon: "warning",
                 showCancelButton: true,
@@ -58,13 +58,13 @@
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         },
                         success: function(msg) {
-                            window.location.href = "{{ route('users.index') }}";
+                            window.location.href = "{{ route('employees.index') }}";
                         }
                     });
                 } else if (result.dismiss === Swal.DismissReason.cancel) {
                     Swal.fire({
                         title: "Cancelled",
-                        text: "Role is safe :)",
+                        text: "Employee is safe :)",
                         icon: "error"
                     });
                 }

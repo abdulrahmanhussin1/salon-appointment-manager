@@ -1,9 +1,9 @@
 @props(['label', 'name', 'id' => false, 'required' => false])
 
 <div class="form-group  mb-3">
-    <label>{{ __(Str::ucfirst($label)) }}</label>
-    <select class="form-select js-example-basic-single fs-xs form-select-sm @error($name) is-invalid @enderror"
-        name="{{ $name }}" @if ($id) id="{{ $id }}" @endif
+    <label class="form-label" for="{{ $id ? $id : $name }}">{{ __(Str::ucfirst($label)) }}</label>
+    <select class="form-select js-example-basic-single fs-xs text-muted form-select-sm @error($name) is-invalid @enderror"
+        name="{{ $name }}" id="{{ $id ? $id : $name }}"
         @if ($required) required @endif>
         {{ $slot }}
     </select>

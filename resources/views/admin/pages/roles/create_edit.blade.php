@@ -6,7 +6,7 @@
 @endsection
 @section('content')
     {{-- Start breadcrumbs --}}
-    <x-breadcrumb pageName="Roles">
+    <x-breadcrumb pageName="Role">
         <x-breadcrumb-item>
             <a class="active" href="{{ route('home.index') }}">{{ __('Home') }}</a>
         </x-breadcrumb-item>
@@ -49,7 +49,7 @@
 
                         @include('admin.layouts.permissions_table')
                         <div class="text-center mt-2">
-                            <x-form-submit-button label='Confirm' />
+                            <x-submit-button label='Confirm' />
 
                         </div>
                     </div>

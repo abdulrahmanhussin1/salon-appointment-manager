@@ -23,71 +23,74 @@ class ProductDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-        ->addColumn('action', function ($model) {
-            $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
+            ->addColumn('action', function ($model) {
+                $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
 <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2"
 type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
    <i class="bi bi-three-dots-vertical"></i>
 </button>
 <div class="dropdown-menu dropdown-menu-end py-2">';
-            if (AppHelper::perUser('products.edit')) {
-                $html .= '<a href="' . route('products.edit', ['product' => $model]) . '" class="dropdown-item">Edit</a>';
-            }
-            if (AppHelper::perUser('products.destroy')) {
-                $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-product" data-id="' . $model->id . '" data-url="' . route('products.destroy', ['product' => $model]) . '">Delete</a></div></div>';
-            }
-            return $html;
-        })
+                if (AppHelper::perUser('products.edit')) {
+                    $html .= '<a href="' . route('products.edit', ['product' => $model]) . '" class="dropdown-item">Edit</a>';
+                }
+                if (AppHelper::perUser('products.destroy')) {
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-product" data-id="' . $model->id . '" data-url="' . route('products.destroy', ['product' => $model]) . '">Delete</a></div></div>';
+                }
+                return $html;
+            })
 
-        ->editColumn('price',function($model){
-            return  $model->price ? 'L.E '. number_format($model->price, 2):null;
-        })
-        ->editColumn('code', function($model){
-            return $model->code ?? null;
-        })
-        ->editColumn('image', function ($model) {
-            if ($model->image) {
-                return '<img src="' . asset('storage/' . $model->image) . '" alt="' . $model->name . '" style="max-width: 75px; max-height: 75px;">';
-            }
-            return '<img src="' . asset('admin-assets/assets/img/avatar.jpg') . '" alt="' . $model->name . '" style="max-width: 75px; max-height: 75px;">';
-        })
+            ->editColumn('supplier_price', function ($model) {
+                return $model->supplier_price ? 'L.E ' . number_format($model->supplier_price, 2) : null;
+            })
+            ->editColumn('customer_price', function ($model) {
+                return $model->customer_price ? 'L.E ' . number_format($model->customer_price, 2) : null;
+            })
+            ->editColumn('code', function ($model) {
+                return $model->code ?? null;
+            })
+            ->editColumn('image', function ($model) {
+                if ($model->image) {
+                    return '<img src="' . asset('storage/' . $model->image) . '" alt="' . $model->name . '" style="max-width: 50px; max-height: 75px;">';
+                }
+                return '<img src="' . asset('admin-assets/assets/img/avatar.jpg') . '" alt="' . $model->name . '" style="max-width: 50px; max-height: 75px;">';
+            })
 
-        ->editColumn('category_id', function ($model) {
-            return $model->category? $model->category->name : null;
-        })
-        ->editColumn('supplier_id', function ($model) {
-            return $model->supplier? $model->supplier->name : null;
-        })
-        ->editColumn('unit_id', function ($model) {
-            return $model->unit? $model->unit->name : null;
-        })
-        ->editColumn('purchase_price', function ($model) {
-            return '$ '. number_format($model->purchase_price, 2);
-        })
-        ->editColumn('selling_price', function ($model) {
-            return '$ '. number_format($model->selling_price, 2);
-        })
+            ->editColumn('category_id', function ($model) {
+                return $model->productCategory ? $model->productCategory->name : null;
+            })
+            ->editColumn('supplier_id', function ($model) {
+                return $model->supplier ? $model->supplier->name : null;
+            })
+            ->editColumn('unit_id', function ($model) {
+                return $model->unit ? $model->unit->name : null;
+            })
 
-        ->editColumn('status', function ($model) {
-            if ($model->status == 'active') {
-                return '<i class="bi bi-circle-fill mx-2 text-success"></i>' . ucfirst($model->status);
-            } elseif ($model->status == 'inactive') {
-                return '<i class="bi bi-circle-fill mx-2 text-secondary"></i>' . ucfirst($model->status);
-            }
-        })
 
-        ->editColumn('created_at', function ($model) {
-            return $model->created_at ? $model->created_at->format('Y-m-d H:i:s') : null;
-        })
-        ->editColumn('updated_at', function ($model) {
-            return $model->updated_at ? $model->created_at->format('Y-m-d H:i:s') : null;
-        })
+            ->editColumn('status', function ($model) {
+                if ($model->status == 'active') {
+                    return '<i class="bi bi-circle-fill mx-2 text-success"></i>' . ucfirst($model->status);
+                } elseif ($model->status == 'inactive') {
+                    return '<i class="bi bi-circle-fill mx-2 text-secondary"></i>' . ucfirst($model->status);
+                }
+            })
 
-        ->addColumn('created_by', function ($model) {
-            return $model->createdBy ? $model->createdBy->name : null;
-        })
+            ->editColumn('description', function ($model) {
+                return $model->description ? $model->description : null;
+            })
+            ->editColumn('created_at', function ($model) {
+                return $model->created_at ? $model->created_at->format('Y-m-d H:i:s') : null;
+            })
+            ->editColumn('updated_at', function ($model) {
+                return $model->updated_at ? $model->created_at->format('Y-m-d H:i:s') : null;
+            })
 
-        ->rawColumns(['action', 'status','image'])            ->setRowId('id');
+
+
+            ->addColumn('created_by', function ($model) {
+                return $model->createdBy ? $model->createdBy->name : null;
+            })
+
+            ->rawColumns(['action', 'status', 'image'])->setRowId('id');
     }
 
     /**
@@ -104,20 +107,20 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('product-table')
-                    ->columns($this->getColumns())
-                    ->minifiedAjax()
-                    ->dom('Bfrtip')
-                    ->orderBy(1)
-                    ->selectStyleSingle()
-                    ->buttons([
-                        Button::make('excel'),
-                        Button::make('csv'),
-                        Button::make('pdf'),
-                        Button::make('print'),
-                        // Button::make('reset'),
-                        // Button::make('reload')
-                    ]);
+            ->setTableId('product-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
+            ->dom('Bfrtip')
+            ->orderBy(1)
+            ->selectStyleSingle()
+            ->buttons([
+                Button::make('excel'),
+                Button::make('csv'),
+                Button::make('pdf'),
+                Button::make('print'),
+                // Button::make('reset'),
+                // Button::make('reload')
+            ]);
     }
 
     /**
@@ -129,12 +132,16 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
             Column::make('id')->addClass('text-center'),
             Column::make('image')->addClass('text-center'),
             Column::make('name')->addClass('text-center'),
-            Column::make('price')->addClass('text-center'),
             Column::make('code')->addClass('text-center'),
+
+            Column::make('supplier_price')->addClass('text-center')->title('Purchasing Price'),
+            Column::make('customer_price')->addClass('text-center')->title('Selling Price'),
             Column::make('category_id')->addClass('text-center')->title('Category'),
             Column::make('supplier_id')->addClass('text-center')->title('Supplier'),
             Column::make('unit_id')->addClass('text-center')->title('Unit'),
             Column::make('status')->addClass('text-center'),
+            Column::make('description')->addClass('text-center'),
+
             Column::make('created_by')->addClass('text-center'),
             Column::make('created_at')->addClass('text-center'),
             Column::make('updated_at')->addClass('text-center'),
