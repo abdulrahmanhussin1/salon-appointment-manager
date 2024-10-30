@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Traits\AppHelper;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
@@ -38,7 +39,7 @@ class UsersDataTable extends DataTable
                 return $html;
             })
             ->addColumn('photo', function ($model) {
-                return $model->photo ? '<img src="' . asset('storage') . '/' . $model->photo . '" alt="avatar" style="width:50px">' : '<img src="' . asset('admin-assets/assets/img/avatar.jpg') . '" alt="avatar" style="width:50px">';
+                return $model->photo && Storage::exists($model->photo) ? '<img src="' . asset('storage') . '/' . $model->photo . '" alt="avatar" style="width:50px">' : '<img src="' . asset('admin-assets/assets/img/avatar.jpg') . '" alt="avatar" style="width:50px">';
             })
 
             ->addColumn('role', function (User $model) {

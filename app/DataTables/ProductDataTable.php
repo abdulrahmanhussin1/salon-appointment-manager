@@ -12,6 +12,7 @@ use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Storage;
 
 class ProductDataTable extends DataTable
 {
@@ -33,6 +34,10 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                 if (AppHelper::perUser('products.edit')) {
                     $html .= '<a href="' . route('products.edit', ['product' => $model]) . '" class="dropdown-item">Edit</a>';
                 }
+
+                if (AppHelper::perUser('products.show')) {
+                    $html .= '<a href="' . route('products.show', ['product' => $model]) . '" class="dropdown-item">Product Details</a>';
+                }
                 if (AppHelper::perUser('products.destroy')) {
                     $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-product" data-id="' . $model->id . '" data-url="' . route('products.destroy', ['product' => $model]) . '">Delete</a></div></div>';
                 }
@@ -49,10 +54,10 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                 return $model->code ?? null;
             })
             ->editColumn('image', function ($model) {
-                if ($model->image) {
+                if ($model->image && Storage::exists($model->image)) {
                     return '<img src="' . asset('storage/' . $model->image) . '" alt="' . $model->name . '" style="max-width: 50px; max-height: 75px;">';
                 }
-                return '<img src="' . asset('admin-assets/assets/img/avatar.jpg') . '" alt="' . $model->name . '" style="max-width: 50px; max-height: 75px;">';
+                return '<img src="' . asset('admin-assets/assets/img/OIP.jpeg') . '" alt="' . $model->name . '" style="max-width: 50px; max-height: 75px;">';
             })
 
             ->editColumn('category_id', function ($model) {

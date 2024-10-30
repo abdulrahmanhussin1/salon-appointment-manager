@@ -53,6 +53,11 @@ class SupplierDataTable extends DataTable
                 return '<i class="bi bi-circle-fill mx-2 text-secondary"></i>' . ucfirst($model->status);
             }
         })
+
+        ->addColumn('created_by', function ($model) {
+            return $model->createdBy ? $model->createdBy->name : null;
+        })
+        
         ->editColumn('created_at', function ($model) {
             return $model->created_at ? $model->created_at->format('Y-m-d H:i:s') : null;
         })

@@ -12,6 +12,7 @@ use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Illuminate\Support\Facades\Storage;
 
 class EmployeeDataTable extends DataTable
 {
@@ -34,7 +35,7 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                     $html .= '<a href="' . route('employees.edit', ['employee' => $model]) . '" class="dropdown-item">Edit</a>';
                 }
                 if (AppHelper::perUser('employees.show')) {
-                    $html .= '<a href="' . route('employees.show', ['employee' => $model]) . '" class="dropdown-item">Show</a>';
+                    $html .= '<a href="' . route('employees.show', ['employee' => $model]) . '" class="dropdown-item">Employee Details</a>';
                 }
                 if (AppHelper::perUser('employees.destroy')) {
                     $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-employee" data-id="' . $model->id . '" data-url="' . route('employees.destroy', ['employee' => $model]) . '">Delete</a></div></div>';
@@ -56,7 +57,7 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                 return $model->finger_print_code ?? null;
             })
             ->editColumn('photo', function ($model) {
-                if ($model->photo) {
+                if ($model->photo && Storage::exists($model->photo)) {
                     return '<img src="' . asset('storage/' . $model->photo) . '" alt="' . $model->name . '" style="max-width: 75px; max-height: 75px;">';
                 }
                 return '<img src="' . asset('admin-assets/assets/img/avatar.jpg') . '" alt="' . $model->name . '" style="max-width: 75px; max-height: 75px;">';

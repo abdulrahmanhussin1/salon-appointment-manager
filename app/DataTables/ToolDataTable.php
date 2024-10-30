@@ -6,6 +6,7 @@ use App\Models\Tool;
 use App\Traits\AppHelper;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
@@ -44,14 +45,14 @@ class ToolDataTable extends DataTable
                     return '<i class="bi bi-circle-fill mx-2 text-success"></i>' . ucfirst($model->status);
                 } elseif ($model->status == 'inactive') {
                     return '<i class="bi bi-circle-fill mx-2 text-secondary"></i>' . ucfirst($model->status);
-                } 
+                }
             })
 
             ->editColumn('image', function ($model) {
-                if ($model->image) {
+                if ($model->image && Storage::exists($model->image)) {
                     return '<img src="' . asset('storage/' . $model->image) . '" alt="' . $model->name . '" style="max-width: 75px; max-height: 75px;">';
                 }
-                return '<img src="' . asset('admin-assets/assets/img/avatar.jpg') . '" alt="' . $model->name . '" style="max-width: 75px; max-height: 75px;">';
+                return '<img src="' . asset('admin-assets/assets/img/OIP.jpeg') . '" alt="' . $model->name . '" style="max-width: 75px; max-height: 75px;">';
             })
 
             ->editColumn('created_at', function ($model) {
