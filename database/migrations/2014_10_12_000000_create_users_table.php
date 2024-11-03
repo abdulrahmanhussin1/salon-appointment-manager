@@ -20,8 +20,8 @@ return new class extends Migration
             $table->rememberToken();
             $table->string('photo', 2048)->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
-            $table->foreignId('created_by')->constrained('users','id')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('updated_by')->nullable()->constrained('users','id')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('created_by')->constrained('users', 'id')->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('updated_by')->nullable()->constrained('users', 'id')->cascadeOnUpdate()->nullOnDelete();
             $table->timestamps();
         });
     }

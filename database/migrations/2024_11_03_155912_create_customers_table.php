@@ -11,11 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('product_categories', function (Blueprint $table) {
+        Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('description')->nullable();
+            $table->string('email')->unique()->nullable();
+            $table->string('phone')->nullable()->unique();
+            $table->text('address')->nullable();
+            $table->enum('salutation', ['Mr', 'Mrs', 'Ms', 'Dr', 'Prof'])->default('Mr');
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->date('dob')->nullable();
+            $table->text('notes')->nullable();
+            $table->boolean('is_vip')->default(false);
+            $table->date('last_service')->nullable();
+            $table->enum('added_from', ['online', 'referral', 'walk_in', 'advertisement', 'direct'])->nullable(); // Added 'direct'
             $table->foreignId('created_by')->constrained('users', 'id')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users', 'id')->cascadeOnUpdate()->nullOnDelete();
             $table->timestamps();
@@ -27,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('product_categories');
+        Schema::dropIfExists('customers');
     }
 };

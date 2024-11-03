@@ -14,19 +14,19 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->unsignedBigInteger('code')->unique();
+            $table->string('code', 20)->unique(); // Changed code to string for potential alphanumeric support
             $table->text('description')->nullable();
             $table->string('image')->nullable();
-            $table->foreignId('category_id')->nullable()->constrained('product_categories','id')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('supplier_id')->nullable()->constrained('suppliers','id')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('unit_id')->nullable()->constrained('units','id')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->decimal('supplier_price', 10, 2);
-            $table->decimal('customer_price', 10, 2);
+            $table->foreignId('category_id')->nullable()->constrained('product_categories')->nullOnDelete()->cascadeOnUpdate(); // Nullify on delete
+            $table->foreignId('supplier_id')->nullable()->constrained('suppliers')->nullOnDelete()->cascadeOnUpdate(); // Nullify on delete
+            $table->foreignId('unit_id')->nullable()->constrained('units')->nullOnDelete()->cascadeOnUpdate();
+            $table->decimal('supplier_price', 10, 2)->default(0);
+            $table->decimal('customer_price', 10, 2)->default(0);
 
             $table->enum('status', ['active', 'inactive'])->default('active');
 
-            $table->foreignId('created_by')->nullable()->constrained('users','id')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('updated_by')->nullable()->constrained('users','id')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('created_by')->constrained('users', 'id')->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('updated_by')->nullable()->constrained('users', 'id')->cascadeOnUpdate()->nullOnDelete();
             $table->timestamps();
         });
     }

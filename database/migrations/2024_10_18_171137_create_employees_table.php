@@ -29,9 +29,10 @@ return new class extends Migration
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->string('inactive_reason')->nullable();
             $table->date('termination_date')->nullable();
-            $table->foreignId('employee_level_id')->constrained('employee_levels','id')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('created_by')->constrained('users','id')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('updated_by')->nullable()->constrained('users','id')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('employee_level_id')->nullable()->constrained('employee_levels')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete()->cascadeOnUpdate();
+            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete()->cascadeOnUpdate();
+
             $table->timestamps();
         });
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Service;
 use App\Models\Employee;
 use App\Traits\AppHelper;
 use App\Models\EmployeeWage;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\DataTables\EmployeeDataTable;
 use App\Http\Requests\EmployeeRequest;
+use App\Models\ServiceEmployee;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -30,7 +32,8 @@ class EmployeeController extends Controller
     public function create()
     {
         $employeeLevels = EmployeeLevel::where('status', 'active')->select('id', 'name')->get();
-        return view('admin.pages.employees.employees.create_edit', compact('employeeLevels'));
+        $services = Service::where('status', 'active')->select('id','name')->get();
+        return view('admin.pages.employees.employees.create_edit', compact('employeeLevels','services'));
     }
 
     /**
@@ -82,8 +85,15 @@ class EmployeeController extends Controller
                 'sales_target_settings' => $request->sales_target_settings,
                 'start_working_time' => $request->start_working_time,
                 'break_time' => $request->break_time,
-                'break_duration' => $request->break_duration,
+                'break_duration_minutes' => $request->break_duration_minutes,
             ]);
+
+            foreach ($request->service_id as $serviceId) {
+                ServiceEmployee::create([
+                    'employee_id' => $employee->id,
+                   'service_id' => $serviceId,
+                ]);
+            };
             DB::commit();
             Alert::success(__('Success'), __('Created Successfully'));
             return redirect()->back();
@@ -109,7 +119,9 @@ class EmployeeController extends Controller
     {
         $employeeLevels = EmployeeLevel::where('status', 'active')->select('id', 'name')->get();
         $employeeWage = EmployeeWage::where('employee_id', $employee->id)->first();
-        return view('admin.pages.employees.employees.create_edit', compact('employee', 'employeeLevels','employeeWage'));
+        $services = Service::where('status', 'active')->select('id','name')->get();
+
+        return view('admin.pages.employees.employees.create_edit', compact('employee','services', 'employeeLevels','employeeWage'));
     }
 
     /**
@@ -161,8 +173,16 @@ class EmployeeController extends Controller
                 'sales_target_settings' => $request->sales_target_settings,
                 'start_working_time' => $request->start_working_time,
                 'break_time' => $request->break_time,
-                'break_duration' => $request->break_duration,
+                'break_duration_minutes' => $request->break_duration_minutes,
             ]);
+
+            ServiceEmployee::where('employee_id', $employee->id)->delete();
+            foreach ($request->service_id as $serviceId) {
+                ServiceEmployee::create([
+                    'employee_id' => $employee->id,
+                   'service_id' => $serviceId,
+                ]);
+            };
             DB::commit();
             Alert::success(__('Success'), __('Updated Successfully'));
             return redirect()->route('employees.index');
@@ -185,8 +205,10 @@ class EmployeeController extends Controller
         if ($employee->id_card && Storage::exists($employee->id_card)) {
             Storage::delete($employee->id_card);
         }
-        $employeeWage = EmployeeWage::where('employee_id', $employee->id)->first();
-        $employeeWage->delete();
+
+        EmployeeWage::where('employee_id', $employee->id)->delete();
+        ServiceEmployee::where('employee_id', $employee->id)->delete();
+
         $employee->delete();
         Alert::success(__('Success'), __('Deleted Successfully'));
     }

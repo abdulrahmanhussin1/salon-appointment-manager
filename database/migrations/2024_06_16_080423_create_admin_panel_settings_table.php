@@ -21,9 +21,9 @@ return new class extends Migration
             $table->text('system_notes')->nullable();
             //$table->enum('status', ['active', 'inactive'])->default('active');
 
-            $table->foreignId('created_by')->constrained('users','id')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('updated_by')->nullable()->constrained('users','id')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('deleted_by')->nullable()->constrained('users','id')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('created_by')->constrained('users', 'id')->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('updated_by')->nullable()->constrained('users', 'id')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreignId('deleted_by')->nullable()->constrained('users', 'id')->cascadeOnUpdate()->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
         });

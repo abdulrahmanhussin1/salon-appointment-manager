@@ -18,4 +18,9 @@ class Employee extends Model
         return $this->belongsTo(EmployeeLevel::class);
     }
 
+    public function services()
+    {
+        return $this->belongsToMany(Service::class,'service_employees');
+    }
+
 }

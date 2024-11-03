@@ -404,8 +404,8 @@
 
                                         <div class="col-6">
                                             <x-input type="text"
-                                                value="{{ $employeeWage->break_duration ?? old('break_duration') }}"
-                                                label="Break duration (in minutes)" id="break_duration" name='break_duration'
+                                                value="{{ $employeeWage->break_duration_minutes ?? old('break_duration_minutes') }}"
+                                                label="Break duration (in minutes)" id="break_duration_minutes" name='break_duration_minutes'
                                                 placeholder="Break duration (in minutes)"
                                                 oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')" />
                                         </div>
@@ -414,6 +414,39 @@
                                 </div>
                             </div>
                         </div>
+
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    {{ __('Assign Employee to Service') }}
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
+                                data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <x-form-multi-select label="Services" name="service_id[]" id="service_id">
+                                                @foreach ($services as $service)
+                                                    <option value="{{ $service->id }}" @if (isset($employee) &&
+                                                            ($employee->services->pluck('service_id')->contains($service->id) ||
+                                                                (old('service_id') && in_array($service->id, old('service_id'))))) selected @endif>
+                                                        {{ $service->name }}
+                                                    </option>
+                                                @endforeach
+                                            </x-form-multi-select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
                     </div><!-- End Default Accordion Example -->
                     <div class="text-center mt-3">
                         <x-submit-button label='Confirm' />

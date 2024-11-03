@@ -7,6 +7,7 @@
     'oninput' => false,
     'id' => false,
     'required' => false,
+    'disabled' => false,
 ])
 <div class="mb-3">
     <label for="{{ $id }}" class="form-label">{{ Str::ucfirst(__($label)) }}</label>
@@ -15,7 +16,9 @@
         @if ($id) id="{{ $id }}" @endif
         @if ($required) required @endif
         @if ($value) value="{{ $value }}" @endif
-        @if ($oninput) oninput="{{ $oninput }}" @endif>
+        @if ($oninput) oninput="{{ $oninput }}" @endif
+        @if ($disabled) disabled @endif
+        >
 
     @error($name)
         <span class="invalid-feedback" role="alert">

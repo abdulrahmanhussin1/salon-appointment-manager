@@ -58,6 +58,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::resource('tools', ToolController::class);
     Route::resource('service_categories', ServiceCategoryController::class);
     Route::resource('services', ServiceController::class);
+    Route::resource('customers',CustomerController::class);
+    Route::resource('branches', BranchController::class);
 
 });
 require __DIR__ . '/auth.php';

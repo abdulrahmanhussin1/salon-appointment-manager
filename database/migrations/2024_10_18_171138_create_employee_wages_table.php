@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('employee_wages', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employee_id')->constrained('employees','id')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->enum('salary_type', ['daily','weekly','monthly','commission'])->nullable();
+            $table->enum('salary_type', ['daily','weekly','monthly','commission'])->default('monthly');
             $table->unsignedDecimal('basic_salary')->default(0);
             $table->unsignedDecimal('bonus_salary')->default(0);
             $table->unsignedDecimal('allowance1')->default(0);
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->unsignedDecimal('penalty_absence_day')->default(0);
             $table->enum('sales_target_settings',['no','total_sales','employee_daily_service'])->default('no');
             $table->time('break_time')->nullable();
-            $table->unsignedTinyInteger('break_duration')->default(0);
+            $table->unsignedTinyInteger('break_duration_minutes')->default(0);
             $table->timestamps();
         });
     }

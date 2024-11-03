@@ -27,6 +27,7 @@ class ProductFactory extends Factory
             'supplier_price' => $this->faker->randomFloat(2, 10, 200),  // Random price between 10 and 200
             'customer_price' => $this->faker->randomFloat(2, 20, 300),  // Higher random price between 20 and 300
             'status' => $this->faker->randomElement(['active', 'inactive']),  // Randomly active or inactive
+            'branch_id' => \App\Models\Branch::factory(), // Assuming Branch
             'created_by' => 1,  // Assuming users 1 to 5 exist
         ];
     }

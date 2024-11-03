@@ -32,7 +32,7 @@ class EmployeeWageFactory extends Factory
             'penalty_absence_day' => $this->faker->randomFloat(2, 0, 100),
             'sales_target_settings' => $this->faker->randomElement(['no', 'total_sales', 'employee_daily_service']),
             'break_time' => $this->faker->time(),
-            'break_duration' => $this->faker->numberBetween(0, 120), // Random break duration in minutes
+            'break_duration_minutes' => $this->faker->numberBetween(0, 120), // Random break duration in minutes
         ];
     }
 }

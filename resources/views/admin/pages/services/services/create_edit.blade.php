@@ -115,6 +115,12 @@
                         </div>
 
                         <div class="col-6">
+                            <x-input type="text" value="{{ $service->duration ?? old('duration') }}" label="duration (in minutes)"
+                                id="duration" name='duration' placeholder="Duration in minustes"
+                                oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
+                        </div>
+
+                        <div class="col-12">
                             <x-form-select name='status' id="status" label="status" required>
                                 <option @if (isset($service) && $service->status == 'active') selected @endif value="active">
                                     {{ __('Active') }}</option>
@@ -122,30 +128,40 @@
                                     {{ __('Inactive') }}</option>
                             </x-form-select>
                         </div>
-
                         <div class="col-12">
-                            <x-form-multi-select label="Tools" name="tool_id" id="tool_id">
+                            <x-form-multi-select label="Tools" name="tool_id[]" id="tool_id" multiple>
                                 @foreach ($tools as $tool)
-                                    <option @if (isset($service) && ($service->tool_id == $tool->id || old('tool_id') == $tool->id)) selected="selected" @endif
-                                        value="{{ $tool->id }}">{{ $tool->name }}</option>
+                                    <option value="{{ $tool->id }}" @if (isset($service) &&
+                                            ($service->tools->pluck('tool_id')->contains($tool->id) ||
+                                                (old('tool_id') && in_array($tool->id, old('tool_id'))))) selected @endif>
+                                        {{ $tool->name }}
+                                    </option>
                                 @endforeach
                             </x-form-multi-select>
                         </div>
 
+
+
                         <div class="col-12">
-                            <x-form-multi-select label="Products" name="product_id" id="product_id">
+                            <x-form-multi-select label="Products" name="product_id[]" id="product_id" multiple>
                                 @foreach ($products as $product)
-                                    <option @if (isset($service) && ($service->product_id == $product->id || old('product_id') == $product->id)) selected="selected" @endif
-                                        value="{{ $product->id }}">{{ $product->name }}</option>
+                                    <option value="{{ $product->id }}" @if (isset($service) &&
+                                            ($service->products->pluck('product_id')->contains($product->id) ||
+                                                (old('product_id') && in_array($product->id, old('product_id'))))) selected @endif>
+                                        {{ $product->name }}
+                                    </option>
                                 @endforeach
                             </x-form-multi-select>
                         </div>
 
                         <div class="col-12">
-                            <x-form-multi-select label="Employees" name="employee_id" id="employee_id">
+                            <x-form-multi-select label="Employees" name="employee_id[]" id="employee_id" multiple>
                                 @foreach ($employees as $employee)
-                                    <option @if (isset($service) && ($service->employee_id == $employee->id || old('employee_id') == $employee->id)) selected="selected" @endif
-                                        value="{{ $employee->id }}">{{ $employee->name }}</option>
+                                    <option value="{{ $employee->id }}" @if (isset($service) &&
+                                            ($service->employees->pluck('employee_id')->contains($employee->id) ||
+                                                (old('employee_id') && in_array($employee->id, old('employee_id'))))) selected @endif>
+                                        {{ $employee->name }}
+                                    </option>
                                 @endforeach
                             </x-form-multi-select>
                         </div>
@@ -155,10 +171,6 @@
                             <x-form-description value="{{ $service->notes ?? old('notes') }}" label="notes" name='notes'
                                 placeholder='service notes' />
                         </div>
-                    </div>
-                    <div class="employee_commission_container d-none">
-                        <hr>
-
                     </div>
                 </div>
                 <div class="text-center mt-2">
@@ -193,45 +205,62 @@
             }
         }
     </script>
-
-    <script>
-        $(document).on('change', '#employee_id', function() {
-            $('.employee_commission_container')
-            .removeClass('d-none')
-            .append(`
-                <div class="row">
-                                        <div class="col-4">
-                        <label for="employee_commission">{{ __('Employee Commission') }}</label>
-                        <input type="text" min="0" step="0.01" id="employee_commission" value="Employee Name" name="employee_commission" readonly="readonly"
-                            placeholder="{{ __('Employee ') }}">
-                    </div>
-                    <div class="col-4">
-                        <label for="employee_commission">{{ __('Employee Commission') }}</label>
-                        <input type="number" min="0" step="0.01" id="employee_commission" name="employee_commission"
-                            placeholder="{{ __('Employee Commission') }}">
-                    </div>
-                    <div class="col-4">
-                        <label for="employee_commission_percentage">{{ __('Employee Commission Percentage') }}</label>
-                        <input type="number" min="0" step="0.01" id="employee_commission_percentage"
-                            name="employee_commission_percentage" placeholder="{{ __('Employee Commission Percentage') }}">
-                            <small class="text-muted">{{ __('Format: 0.00') }}</small>
-                       </div>
-            `);
-
-        });
-    </script>
-
-
-
-
     <script>
         $(document).ready(function() {
-            $('#productForm').validate({
+            $('#serviceForm').validate({
                 rules: {
+                    name: {
+                        required: true,
+                        maxlength: 100,
+                    },
+                    notes: {
+                        maxlength: 500
+                    },
+                    price: {
+                        required: true,
+                        number: true,
+                        min: 0
+                    },
 
+                    service_category_id: {
+                        required: true
+                    },
+                    "tool_id[]": {
+                        required: false,
+                        minlength: 1 // Adjust as needed
+                    },
+                    "product_id[]": {
+                        required: false,
+                        minlength: 1
+                    },
+                    "employee_id[]": {
+                        required: false,
+                        minlength: 1
+                    },
                 },
                 messages: {
+                    name: {
+                        required: "The name is required.",
+                        maxlength: "The name cannot exceed 100 characters.",
+                    },
+                    price: {
+                        required: "The price is required.",
+                        number: "Please enter a valid number.",
+                        min: "The price cannot be less than zero."
+                    },
 
+                    service_category_id: {
+                        required: "Please select a category."
+                    },
+                    "tool_id[]": {
+                        minlength: "Please select at least one tool."
+                    },
+                    "product_id[]": {
+                        minlength: "Please select at least one product."
+                    },
+                    "employee_id[]": {
+                        minlength: "Please select at least one employee."
+                    },
                 },
                 errorClass: "error text-danger fs--1",
                 errorElement: "span",
@@ -244,7 +273,14 @@
                     $(element.form).find("label[for=" + element.id + "]").removeClass(errorClass);
                 },
                 submitHandler: function(form) {
-                    form.submit();
+                    // Additional check for custom fields if necessary
+                    let hasErrors = false;
+                };
+
+                if (!hasErrors) {
+                    form.submit(); // Only submit if there are no errors
+                } else {
+                    alert('Please fix the errors in the form before submitting.');
                 }
             });
         });

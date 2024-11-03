@@ -14,7 +14,6 @@ class EmployeeRequest extends FormRequest
 
     public function rules()
     {
-
         $isUpdate = $this->isMethod('put') || $this->isMethod('patch');
 
         return [
@@ -80,6 +79,8 @@ class EmployeeRequest extends FormRequest
             'sales_target_settings' => 'nullable|in:no,total_sales,employee_daily_service',
             'start_working_time' => 'nullable|date_format:H:i|before:break_time',
             'break_time' => 'nullable|date_format:H:i|after:start_working_time',
+            'service_id'=>'nullable|array',
+            'service_id.*'=>'nullable|integer|exists:services,id',
         ];
     }
 

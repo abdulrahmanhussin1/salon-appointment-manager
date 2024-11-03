@@ -45,8 +45,8 @@ return new class extends Migration
             $table->enum('status',['active','inactive','draft'])->default('active');
             $table->text('description')->nullable();
 
-            $table->foreignId('created_by')->nullable()->constrained('users','id')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('updated_by')->nullable()->constrained('users','id')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('created_by')->nullable()->constrained('users', 'id')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreignId('updated_by')->nullable()->constrained('users', 'id')->cascadeOnUpdate()->nullOnDelete();
             $table->timestamps();
             if ($teams || config('permission.testing')) {
                 $table->unique([$columnNames['team_foreign_key'], 'name', 'guard_name']);

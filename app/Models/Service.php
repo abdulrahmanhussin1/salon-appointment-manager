@@ -12,4 +12,20 @@ class Service extends Model
     use HasUserActions;
 
     protected $guarded=['id'];
+    protected $table ='services';
+
+    public function tools()
+    {
+        return $this->BelongsToMany(ServiceTool::class);
+    }
+
+    public function employees()
+    {
+        return $this->BelongsToMany(ServiceEmployee::class);
+    }
+
+    public function products()
+    {
+        return $this->BelongsToMany(ServiceProduct::class);
+    }
 }

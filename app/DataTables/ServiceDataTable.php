@@ -23,57 +23,62 @@ class ServiceDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-        ->addColumn('action', function ($model) {
-            $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
+            ->addColumn('action', function ($model) {
+                $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
                     <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2"
                     type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
                     <i class="bi bi-three-dots-vertical"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end py-2">';
-            if (AppHelper::perUser('services.edit')) {
-                $html .= '<a href="' . route('services.edit', ['service' => $model]) . '" class="dropdown-item">Edit</a>';
-            }
-            if (AppHelper::perUser('services.destroy')) {
-                $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-service" data-id="' . $model->id . '" data-url="' . route('services.destroy', ['service' => $model]) . '">Delete</a></div></div>';
-            }
-            return $html;
-        })
+                if (AppHelper::perUser('services.edit')) {
+                    $html .= '<a href="' . route('services.edit', ['service' => $model]) . '" class="dropdown-item">Edit</a>';
+                }
+                if (AppHelper::perUser('services.show')) {
+                    $html .= '<a href="' . route('services.show', ['service' => $model]) . '" class="dropdown-item">Service Details</a>';
+                }
+                if (AppHelper::perUser('services.destroy')) {
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-service" data-id="' . $model->id . '" data-url="' . route('services.destroy', ['service' => $model]) . '">Delete</a></div></div>';
+                }
+                return $html;
+            })
 
-        ->editColumn('image', function ($model) {
-            if ($model->image) {
-                return '<img src="' . asset('storage/' . $model->image) . '" alt="' . $model->name . '" style="max-width: 50px; max-height: 75px;">';
-            }
-            return '<img src="' . asset('admin-assets/assets/img/avatar.jpg') . '" alt="' . $model->name . '" style="max-width: 50px; max-height: 75px;">';
-        })
+            ->editColumn('image', function ($model) {
+                if ($model->image) {
+                    return '<img src="' . asset('storage/' . $model->image) . '" alt="' . $model->name . '" style="max-width: 50px; max-height: 75px;">';
+                }
+                return '<img src="' . asset('admin-assets/assets/img/avatar.jpg') . '" alt="' . $model->name . '" style="max-width: 50px; max-height: 75px;">';
+            })
 
-        ->editColumn('status', function ($model) {
-            if ($model->status == 'active') {
-                return '<i class="bi bi-circle-fill mx-2 text-success"></i>' . ucfirst($model->status);
-            } elseif ($model->status == 'inactive') {
-                return '<i class="bi bi-circle-fill mx-2 text-secondary"></i>' . ucfirst($model->status);
-            }
-        })
+            ->editColumn('status', function ($model) {
+                if ($model->status == 'active') {
+                    return '<i class="bi bi-circle-fill mx-2 text-success"></i>' . ucfirst($model->status);
+                } elseif ($model->status == 'inactive') {
+                    return '<i class="bi bi-circle-fill mx-2 text-secondary"></i>' . ucfirst($model->status);
+                }
+            })
 
-        ->editColumn('price', function ($model) {
-            return $model->price ? 'L.E ' . number_format($model->price, 2) : null;
-        })
-
-
-        ->editColumn('duration', function ($model) {
-            return $model->duration ?? null;
-        })
+            ->editColumn('price', function ($model) {
+                return $model->price ? 'L.E ' . number_format($model->price, 2) : null;
+            })
 
 
-        ->editColumn('created_at', function ($model) {
-            return $model->created_at ? $model->created_at->format('Y-m-d H:i:s') : null;
-        })
-        ->editColumn('updated_at', function ($model) {
-            return $model->updated_at ? $model->created_at->format('Y-m-d H:i:s') : null;
-        })
+            ->editColumn('duration', function ($model) {
+                return $model->duration ?? null;
+            })
 
-        ->addColumn('created_by', function ($model) {
-            return $model->createdBy ? $model->createdBy->name : null;
-        })           ->rawColumns(['action', 'status']) ->setRowId('id');
+
+            ->editColumn('created_at', function ($model) {
+                return $model->created_at ? $model->created_at->format('Y-m-d H:i:s') : null;
+            })
+            ->editColumn('updated_at', function ($model) {
+                return $model->updated_at ? $model->created_at->format('Y-m-d H:i:s') : null;
+            })
+
+            ->addColumn('created_by', function ($model) {
+                return $model->createdBy ? $model->createdBy->name : null;
+            })
+            ->rawColumns(['action', 'status','image'])
+            ->setRowId('id');
     }
 
     /**
@@ -90,20 +95,20 @@ class ServiceDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('service-table')
-                    ->columns($this->getColumns())
-                    ->minifiedAjax()
-                    ->dom('Bfrtip')
-                    ->orderBy(1)
-                    ->selectStyleSingle()
-                    ->buttons([
-                        Button::make('excel'),
-                        Button::make('csv'),
-                        Button::make('pdf'),
-                        Button::make('print'),
-                        // Button::make('reset'),
-                        // Button::make('reload')
-                    ]);
+            ->setTableId('service-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
+            ->dom('Bfrtip')
+            ->orderBy(1)
+            ->selectStyleSingle()
+            ->buttons([
+                Button::make('excel'),
+                Button::make('csv'),
+                Button::make('pdf'),
+                Button::make('print'),
+                // Button::make('reset'),
+                // Button::make('reload')
+            ]);
     }
 
     /**
