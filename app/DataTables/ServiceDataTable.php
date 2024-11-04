@@ -98,8 +98,8 @@ class ServiceDataTable extends DataTable
             ->setTableId('service-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->dom('Bfrtip')
-            ->orderBy(1)
+            ->dom('Blfrtip')
+            ->orderBy(0,'desc')
             ->selectStyleSingle()
             ->buttons([
                 Button::make('excel'),

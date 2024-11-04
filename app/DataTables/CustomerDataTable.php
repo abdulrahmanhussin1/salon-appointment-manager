@@ -2,7 +2,7 @@
 
 namespace App\DataTables;
 
-use App\Models\Supplier;
+use App\Models\Customer;
 use App\Traits\AppHelper;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
@@ -13,7 +13,7 @@ use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 
-class SupplierDataTable extends DataTable
+class CustomerDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -25,27 +25,20 @@ class SupplierDataTable extends DataTable
         return (new EloquentDataTable($query))
         ->addColumn('action', function ($model) {
             $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
-        <button class="btn btn-sm dropdown-toggle "
+        <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2"
         type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
-<i class="bi bi-three-dots-vertical"></i>         </button>
+           <i class="bi bi-three-dots-vertical"></i>
+        </button>
         <div class="dropdown-menu dropdown-menu-end py-2">';
-            if (AppHelper::perUser('suppliers.edit')) {
-                $html .= '<a href="' . route('suppliers.edit', ['supplier' => $model]) . '" class="dropdown-item">Edit</a>';
+            if (AppHelper::perUser('customers.edit')) {
+                $html .= '<a href="' . route('customers.edit', ['customer' => $model]) . '" class="dropdown-item">Edit</a>';
             }
-            if (AppHelper::perUser('suppliers.destroy')) {
-                $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-supplier" data-id="' . $model->id . '" data-url="' . route('suppliers.destroy', ['supplier' => $model]) . '">Delete</a></div></div>';
+            if (AppHelper::perUser('customers.destroy')) {
+                $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-customer" data-id="' . $model->id . '" data-url="' . route('customers.destroy', ['customer' => $model]) . '">Delete</a></div></div>';
             }
             return $html;
         })
-->editColumn('phone',function ($model){
-    return $model->phone? $model->phone : 'N/A';
-})
-        ->editColumn('email',function ($model){
-            return $model->email? $model->email : 'N/A';
-        })
-        ->editColumn('address',function ($model){
-            return $model->address? $model->address : 'N/A';
-        })
+
         ->editColumn('status', function ($model) {
             if ($model->status == 'active') {
                 return '<i class="bi bi-circle-fill mx-2 text-success"></i>' . ucfirst($model->status);
@@ -53,25 +46,56 @@ class SupplierDataTable extends DataTable
                 return '<i class="bi bi-circle-fill mx-2 text-secondary"></i>' . ucfirst($model->status);
             }
         })
-
-        ->addColumn('created_by', function ($model) {
-            return $model->createdBy ? $model->createdBy->name : null;
+        ->editColumn('name', function ($model) {
+            return '<a href="'.route('customers.show', ['customer' => $model]).'" target="_blank">'.$model->name.'</a>';
         })
-
+        ->editColumn('email', function ($model) {
+            return $model->email ?? null;
+        })
+        ->editColumn('phone', function ($model) {
+            return $model->phone?? null;
+        })
+        ->editColumn('address', function ($model) {
+            return $model->address?? null;
+        })
+        ->editColumn('dob', function ($model) {
+            return $model->dob?? null;
+        })
+        ->editColumn('gender', function ($model) {
+            return ucfirst($model->gender?? null);
+        })
+        ->editColumn('notes', function ($model) {
+            return $model->notes?? null;
+        })
+        ->editColumn('is_vip', function ($model) {
+            return $model->is_vip? '<i class="bi bi-check-circle mx-2 text-success"></i> VIP' :null;
+        })
+        ->editColumn('last_service', function ($model) {
+            return $model->last_service?? null;
+        })
         ->editColumn('created_at', function ($model) {
             return $model->created_at ? $model->created_at->format('Y-m-d H:i:s') : null;
         })
         ->editColumn('updated_at', function ($model) {
             return $model->updated_at ? $model->created_at->format('Y-m-d H:i:s') : null;
         })
-        ->rawColumns([ 'status', 'action','photo'])
-                    ->setRowId('id');
+
+        ->editColumn('manager_id', function ($model) {
+            return $model->manager ? $model->manager->name : null;
+        })
+
+        ->addColumn('created_by', function ($model) {
+            return $model->createdBy ? $model->createdBy->name : null;
+        })
+
+        ->rawColumns(['action', 'status','name','is_vip'])
+            ->setRowId('id');
     }
 
     /**
      * Get the query source of dataTable.
      */
-    public function query(Supplier $model): QueryBuilder
+    public function query(Customer $model): QueryBuilder
     {
         return $model->newQuery();
     }
@@ -82,7 +106,7 @@ class SupplierDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('supplier-table')
+                    ->setTableId('customer-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
                     ->dom('Blfrtip')
@@ -93,8 +117,8 @@ class SupplierDataTable extends DataTable
                         Button::make('csv'),
                         Button::make('pdf'),
                         Button::make('print'),
-                        // Button::make('reset'),
-                        // Button::make('reload')
+                        //Button::make('reset'),
+                       // Button::make('reload')
                     ]);
     }
 
@@ -106,10 +130,15 @@ class SupplierDataTable extends DataTable
         return [
             Column::make('id')->addClass('text-center'),
             Column::make('name')->addClass('text-center'),
-            Column::make('email')->addClass('text-center'),
             Column::make('phone')->addClass('text-center'),
-            Column::make('address')->addClass('text-center'),
+            Column::make('email')->addClass('text-center'),
             Column::make('status')->addClass('text-center'),
+            Column::make('address')->addClass('text-center'),
+            Column::make('notes')->addClass('text-center'),
+            Column::make('is_vip')->addClass('text-center')->title('Vip'),
+            Column::make('dob')->addClass('text-center'),
+            Column::make('gender')->addClass('text-center'),
+            Column::make('last_service')->addClass('text-center'),
             Column::make('created_by')->addClass('text-center'),
             Column::make('created_at')->addClass('text-center'),
             Column::make('updated_at')->addClass('text-center'),
@@ -126,6 +155,6 @@ class SupplierDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Supplier_' . date('YmdHis');
+        return 'Customer_' . date('YmdHis');
     }
 }

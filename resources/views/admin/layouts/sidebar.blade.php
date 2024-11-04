@@ -9,8 +9,30 @@
                 <span>{{ __('Dashboard') }}</span>
             </a>
         </li>
-            <!-- End Dashboard Nav -->
-            <hr>
+
+        <!-- End Dashboard Nav -->
+        <hr>
+
+        @if (App\Traits\AppHelper::perUser('customers.index'))
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="{{ route('customers.index') }}">
+                    <i class="bi bi-person-fill-up"></i>
+                    <span>{{ __('Customers') }}</span>
+                </a>
+            </li>
+        @endif
+        @if (App\Traits\AppHelper::perUser('suppliers.index'))
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="{{ route('suppliers.index') }}">
+                    <i class="bi bi-person-fill-down"></i>
+                    <span>{{ __('Suppliers') }}</span>
+                </a>
+            </li>
+        @endif
+
+
+
+
         @if (App\Traits\AppHelper::perUser('product_categories.index') || App\Traits\AppHelper::perUser('products.index'))
 
 
@@ -37,15 +59,7 @@
                         </li>
                     </ul>
                 @endif
-                @if (App\Traits\AppHelper::perUser('suppliers.index'))
-                <ul id="products-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a href="{{ route('suppliers.index') }}">
-                            <i class="bi bi-circle"></i><span>{{ __('Suppliers') }}</span>
-                        </a>
-                    </li>
-                </ul>
-            @endif
+
             </li>
         @endif
 
@@ -111,85 +125,93 @@
 
         <hr>
 
-        @if (App\Traits\AppHelper::perUser('units.index')
-        || App\Traits\AppHelper::perUser('tools.index')
-        || App\Traits\AppHelper::perUser('admin_panel_settings.index'))
-
-        <li class="nav-item">
-            <a class="nav-link collapsed" data-bs-target="#settings-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-gear-wide-connected"></i><span>{{ __('Settings') }}</span><i
-                    class="bi bi-chevron-down ms-auto"></i>
-            </a>
-            @if (App\Traits\AppHelper::perUser('units.index'))
-            {{-- units --}}
-            <ul id="settings-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                <li>
-                    <a href="{{ route('units.index') }}">
-                        <i class="bi bi-circle"></i><span>{{ __('Units') }}</span>
-                    </a>
-                </li>
-            </ul>
-@endif
-
-            @if (App\Traits\AppHelper::perUser('tools.index'))
-            {{-- tools --}}
-
-            <ul id="settings-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                <li>
-                    <a href="{{ route('tools.index') }}">
-                        <i class="bi bi-circle"></i><span>{{ __('Tools') }}</span>
-                    </a>
-                </li>
-
-            </ul>
-            @endif
-            @if (App\Traits\AppHelper::perUser('admin_panel_settings.index'))
-            {{-- admin_panel_settings --}}
+        @if (App\Traits\AppHelper::perUser('units.index') ||
+                App\Traits\AppHelper::perUser('tools.index') ||
+                App\Traits\AppHelper::perUser('admin_panel_settings.index') ||
+                App\Traits\AppHelper::perUser('branches.index'))
 
 
-            <ul id="settings-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                <li>
-                    <a href="{{ route('admin_panel_settings.index') }}">
-                        <i class="bi bi-circle"></i><span>{{ __('Admin Panel Settings') }}</span>
-                    </a>
-                </li>
-            </ul>
-            @endif
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#settings-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-gear-wide-connected"></i><span>{{ __('Settings') }}</span><i
+                        class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                @if (App\Traits\AppHelper::perUser('branches.index'))
+                    {{-- branches --}}
+                    <ul id="settings-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('branches.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Branches') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
 
 
-        </li>
+                @if (App\Traits\AppHelper::perUser('units.index'))
+                    {{-- units --}}
+                    <ul id="settings-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('units.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Units') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
+
+                @if (App\Traits\AppHelper::perUser('tools.index'))
+                    {{-- tools --}}
+
+                    <ul id="settings-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('tools.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Tools') }}</span>
+                            </a>
+                        </li>
+
+                    </ul>
+                @endif
+                @if (App\Traits\AppHelper::perUser('admin_panel_settings.index'))
+                    {{-- admin_panel_settings --}}
+
+
+                    <ul id="settings-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('admin_panel_settings.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Admin Panel Settings') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
+
+
+            </li>
         @endif
 
         <!-- End settings Nav -->
-
-
- @if (App\Traits\AppHelper::perUser('roles.index')
-        || App\Traits\AppHelper::perUser('users.index'))
-
-
-        <li class="nav-item">
-            <a class="nav-link collapsed" data-bs-target="#users-nav" data-bs-toggle="collapse" href="#">
-                <i class="bi bi-people-fill"></i><span>{{ __('Users & Roles') }}</span><i
-                    class="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="users-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                @if (App\Traits\AppHelper::perUser('roles.index'))
-
-                <li>
-                    <a href="{{ route('roles.index') }}">
-                        <i class="bi bi-circle"></i><span>{{ __('Roles') }}</span>
-                    </a>
-                </li>
-                @endif
-                @if (App\Traits\AppHelper::perUser('users.index'))
-                <li>
-                    <a href="{{ route('users.index') }}">
-                        <i class="bi bi-circle"></i><span>{{ __('Users') }}</span>
-                    </a>
-                </li>
-                @endif
-            </ul>
-        </li><!-- End Forms Nav -->
+        @if (App\Traits\AppHelper::perUser('roles.index') || App\Traits\AppHelper::perUser('users.index'))
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#users-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-people-fill"></i><span>{{ __('Users & Roles') }}</span><i
+                        class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="users-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    @if (App\Traits\AppHelper::perUser('roles.index'))
+                        <li>
+                            <a href="{{ route('roles.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Roles') }}</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (App\Traits\AppHelper::perUser('users.index'))
+                        <li>
+                            <a href="{{ route('users.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Users') }}</span>
+                            </a>
+                        </li>
+                    @endif
+                </ul>
+            </li><!-- End Forms Nav -->
         @endif
 
     </ul>

@@ -50,7 +50,7 @@ class RolesDataTable extends DataTable
                     return '<i class="bi bi-circle-fill mx-2 text-success"></i>' . ucfirst($model->status);
                 } elseif ($model->status == 'inactive') {
                     return '<i class="bi bi-circle-fill mx-2 text-secondary"></i>' . ucfirst($model->status);
-                } 
+                }
             })
 
 
@@ -88,7 +88,7 @@ class RolesDataTable extends DataTable
              ->setTableId('roles-table')
              ->columns($this->getColumns())
              ->minifiedAjax()
-             ->dom('Bfrtip')
+             ->dom('Blfrtip')
              ->orderBy(2,'des')
              ->selectStyleSingle()
             ->buttons([

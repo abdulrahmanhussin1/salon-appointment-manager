@@ -98,6 +98,21 @@ class RolesAndPermissionsSeeder extends Seeder
                 'services.create',
                 'services.edit',
                 'services.destroy',
+
+                /* customers */
+                'customers.index',
+                'customers.show',
+                'customers.create',
+                'customers.edit',
+                'customers.destroy',
+
+
+                /* branches */
+                'branches.index',
+                'branches.show',
+                'branches.create',
+                'branches.edit',
+                'branches.destroy',
             ],
         ];
 
@@ -117,7 +132,7 @@ class RolesAndPermissionsSeeder extends Seeder
                     'description' => 'Best for business owners and company administrators',
                     'guard_name' => $gardName,
                     'created_at' => now(),
-                    'created_by'=> 1
+                    'created_by' => 1
                 ]);
             }
             DB::table(config('permission.table_names.role_has_permissions'))

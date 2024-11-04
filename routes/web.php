@@ -1,20 +1,22 @@
 <?php
 
-use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\AdminPanelSettingController;
-use App\Http\Controllers\Admin\EmployeeController;
-use App\Http\Controllers\Admin\EmployeeLevelController;
-use App\Http\Controllers\Admin\ProductCategoryController;
-use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\ProfileController;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\RoleController;
-use App\Http\Controllers\Admin\ServiceCategoryController;
-use App\Http\Controllers\Admin\ServiceController;
-use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\ToolController;
 use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\UserController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\BranchController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\EmployeeLevelController;
+use App\Http\Controllers\Admin\ProductCategoryController;
+use App\Http\Controllers\Admin\ServiceCategoryController;
+use App\Http\Controllers\Admin\AdminPanelSettingController;
 
 /*
 |--------------------------------------------------------------------------

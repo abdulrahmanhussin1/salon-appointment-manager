@@ -15,8 +15,8 @@ return new class extends Migration
                 $table->id();
                 $table->string('name');
                 $table->text('address')->nullable();
-                $table->string('phone')->nullable();
-                $table->string('email')->nullable();
+                $table->string('phone')->nullable()->unique();
+                $table->string('email')->nullable()->unique();
                 $table->enum('status', ['active', 'inactive'])->default('active');
                 $table->foreignId('created_by')->constrained('users', 'id')->cascadeOnUpdate()->restrictOnDelete();
                 $table->foreignId('updated_by')->nullable()->constrained('users', 'id')->cascadeOnUpdate()->nullOnDelete();

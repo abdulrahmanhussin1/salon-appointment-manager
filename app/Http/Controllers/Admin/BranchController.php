@@ -3,17 +3,22 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Branch;
+use App\Models\Employee;
 use Illuminate\Http\Request;
+use App\DataTables\BranchDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\BranchRequest;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class BranchController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(BranchDataTable $dataTable)
     {
-        //
+        $managers = Employee::select('id','name')->where('status','active')->get();
+        return $dataTable->render('admin.pages.settings.branches.index',compact('managers'));
     }
 
     /**
@@ -21,15 +26,25 @@ class BranchController extends Controller
      */
     public function create()
     {
-        //
+        abort(404);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(BranchRequest $request)
     {
-        //
+        Branch::create([
+            'name' => $request->name,
+            'address' => $request->address,
+            'phone' => $request->phone,
+            'email' => $request->email,
+            'status' => $request->status,
+            'manager_id' => $request->manager_id,
+            'created_by' => auth()->id(),
+        ]);
+        Alert::success(__('Success'), __('Created Successfully'));
+        return redirect()->back();
     }
 
     /**
@@ -37,7 +52,7 @@ class BranchController extends Controller
      */
     public function show(Branch $branch)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -45,15 +60,28 @@ class BranchController extends Controller
      */
     public function edit(Branch $branch)
     {
-        //
+        $managers = Employee::select('id','name')->where('status','active')->get();
+
+        return view('admin.pages.settings.branches.edit', compact('branch','managers'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Branch $branch)
+    public function update(BranchRequest $request, Branch $branch)
     {
-        //
+
+        $branch->update([
+            'name' => $request->name,
+            'address' => $request->address,
+            'phone' => $request->phone,
+            'email' => $request->email,
+            'status' => $request->status,
+            'manager_id' => $request->manager_id,
+            'updated_by' => auth()->id(),
+        ]);
+        Alert::success(__('Success'), __('Updated Successfully'));
+        return redirect()->route('branches.index');
     }
 
     /**
@@ -61,6 +89,13 @@ class BranchController extends Controller
      */
     public function destroy(Branch $branch)
     {
-        //
+        try{
+            $branch->delete();
+            Alert::success(__('Success'), __('Deleted Successfully'));
+        }
+        catch(\Exception $e){
+            Alert::error(__('Error'), __('Failed to delete branch. check this branch not related with any data '));
+        }
+
     }
 }

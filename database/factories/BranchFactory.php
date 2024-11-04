@@ -24,7 +24,6 @@ class BranchFactory extends Factory
             'email' => $this->faker->unique()->safeEmail, // Generate a unique email address
             'status' => $this->faker->randomElement(['active', 'inactive']), // Randomly select status
             'created_by' => 1, // Assuming you have a User factory to create a user for the created_by field
-
         ];
     }
 }

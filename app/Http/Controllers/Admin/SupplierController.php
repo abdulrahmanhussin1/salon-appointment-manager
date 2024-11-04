@@ -16,7 +16,7 @@ class SupplierController extends Controller
      */
     public function index(SupplierDataTable $dataTable)
     {
-        return $dataTable->render("admin.pages.products.suppliers.index");
+        return $dataTable->render("admin.pages.suppliers.index");
     }
 
     /**
@@ -63,7 +63,7 @@ class SupplierController extends Controller
      */
     public function edit(Supplier $supplier)
     {
-        return view('admin.pages.products.suppliers.edit', compact('supplier'));
+        return view('admin.pages.suppliers.edit', compact('supplier'));
     }
 
     /**

@@ -106,8 +106,8 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
             ->setTableId('employee-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->dom('Bfrtip')
-            ->orderBy(1)
+            ->dom('Blfrtip')
+            ->orderBy(0,'desc')
             ->selectStyleSingle()
             ->buttons([
                 Button::make('excel'),

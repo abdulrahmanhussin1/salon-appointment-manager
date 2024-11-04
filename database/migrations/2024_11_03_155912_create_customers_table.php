@@ -22,6 +22,7 @@ return new class extends Migration
             $table->date('dob')->nullable();
             $table->text('notes')->nullable();
             $table->boolean('is_vip')->default(false);
+            $table->enum('gender',['male', 'female'])->default('male');
             $table->date('last_service')->nullable();
             $table->enum('added_from', ['online', 'referral', 'walk_in', 'advertisement', 'direct'])->nullable(); // Added 'direct'
             $table->foreignId('created_by')->constrained('users', 'id')->cascadeOnUpdate()->restrictOnDelete();

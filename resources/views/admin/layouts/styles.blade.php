@@ -68,6 +68,20 @@ display: none;
 .page-link {
     font-size: small;
 }
+
+
+
+
+/* Style the page length selector */
+.dataTables_length {
+    display: flex;
+    align-items: center;
+    margin-inline: 10px;
+}
+
+
+
+
     </style>
 
 @yield('css')

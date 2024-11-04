@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\DataTables\CustomerDataTable;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -11,9 +12,9 @@ class CustomerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(CustomerDataTable $dataTable)
     {
-        //
+        return $dataTable->render('admin.pages.customers.index');
     }
 
     /**
