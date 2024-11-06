@@ -42,8 +42,8 @@ class EmployeeController extends Controller
     public function store(EmployeeRequest $request)
     {
         try {
-            $photo = AppHelper::handleFileUpload($request, 'photo', null, "uploads/images/employees");
-            $idCard = AppHelper::handleFileUpload($request, 'id_card', null, "uploads/images/employees/id-cards");
+            $photo = AppHelper::handleFileUpload($request, 'photo',  "uploads/images/employees", null);
+            $idCard = AppHelper::handleFileUpload($request, 'id_card',  "uploads/images/employees/id-cards", null);
 
 
             DB::beginTransaction();
@@ -130,8 +130,8 @@ class EmployeeController extends Controller
     public function update(EmployeeRequest $request, Employee $employee)
     {
         try {
-            $photo = AppHelper::handleFileUpload($request, 'photo', null, "uploads/images/employees");
-            $idCard = AppHelper::handleFileUpload($request, 'id_card', null, "uploads/images/employees/id-cards");
+            $photo = AppHelper::handleFileUpload($request, 'photo',  "uploads/images/employees", null);
+            $idCard = AppHelper::handleFileUpload($request, 'id_card',  "uploads/images/employees/id-cards", null);
 
             DB::beginTransaction();
             $employee->update([

@@ -21,7 +21,7 @@ trait AppHelper
     {
         return (auth()->check()) ? auth()->user()->can($permission) : false;
     }
-    public static function handleFileUpload($request, $fileKey, $existingFile = null, $directory)
+    public static function handleFileUpload($request, $fileKey, $directory, $existingFile = null)
     {
         if ($request->hasFile($fileKey)) {
             if ($existingFile && Storage::exists($existingFile)) {

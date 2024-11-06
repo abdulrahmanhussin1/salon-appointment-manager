@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\CustomerDataTable;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\DataTables\CustomerDataTable;
+use App\Http\Requests\CustomerRequest;
 
 class CustomerController extends Controller
 {
@@ -22,13 +23,13 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        //
+        abort(404);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CustomerRequest $request)
     {
         //
     }

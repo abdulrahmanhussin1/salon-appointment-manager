@@ -53,7 +53,7 @@ class ServiceController extends Controller
         try {
             $image = null;
             if ($request->hasFile('image')) {
-                $image = AppHelper::handleFileUpload($request, 'image', null, "uploads/images/services");
+                $image = AppHelper::handleFileUpload($request, 'image', "uploads/images/services", null);
             }
 
             DB::beginTransaction();
@@ -135,7 +135,7 @@ class ServiceController extends Controller
         try {
             $image = $service->image;
             if ($request->hasFile('image')) {
-                $image = AppHelper::handleFileUpload($request, 'image', null, "uploads/images/services");
+                $image = AppHelper::handleFileUpload($request, 'image', "uploads/images/services", null);
             }
             DB::beginTransaction();
             $service->update([
