@@ -29,8 +29,22 @@
         <form action="{{ route('customers.store') }}" method="POST" id="customerForm" enctype="multipart/form-data">
             @csrf
             <div class="modal-body">
-                <x-input type='text' value="{{ old('name') }}" label="Name" name='name'
+               <div class="row">
+                <div class="col-4">
+                    <x-form-select name='salutation' id="salutation" label="salutation" required>
+                        <option @if (old('salutation') == 'Mr') selected @endif value="Mr">
+                            {{ __('Mr') }}</option>
+                        <option @if (old('salutation') == 'Ms') selected @endif value="Ms">
+                            {{ __('Ms') }}</option>
+                            <option @if (old('salutation') == 'Mrs') selected @endif value="Mrs">
+                                {{ __('Mrs') }}</option>
+                    </x-form-select>
+                </div>
+                <div class="col-8">
+                    <x-input type='text' value="{{ old('name') }}" label="Name" name='name'
                     placeholder='Customer Name' id="name" oninput="" required />
+                </div>
+               </div>
                 <x-input type="email" value="{{ old('email') }}" label="Email" name='email'
                     placeholder='Example@gmail.com' id="email" oninput="{{ null }}" />
                 <x-input type="text" value="{{ old('phone') }}" label="phone" id="phone" name='phone'
@@ -38,9 +52,9 @@
                 <x-form-description value="{{ old('address') }}" label="address" name='address'
                     placeholder='Customer Address' />
                 <x-form-select name='status' id="status" label="status" required>
-                    <option @if (isset($role) && $role->status == 'active') selected @endif value="active">
+                    <option @if (old('status') == 'active') selected @endif value="active">
                         {{ __('Active') }}</option>
-                    <option @if (isset($role) && $role->status == 'inactive') selected @endif value="inactive">
+                    <option @if (old('status') == 'inactive') selected @endif value="inactive">
                         {{ __('Inactive') }}</option>
                 </x-form-select>
             </div>

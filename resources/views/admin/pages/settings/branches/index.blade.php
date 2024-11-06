@@ -48,9 +48,9 @@
                     @endforeach
                 </x-form-select>
                 <x-form-select name='status' id="status" label="status" required>
-                    <option @if (isset($role) && $role->status == 'active') selected @endif value="active">
+                    <option @if (old('status') == 'active') selected @endif value="active">
                         {{ __('Active') }}</option>
-                    <option @if (isset($role) && $role->status == 'inactive') selected @endif value="inactive">
+                    <option @if (old('status') == 'inactive') selected @endif value="inactive">
                         {{ __('Inactive') }}</option>
                 </x-form-select>
             </div>

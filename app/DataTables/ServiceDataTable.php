@@ -98,7 +98,7 @@ class ServiceDataTable extends DataTable
             ->setTableId('service-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->dom('Blfrtip')
+            ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
             ->orderBy(0,'desc')
             ->selectStyleSingle()
             ->buttons([

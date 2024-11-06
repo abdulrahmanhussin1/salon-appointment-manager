@@ -59,8 +59,8 @@
         <x-breadcrumb-item>
             <a href="{{ route('employees.index') }}">{{ __('Employees') }}</a>
         </x-breadcrumb-item>
-        <x-breadcrumb-item active="{{ isset($role) }}">
-            {{ isset($role) ? __('Edit :type', ['type' => $role->name]) : __('Create New Employee') }}
+        <x-breadcrumb-item active="{{ isset($employee) }}">
+            {{ isset($employee) ? __('Edit :type', ['type' => $employee->name]) : __('Create New Employee') }}
         </x-breadcrumb-item>
 
 

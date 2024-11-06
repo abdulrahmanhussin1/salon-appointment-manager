@@ -106,7 +106,7 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
             ->setTableId('employee-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->dom('Blfrtip')
+            ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
             ->orderBy(0,'desc')
             ->selectStyleSingle()
             ->buttons([
