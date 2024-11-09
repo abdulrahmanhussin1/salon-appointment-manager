@@ -37,6 +37,7 @@ class ServiceRequest extends FormRequest
             'duration' => 'nullable|integer',
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'is_target' => 'required|boolean',
             'status' => 'required|in:active,inactive',
             'service_category_id' => 'nullable|exists:service_categories,id',
 
@@ -47,7 +48,7 @@ class ServiceRequest extends FormRequest
             'employee_id.*' => 'nullable|exists:employees,id',
 
             'commission_percentage' => 'nullable|integer|between:0,100',
-            'commission_amount' => 'nullable|numeric|min:0',
+            'commission_value' => 'nullable|numeric|min:0',
 
             'product_id' => 'nullable|array',
             'product_id.*' => 'nullable|exists:products,id',

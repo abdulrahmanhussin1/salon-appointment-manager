@@ -94,10 +94,21 @@
                             <x-input type='text' :value="isset($product) ? $product->name : old('name')" label="Name" name='name'
                                 placeholder='product Name' id="name" oninput="" required />
                         </div>
-                        <div class="col-6">
+                        <div class="col-4">
                             <x-input type="text" value="{{ $product->code ?? old('code') }}" label="Code"
                                 id="code" name='code' placeholder="Code"
                                 oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
+                        </div>
+                        <div class="col-2">
+                            <div class="form-check form-switch mt-4 mb-0 pt-2">
+                                <!-- Hidden input to handle unchecked state -->
+                                <input type="hidden" name="is_target" value="0">
+                                <!-- Checkbox input -->
+                                <input class="form-check-input" type="checkbox" role="switch" value="1"
+                                    name="is_target" id="flexSwitchCheckDefault"
+                                    {{ (isset($product)  && $product->is_target) || old('is_target') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="flexSwitchCheckDefault">{{ __('Target?') }}</label>
+                            </div>
                         </div>
                         <div class="col-6">
                             <x-input type="text" value="{{ $product->supplier_price ?? old('supplier_price') }}"
@@ -119,7 +130,7 @@
                                 <option value="">{{ __('Select one Category') }}</option>
                                 @foreach ($productCategories as $category)
                                     <option @if (isset($product) && ($product->category_id == $category->id || old('category_id') == $category->id)) selected="selected" @endif
-                                        value="{{  $category->id }}">{{  $category->name }}</option>
+                                        value="{{ $category->id }}">{{ $category->name }}</option>
                                 @endforeach
                             </x-form-select>
                         </div>
@@ -129,12 +140,12 @@
                                 <option value="">{{ __('Select one Supplier') }}</option>
                                 @foreach ($suppliers as $supplier)
                                     <option @if (isset($product) && ($product->supplier_id == $supplier->id || old('supplier_id') == $supplier->id)) selected="selected" @endif
-                                        value="{{  $supplier->id }}">{{ $supplier->name }}</option>
+                                        value="{{ $supplier->id }}">{{ $supplier->name }}</option>
                                 @endforeach
                             </x-form-select>
                         </div>
 
-                        <div class="col-6">
+                        <div class="col-4">
                             <x-form-select name="unit_id" id="unit_id" label='unit' required>
                                 <option value="">{{ __('Select one unit') }}</option>
                                 @foreach ($units as $unit)
@@ -144,8 +155,17 @@
                             </x-form-select>
                         </div>
 
+                        <div class="col-4">
+                            <x-form-select name='type' id="type" label="type" required>
+                                <option @if (isset($product) && $product->type == 'operation') selected @endif value="operation">
+                                    {{ __('Operation') }}</option>
+                                <option @if (isset($product) && $product->type == 'sales') selected @endif value="sales">
+                                    {{ __('Sales') }}</option>
+                            </x-form-select>
+                        </div>
 
-                        <div class="col-6">
+
+                        <div class="col-4">
                             <x-form-select name='status' id="status" label="status" required>
                                 <option @if (isset($product) && $product->status == 'active') selected @endif value="active">
                                     {{ __('Active') }}</option>

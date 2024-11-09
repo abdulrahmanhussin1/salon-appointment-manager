@@ -95,10 +95,22 @@
                                 placeholder='service Name' id="name" oninput="" required />
                         </div>
 
-                        <div class="col-6">
+                        <div class="col-4">
                             <x-input type="text" value="{{ $service->price ?? old('price') }}" label="price"
                                 id="price" name='price' placeholder="price"
                                 oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
+                        </div>
+
+                        <div class="col-2">
+                            <div class="form-check form-switch mt-4 mb-0 pt-2">
+                                <!-- Hidden input to handle unchecked state -->
+                                <input type="hidden" name="is_target" value="0">
+                                <!-- Checkbox input -->
+                                <input class="form-check-input" type="checkbox" role="switch" value="1"
+                                    name="is_target" id="flexSwitchCheckDefault"
+                                    {{ (isset($service)  && $service->is_target) || old('is_target') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="flexSwitchCheckDefault">{{ __('Target?') }}</label>
+                            </div>
                         </div>
                     </div>
 

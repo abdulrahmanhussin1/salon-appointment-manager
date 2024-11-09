@@ -20,7 +20,7 @@
         </div>
         @include('admin.layouts.alerts')
         <div>
-            {{ $dataTable->table(['class' => ' responsive table fs--1 mb-0 bg-white my-3 rounded-2 shadow', 'width' => '100%']) }}
+            {{ $dataTable->table(['class' => 'responsive table fs--1 mb-0 bg-white my-3 rounded-2 shadow', 'width' => '100%']) }}
         </div>
     </section>
 
@@ -31,13 +31,18 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-2">
-                        <x-form-select name='salutation' id="salutation" label="salutation" required>
+                        <x-form-select name='salutation' id="salutation" label="salutation">
                             <option @if (old('salutation') == 'Mr') selected @endif value="Mr">
                                 {{ __('Mr') }}</option>
                             <option @if (old('salutation') == 'Ms') selected @endif value="Ms">
                                 {{ __('Ms') }}</option>
                             <option @if (old('salutation') == 'Mrs') selected @endif value="Mrs">
                                 {{ __('Mrs') }}</option>
+                                <option @if (old('salutation') == 'Dr') selected @endif value="Dr">
+                                    {{ __('Dr') }}</option>
+                                    <option @if (old('salutation') == 'Eng') selected @endif value="Eng">
+                                        {{ __('Eng') }}</option>
+
                         </x-form-select>
                     </div>
                     <div class="col-8">
@@ -46,52 +51,69 @@
                     </div>
 
                     <div class="col-2">
-                        <div class="form-check mt-4 mb-0 pt-2">
-                            <input class="form-check-input" type="checkbox" value="" name="is_vip" id="vip_checkbox">
-                            <label class="form-check-label" for="vip_checkbox">
-                                VIP
-                            </label>
+                        <div class="form-check form-switch mt-4 mb-0 pt-2">
+                            <!-- Hidden input to handle unchecked state -->
+                            <input type="hidden" name="is_vip" value="0">
+                            <!-- Checkbox input -->
+                            <input class="form-check-input" type="checkbox" role="switch" value="1"
+                                name="is_vip" id="flexSwitchCheckDefault" {{ old('is_vip') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="flexSwitchCheckDefault">{{ __('VIP') }}</label>
                         </div>
                     </div>
                 </div>
                 <x-input type="email" value="{{ old('email') }}" label="Email" name='email'
                     placeholder='Example@gmail.com' id="email" oninput="{{ null }}" />
                 <x-input type="text" value="{{ old('phone') }}" label="phone" id="phone" name='phone'
-                    placeholder="phone  Ex: 010xxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
+                    placeholder="phone  Ex: 010xxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9+]/g, '')"
+                    required />
 
 
-                    <div class="col-12">
-                        <label class="form-label" for="dob">{{ __('Date Of Birth') }}</label>
-                        <input type="date" name="dob" class="form-control  @error('dob') is-invalid @enderror"
-                            id="dob" value="{{ isset($employee) ? $employee->dob : old('dob') }}"
-                            required>
-                        @error('dob')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
-                    </div>
+                <div class="col-12">
+                    <label class="form-label" for="dob">{{ __('Date Of Birth') }}</label>
+                    <input type="date" name="dob" class="form-control  @error('dob') is-invalid @enderror"
+                        id="dob" value="{{ isset($employee) ? $employee->dob : old('dob') }}">
+                    @error('dob')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
                 <x-form-description value="{{ old('address') }}" label="address" name='address'
                     placeholder='Customer Address' />
                 <x-form-description value="{{ old('notes') }}" label="notes" name='notes' placeholder='Notes' />
-<div class="row">
-    <div class="col-6">
-        <x-form-select name='status' id="status" label="status" required>
-            <option @if (old('status') == 'active') selected @endif value="active">
-                {{ __('Active') }}</option>
-            <option @if (old('status') == 'inactive') selected @endif value="inactive">
-                {{ __('Inactive') }}</option>
-        </x-form-select>
-    </div>
-    <div class="col-6">
-        <x-form-select name='gender' id="gender" label="gender" required>
-            <option @if (old('gender') == 'male') selected @endif value="male">
-                {{ __('Male') }}</option>
-            <option @if (old('gender') == 'female') selected @endif value="female">
-                {{ __('Female') }}</option>
-        </x-form-select>
-    </div>
-</div>
+                <div class="row">
+                    <div class="col-6">
+                        <x-form-select name='status' id="status" label="status" required>
+                            <option @if (old('status') == 'active') selected @endif value="active">
+                                {{ __('Active') }}</option>
+                            <option @if (old('status') == 'inactive') selected @endif value="inactive">
+                                {{ __('Inactive') }}</option>
+                        </x-form-select>
+                    </div>
+                    <div class="col-6">
+                        <x-form-select name='gender' id="gender" label="gender" required>
+                            <option @if (old('gender') == 'male') selected @endif value="male">
+                                {{ __('Male') }}</option>
+                            <option @if (old('gender') == 'female') selected @endif value="female">
+                                {{ __('Female') }}</option>
+                        </x-form-select>
+                    </div>
+                    <div class="col-12">
+                        <x-form-select name='added_from' id="added_from" label="added_from">
+                            <option @if (old('added_from') == 'direct') selected @endif value="direct">
+                                {{ __('Direct') }}</option>
+                            <option @if (old('added_from') == 'online') selected @endif value="online">
+                                {{ __('Online') }}</option>
+                            <option @if (old('added_from') == 'advertisement') selected @endif value="advertisement">
+                                {{ __('Advertisement') }}</option>
+                            <option @if (old('added_from') == 'referral') selected @endif value="referral">
+                                {{ __('Referral') }}</option>
+                            <option @if (old('added_from') == 'walk_in') selected @endif value="walk_in">
+                                {{ __('walk_in') }}</option>
+
+                        </x-form-select>
+                    </div>
+                </div>
 
             </div>
             <x-modal-footer />
@@ -105,7 +127,7 @@
 
     <script>
         $(document).ready(function() {
-            $("#status,#salutation").select2({
+            $("#status,#salutation,#gender,#added_from").select2({
                 dropdownParent: $("#customerModal")
             });
             $(document).on('click', '.delete-this-customer', function(e) {
@@ -129,6 +151,7 @@
                     buttonsStyling: false // Disable default SweetAlert styles and use Bootstrap 4
                 }).then((result) => {
                     if (result.isConfirmed) {
+                    
                         $.ajax({
                             method: "DELETE",
                             url: url,

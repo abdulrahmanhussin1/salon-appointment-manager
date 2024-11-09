@@ -41,9 +41,9 @@ class UnitDataTable extends DataTable
 
         ->editColumn('status', function ($model) {
             if ($model->status == 'active') {
-                return '<i class="bi bi-circle-fill mx-2 text-success"></i>' . ucfirst($model->status);
+                return '<i class="bi bi-check-circle-fill text-success" style="font-size:large"></i>';
             } elseif ($model->status == 'inactive') {
-                return '<i class="bi bi-circle-fill mx-2 text-secondary"></i>' . ucfirst($model->status);
+                return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large"></i>';
             }
         })
         ->editColumn('created_at', function ($model) {

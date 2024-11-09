@@ -78,10 +78,6 @@ display: none;
     align-items: center;
     margin-inline: 10px;
 }
-
-
-
-
     </style>
 
 @yield('css')

@@ -21,23 +21,8 @@ class ProductRequest extends FormRequest
      */
     public function rules(): array
     {
-        if ($this->method() == 'PUT') {
-            // Update existing product (PUT request)
-            return [
-                'name' => 'required|string|max:255|unique:products,name,' . $this->product->id,
-                'code' => 'required|integer|unique:products,code,' . $this->product->id,
-                'description' => 'nullable|string',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'category_id' => 'nullable|exists:product_categories,id',
-                'supplier_id' => 'nullable|exists:suppliers,id',
-                'unit_id' => 'nullable|exists:units,id',
-                'supplier_price' => 'required|numeric|min:0',
-                'customer_price' => 'required|numeric|min:0',
-                'status' => 'required|in:active,inactive',
-            ];
-        }
-
-        return [
+        // Base validation rules for all requests
+        $rules = [
             'name' => 'required|string|max:255|unique:products,name',
             'code' => 'required|integer|unique:products,code',
             'description' => 'nullable|string',
@@ -47,8 +32,19 @@ class ProductRequest extends FormRequest
             'unit_id' => 'nullable|exists:units,id',
             'supplier_price' => 'required|numeric|min:0',
             'customer_price' => 'required|numeric|min:0',
+            'outside_price' => 'nullable|numeric|min:0',
+            'initial_quantity' => 'nullable|integer|min:0',
+            'is_target' => 'required|boolean',
+            'type' => 'required|in:operation,sales',
             'status' => 'required|in:active,inactive',
         ];
 
+        // If the request is a PUT (update), adjust the 'unique' validation rules
+        if ($this->method() == 'PUT') {
+            $rules['name'] = 'required|string|max:255|unique:products,name,' . $this->product->id;
+            $rules['code'] = 'required|integer|unique:products,code,' . $this->product->id;
+        }
+
+        return $rules;
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\DataTables\CustomerDataTable;
 use App\Http\Requests\CustomerRequest;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class CustomerController extends Controller
 {
@@ -31,7 +32,22 @@ class CustomerController extends Controller
      */
     public function store(CustomerRequest $request)
     {
-        //
+        Customer::create([
+            'name' => $request->name,
+            'salutation' => $request->salutation,
+            'status' => $request->status,
+            'gender' => $request->gender,
+            'added_from' => $request->added_from,
+            'dob' => $request->dob,
+            'notes' => $request->notes,
+            'is_vip' => $request->is_vip,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'created_by' => auth()->id()
+        ]);
+        Alert::success(__('Success'), __('Created Successfully'));
+        return redirect()->back();
     }
 
     /**
@@ -39,7 +55,7 @@ class CustomerController extends Controller
      */
     public function show(Customer $customer)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -47,7 +63,7 @@ class CustomerController extends Controller
      */
     public function edit(Customer $customer)
     {
-        //
+        return view('admin.pages.customers.edit', compact('customer'));
     }
 
     /**
@@ -55,7 +71,22 @@ class CustomerController extends Controller
      */
     public function update(Request $request, Customer $customer)
     {
-        //
+        $customer->update([
+            'name' => $request->name,
+            'salutation' => $request->salutation,
+            'status' => $request->status,
+            'gender' => $request->gender,
+            'added_from' => $request->added_from,
+            'dob' => $request->dob,
+            'notes' => $request->notes,
+            'is_vip' => $request->is_vip,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'updated_by' => auth()->id()
+        ]);
+        Alert::success(__('Success'), __('Updated Successfully'));
+        return redirect()->route('customers.index');
     }
 
     /**
@@ -63,6 +94,7 @@ class CustomerController extends Controller
      */
     public function destroy(Customer $customer)
     {
-        //
+        $customer->delete();
+        Alert::success(__('Success'), __('Deleted Successfully'));
     }
 }

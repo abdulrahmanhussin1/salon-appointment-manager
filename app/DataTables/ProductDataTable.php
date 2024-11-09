@@ -70,12 +70,26 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                 return $model->unit ? $model->unit->name : null;
             })
 
+            ->editColumn('is_target', function ($model) {
+                if ($model->is_target) {
+                    return '<span class="badge text-bg-danger">'. ucfirst('target'). '</span>';
+                }
+            })
+            ->editColumn('type', function ($model) {
+                if ($model->type == 'operation') {
+                return '<span class="badge text-bg-success">' . ucfirst($model->type) . '</span>';
+                } elseif ($model->type == 'sales') {
+                return '<span class="badge text-bg-primary">' . ucfirst($model->type) . '</span>';
+                }
+            })
+
+
 
             ->editColumn('status', function ($model) {
                 if ($model->status == 'active') {
-                    return '<i class="bi bi-circle-fill mx-2 text-success"></i>' . ucfirst($model->status);
+                    return '<i class="bi bi-check-circle-fill text-success" style="font-size:large"></i>';
                 } elseif ($model->status == 'inactive') {
-                    return '<i class="bi bi-circle-fill mx-2 text-secondary"></i>' . ucfirst($model->status);
+                    return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large"></i>';
                 }
             })
 
@@ -95,7 +109,7 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                 return $model->createdBy ? $model->createdBy->name : null;
             })
 
-            ->rawColumns(['action', 'status', 'image'])->setRowId('id');
+            ->rawColumns(['action', 'status', 'image','type','is_target'])->setRowId('id');
     }
 
     /**
@@ -144,8 +158,9 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
             Column::make('category_id')->addClass('text-center')->title('Category'),
             Column::make('supplier_id')->addClass('text-center')->title('Supplier'),
             Column::make('unit_id')->addClass('text-center')->title('Unit'),
+            Column::make('is_target')->addClass('text-center')->title('Target'),
+            Column::make('type')->addClass('text-center'),
             Column::make('status')->addClass('text-center'),
-            Column::make('description')->addClass('text-center'),
 
             Column::make('created_by')->addClass('text-center'),
             Column::make('created_at')->addClass('text-center'),

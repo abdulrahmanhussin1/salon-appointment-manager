@@ -17,14 +17,14 @@ return new class extends Migration
             $table->string('email')->unique()->nullable();
             $table->string('phone')->nullable()->unique();
             $table->text('address')->nullable();
-            $table->enum('salutation', ['Mr', 'Mrs', 'Ms'])->default('Mr');
+            $table->enum('salutation', ['Mr', 'Mrs', 'Ms','Dr','Eng'])->default('Mr');
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->date('dob')->nullable();
             $table->text('notes')->nullable();
             $table->boolean('is_vip')->default(false);
             $table->enum('gender',['male', 'female'])->default('male');
             $table->date('last_service')->nullable();
-            $table->enum('added_from', ['online', 'referral', 'walk_in', 'advertisement', 'direct'])->nullable();
+            $table->enum('added_from', ['online', 'referral', 'walk_in', 'advertisement', 'direct'])->default('direct');
             $table->foreignId('created_by')->constrained('users', 'id')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users', 'id')->cascadeOnUpdate()->nullOnDelete();
             $table->timestamps();

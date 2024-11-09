@@ -17,14 +17,16 @@ return new class extends Migration
             $table->string('code', 20)->unique(); // Changed code to string for potential alphanumeric support
             $table->text('description')->nullable();
             $table->string('image')->nullable();
-            $table->foreignId('category_id')->nullable()->constrained('product_categories')->nullOnDelete()->cascadeOnUpdate(); // Nullify on delete
-            $table->foreignId('supplier_id')->nullable()->constrained('suppliers')->nullOnDelete()->cascadeOnUpdate(); // Nullify on delete
+            $table->foreignId('category_id')->nullable()->constrained('product_categories')->nullOnDelete()->cascadeOnUpdate();
+            $table->foreignId('supplier_id')->nullable()->constrained('suppliers')->nullOnDelete()->cascadeOnUpdate();
             $table->foreignId('unit_id')->nullable()->constrained('units')->nullOnDelete()->cascadeOnUpdate();
             $table->decimal('supplier_price', 10, 2)->default(0);
             $table->decimal('customer_price', 10, 2)->default(0);
-
+            $table->decimal('outside_price', 10, 2)->default(0);
+            $table->unsignedInteger('initial_quantity')->default(0);
+            $table->boolean('is_target')->default(false);
+            $table->enum('type', ['operation', 'sales'])->default('operation');
             $table->enum('status', ['active', 'inactive'])->default('active');
-
             $table->foreignId('created_by')->constrained('users', 'id')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users', 'id')->cascadeOnUpdate()->nullOnDelete();
             $table->timestamps();

@@ -41,13 +41,13 @@ class CustomerDataTable extends DataTable
 
         ->editColumn('status', function ($model) {
             if ($model->status == 'active') {
-                return '<i class="bi bi-circle-fill mx-2 text-success"></i>' . ucfirst($model->status);
+                return '<i class="bi bi-check-circle-fill text-success" style="font-size:large"></i>';
             } elseif ($model->status == 'inactive') {
-                return '<i class="bi bi-circle-fill mx-2 text-secondary"></i>' . ucfirst($model->status);
+                return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large"></i>';
             }
         })
         ->editColumn('name', function ($model) {
-            return '<a href="'.route('customers.show', ['customer' => $model]).'" target="_blank">'.$model->name.'</a>';
+            return '<a href="'.route('customers.show', ['customer' => $model]).'" target="_blank">'.$model->salutation.'. '. $model->name.'</a>';
         })
         ->editColumn('email', function ($model) {
             return $model->email ?? null;
@@ -68,7 +68,7 @@ class CustomerDataTable extends DataTable
             return $model->notes?? null;
         })
         ->editColumn('is_vip', function ($model) {
-            return $model->is_vip? '<i class="bi bi-check-circle mx-2 text-success"></i> VIP' :null;
+            return $model->is_vip? '<i class="bi bi-star-fill" style="color:#D38E29;font-size: x-large;"></i>' :null;
         })
         ->editColumn('last_service', function ($model) {
             return $model->last_service?? null;

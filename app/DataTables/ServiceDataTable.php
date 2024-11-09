@@ -48,12 +48,16 @@ class ServiceDataTable extends DataTable
                 }
                 return '<img src="' . asset('admin-assets/assets/img/avatar.jpg') . '" alt="' . $model->name . '" style="max-width: 50px; max-height: 75px;">';
             })
-
+            ->editColumn('is_target', function ($model) {
+                if ($model->is_target) {
+                    return '<span class="badge text-bg-danger">' . ucfirst('target') . '</span>';
+                }
+            })
             ->editColumn('status', function ($model) {
                 if ($model->status == 'active') {
-                    return '<i class="bi bi-circle-fill mx-2 text-success"></i>' . ucfirst($model->status);
+                    return '<i class="bi bi-check-circle-fill text-success" style="font-size:large"></i>';
                 } elseif ($model->status == 'inactive') {
-                    return '<i class="bi bi-circle-fill mx-2 text-secondary"></i>' . ucfirst($model->status);
+                    return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large"></i>';
                 }
             })
 
@@ -125,6 +129,7 @@ class ServiceDataTable extends DataTable
             Column::make('duration')->addClass('text-center'),
             Column::make('price')->addClass('text-center'),
 
+            Column::make('is_target')->addClass('text-center')->title('Target'),
             Column::make('status')->addClass('text-center'),
             Column::make('created_by')->addClass('text-center'),
             Column::make('created_at')->addClass('text-center'),

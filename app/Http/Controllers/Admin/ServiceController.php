@@ -62,6 +62,7 @@ class ServiceController extends Controller
                 'notes' => $request->notes,
                 'price' => $request->price,
                 'service_category_id' => $request->service_category_id,
+                'is_target' => $request->is_target,
                 'status' => $request->status,
                 'duration' => $request->duration,
                 'created_by' => auth()->user()->id,
@@ -143,6 +144,8 @@ class ServiceController extends Controller
                 'notes' => $request->notes,
                 'price' => $request->price,
                 'service_category_id' => $request->service_category_id,
+                'is_target' => $request->is_target,
+                'status' => $request->status,
                 'duration' => $request->duration,
                 'image' => $image,
                 'updated_by' => auth()->user()->id,
@@ -196,14 +199,10 @@ class ServiceController extends Controller
         if ($service->image && Storage::exists($service->image)) {
             Storage::delete($service->image);
         }
-
-
         ServiceTool::where('service_id', $service->id)->delete();
         ServiceProduct::where('service_id', $service->id)->delete();
         ServiceEmployee::where('service_id', $service->id)->delete();
-
         $service->delete();
-
         Alert::success(__('Success'), __('Deleted Successfully'));
     }
 
