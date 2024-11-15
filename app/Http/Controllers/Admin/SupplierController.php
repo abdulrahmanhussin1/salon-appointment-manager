@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\SupplierTransaction;
 use App\Http\Controllers\Controller;
 use App\DataTables\SupplierDataTable;
 use App\Http\Requests\SupplierRequest;
@@ -34,18 +36,30 @@ class SupplierController extends Controller
     {
         try {
 
-        Supplier::create([
-            "name"=> $request->name,
-            "email"=> $request->email,
-            'phone'=> $request->phone,
-            'address'=> $request->address,
-            'status'=> $request->status,
-            'created_by'=>auth()->id(),
-        ]);
+            DB::beginTransaction();
+            $supplier = Supplier::create([
+                "name" => $request->name,
+                "email" => $request->email,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'initial_balance' => $request->initial_balance,
+                'status' => $request->status,
+                'created_by' => auth()->id(),
+            ]);
 
-        Alert::success(__('Success'), __('Created Successfully'));
-        return redirect()->back();
+            SupplierTransaction::create([
+                'supplier-id' => $supplier->id,
+                'type' => 'initial_balance',
+                'amount' => $supplier->initial_balance,
+                'notes' => 'Initial Balance'
+            ]);
+
+            DB::commit();
+
+            Alert::success(__('Success'), __('Created Successfully'));
+            return redirect()->back();
         } catch (\Throwable $th) {
+            DB::rollBack();
             dd($th->getMessage());
         }
     }
@@ -71,17 +85,31 @@ class SupplierController extends Controller
      */
     public function update(SupplierRequest $request, Supplier $supplier)
     {
-        $supplier->update([
-            "name"=> $request->name,
-            "email"=> $request->email,
-            'phone'=> $request->phone,
-            'address'=> $request->address,
-            'status'=> $request->status,
-            'updated_by'=>auth()->id(),
-        ]);
+        try {
+            DB::beginTransaction();
 
-        Alert::success(__('Success'), __('Updated Successfully'));
-        return redirect()->route('suppliers.index');
+            $supplier->update([
+                "name" => $request->name,
+                "email" => $request->email,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'initial_balance' => $request->initial_balance,
+                'status' => $request->status,
+                'updated_by' => auth()->id(),
+            ]);
+
+            $initialBalance = SupplierTransaction::where('supplier_id', $supplier->id)->where('type', 'initial_balance')->first();
+            $initialBalance->update([
+                'amount' => $supplier->initial_balance,
+            ]);
+
+            DB::commit();
+            Alert::success(__('Success'), __('Updated Successfully'));
+            return redirect()->route('suppliers.index');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            dd($th->getMessage());
+        }
     }
 
     /**

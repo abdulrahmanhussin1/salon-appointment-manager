@@ -27,6 +27,7 @@ class SupplierRequest extends FormRequest
             'email' => 'nullable|email|unique:suppliers,email,'.$this->supplier->id,
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
+            'initial_balance' => 'nullable|numeric',
             'status' => 'required|in:active,inactive',
             ];
         }
@@ -35,6 +36,7 @@ class SupplierRequest extends FormRequest
             'email' => 'nullable|email|unique:suppliers,email',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
+            'initial_balance' => 'nullable|numeric',
             'status' => 'required|in:active,inactive',
         ];
     }

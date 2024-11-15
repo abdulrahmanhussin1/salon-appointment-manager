@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\DataTables\UnitDataTable;
 use App\Http\Requests\UnitRequest;
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class UnitController extends Controller
@@ -16,7 +17,8 @@ class UnitController extends Controller
      */
     public function index(UnitDataTable $dataTable)
     {
-        return $dataTable->render('admin.pages.settings.units.index');
+        $branches = Branch::where('status', 'active')->select('id','name')->get();
+        return $dataTable->render('admin.pages.settings.units.index',compact('branches'));
     }
 
     /**
@@ -37,6 +39,7 @@ class UnitController extends Controller
             'description'=> $request->description,
             'symbol'=> $request->symbol,
             'status'=> $request->status,
+            'branch_id'=>$request->branch_id,
             'created_by'=>auth()->id()
         ]);
 
@@ -58,6 +61,7 @@ class UnitController extends Controller
      */
     public function edit(Unit $unit)
     {
+        $branches = Branch::where('status','active')->select('id','name')->get();
         return view('admin.pages.settings.units.edit', compact('unit'));
     }
 
@@ -71,6 +75,7 @@ class UnitController extends Controller
             'description'=> $request->description,
             'symbol'=> $request->symbol,
             'status'=> $request->status,
+            'branch_id'=>$request->branch_id,
             'updated_by'=>auth()->id()
             ]);
             Alert::success(__('Success'), __('Updated Successfully'));

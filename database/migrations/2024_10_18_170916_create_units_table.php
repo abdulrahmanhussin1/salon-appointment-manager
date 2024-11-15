@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('symbol')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->foreignId('branch_id')->constrained('branches')->default(1)->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('created_by')->constrained('users', 'id')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users', 'id')->cascadeOnUpdate()->nullOnDelete();
             $table->timestamps();

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->boolean('is_target')->default(false);
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->foreignId('branch_id')->constrained('branches')->default(1)->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('service_category_id')->nullable()->constrained('service_categories')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('created_by')->nullable()->constrained('users')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users')->cascadeOnUpdate()->cascadeOnDelete();

@@ -78,6 +78,10 @@ display: none;
     align-items: center;
     margin-inline: 10px;
 }
+
+.dataTables_wrapper .dataTables_paginate .paginate_button{
+    padding: 0px
+}
     </style>
 
 @yield('css')

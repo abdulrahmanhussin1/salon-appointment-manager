@@ -38,8 +38,12 @@ class ServiceRequest extends FormRequest
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_target' => 'required|boolean',
+            'outside_price' => 'nullable|numeric|min:0',
             'status' => 'required|in:active,inactive',
+            'is_immediate_commission'=> 'required|boolean',
             'service_category_id' => 'nullable|exists:service_categories,id',
+            'branch_id' => 'required|integer|exists:branches,id',
+
 
             'tool_id' => 'nullable|array',
             'tool_id.*' => 'nullable|exists:tools,id',

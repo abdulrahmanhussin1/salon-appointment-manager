@@ -19,39 +19,8 @@ return new class extends Migration {
                 ->cascadeOnUpdate();
         });
 
-        Schema::table('units', function (Blueprint $table) {
-            $table->foreignId('branch_id')
-                ->after('status')
-                ->constrained('branches', 'id')
-                ->cascadeOnUpdate() 
-                ->restrictOnDelete();
-
-        });
-
-        Schema::table('tools', function (Blueprint $table) {
-            $table->foreignId('branch_id')
-                ->after('status')
-                ->constrained('branches', 'id')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
-        });
-
-        Schema::table('products', function (Blueprint $table) {
-            $table->foreignId('branch_id')
-                ->after('status')
-
-                ->constrained('branches', 'id')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
-        });
-
-        Schema::table('employees', function (Blueprint $table) {
-            $table->foreignId('branch_id')
-                ->after('status')
-
-                ->constrained('branches', 'id')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
+        Schema::table('supplier_prices', function (BluePrint $table) {
+            $table->foreignId('purchase_invoice_id')->constrained('purchase_invoices')->after('product_id')->cascadeOnUpdate()->restrictOnDelete();
         });
     }
 

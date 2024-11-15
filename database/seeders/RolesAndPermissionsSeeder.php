@@ -113,6 +113,15 @@ class RolesAndPermissionsSeeder extends Seeder
                 'branches.create',
                 'branches.edit',
                 'branches.destroy',
+
+                /* purchase_invoices */
+                'purchase_invoices.index',
+                'purchase_invoices.show',
+                'purchase_invoices.create',
+                'purchase_invoices.edit',
+                'purchase_invoices.destroy',
+
+
             ],
         ];
 

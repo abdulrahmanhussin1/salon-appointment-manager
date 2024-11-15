@@ -34,6 +34,17 @@
                 <div class="card-body">
                     <x-input type="text" value="{{ isset($tool) ? $tool->name : old('name') }}" label="Name" name='name' placeholder='Tool Name'
                         id="tool_name" oninput="{{ null }}" required />
+
+                        <x-form-select name="branch_id" id="branch_id" label='Branch' required>
+                                <option value="">{{ __('Select one Branch') }}</option>
+                                @foreach ($branches as $branch)
+                                    <option @if (isset($tool) && ($tool->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
+                                        value="{{ $branch->id }}">{{ $branch->name }}
+                                    </option>
+                                @endforeach
+                            </x-form-select>
+
+
                     <x-form-description value="{{ isset($tool) ? $tool->description : old('description') }}"
                         label="Description" name='description' placeholder='Tool Description' />
                     <x-form-select name='status' id="status" label="status" required>
@@ -61,6 +72,10 @@
                    required: true,
                    maxlength: 150
                },
+               branch_id:{
+                required: true
+
+               },
                description: {
                     minlength: 3,
                     maxlength: 500
@@ -74,6 +89,9 @@
                    required: 'Please enter your name.',
                    maxlength: 'Name must not exceed 150 characters.'
                },
+               branch_id:{
+                required: 'Please select a branch.'
+                },
                description: {
                     minlength: 'Description must be at least 4 characters',
                     maxlength: 'Description must not exceed 500 characters.'

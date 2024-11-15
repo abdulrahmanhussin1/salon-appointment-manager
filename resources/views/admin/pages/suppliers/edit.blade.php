@@ -38,6 +38,9 @@
                     placeholder='Example@gmail.com' id="email" oninput="{{ null }}" />
                 <x-input type="text" value="{{$supplier->phone ?? old('phone') }}" label="phone" id="phone" name='phone'
                     placeholder="phone  Ex: 010xxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
+
+                    <x-input type="text" value="{{ $supplier->initial_balance ?? old('initial_balance') }}" label="initial balance" id="initial_balance" name='initial_balance'
+                    placeholder="0.00 L.E" oninput="this.value = this.value.replace(/[^0-9+-]/g, '')" />
                 <x-form-description value="{{ $supplier->address ?? old('address') }}" label="address" name='address'
                     placeholder='supplier Address' />
                 <x-form-select name='status' id="status" label="status" required>

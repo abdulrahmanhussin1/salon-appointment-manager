@@ -21,14 +21,39 @@
                 </a>
             </li>
         @endif
-        @if (App\Traits\AppHelper::perUser('suppliers.index'))
+
+@if (App\Traits\AppHelper::perUser('suppliers.index') )
+
             <li class="nav-item">
-                <a class="nav-link collapsed" href="{{ route('suppliers.index') }}">
-                    <i class="bi bi-person-fill-down"></i>
-                    <span>{{ __('Suppliers') }}</span>
+                <a class="nav-link collapsed" data-bs-target="#suppier-nav" data-bs-toggle="collapse" href="#">
+                   <i class="bi bi-person-fill-down"></i><span>{{ __('Suppliers') }}</span><i
+                        class="bi bi-chevron-down ms-auto"></i>
                 </a>
+                @if (App\Traits\AppHelper::perUser('suppliers.index'))
+                    <ul id="suppier-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('suppliers.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Suppliers') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
+
+                 @if (App\Traits\AppHelper::perUser('purchase_invoices.index'))
+                    <ul id="suppier-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('purchase_invoices.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Purchase Invoices') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
             </li>
+
         @endif
+
+
+
 
 
 

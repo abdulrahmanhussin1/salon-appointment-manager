@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Branch;
 use App\Models\Service;
 use App\Models\Employee;
 use App\Traits\AppHelper;
 use App\Models\EmployeeWage;
 use Illuminate\Http\Request;
 use App\Models\EmployeeLevel;
+use App\Models\ServiceEmployee;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\DataTables\EmployeeDataTable;
 use App\Http\Requests\EmployeeRequest;
-use App\Models\ServiceEmployee;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -32,8 +33,9 @@ class EmployeeController extends Controller
     public function create()
     {
         $employeeLevels = EmployeeLevel::where('status', 'active')->select('id', 'name')->get();
-        $services = Service::where('status', 'active')->select('id','name')->get();
-        return view('admin.pages.employees.employees.create_edit', compact('employeeLevels','services'));
+        $services = Service::where('status', 'active')->select('id', 'name')->get();
+        $branches = Branch::where('status', 'active')->select('id', 'name')->get();
+        return view('admin.pages.employees.employees.create_edit', compact('employeeLevels', 'services', 'branches'));
     }
 
     /**
@@ -65,6 +67,7 @@ class EmployeeController extends Controller
                 'employee_level_id' => $request->employee_level_id,
                 'inactive_reason' => $request->inactive_reason,
                 'termination_date' => $request->termination_date,
+                'branch_id' => $request->branch_id,
                 'created_by' => auth()->user()->id,
             ]);
             $totalSalary = $this->calculateTotalSalary($request);
@@ -91,7 +94,7 @@ class EmployeeController extends Controller
             foreach ($request->service_id as $serviceId) {
                 ServiceEmployee::create([
                     'employee_id' => $employee->id,
-                   'service_id' => $serviceId,
+                    'service_id' => $serviceId,
                 ]);
             };
             DB::commit();
@@ -101,7 +104,6 @@ class EmployeeController extends Controller
             DB::rollBack();
             Alert::error(__('error'), __('error in create employee , please try again'));
         }
-
     }
 
     /**
@@ -119,9 +121,10 @@ class EmployeeController extends Controller
     {
         $employeeLevels = EmployeeLevel::where('status', 'active')->select('id', 'name')->get();
         $employeeWage = EmployeeWage::where('employee_id', $employee->id)->first();
-        $services = Service::where('status', 'active')->select('id','name')->get();
+        $services = Service::where('status', 'active')->select('id', 'name')->get();
+        $branches = Branch::where('status', 'active')->select('id', 'name')->get();
 
-        return view('admin.pages.employees.employees.create_edit', compact('employee','services', 'employeeLevels','employeeWage'));
+        return view('admin.pages.employees.employees.create_edit', compact('employee', 'services', 'employeeLevels', 'employeeWage', 'branches'));
     }
 
     /**
@@ -152,6 +155,7 @@ class EmployeeController extends Controller
                 'employee_level_id' => $request->employee_level_id,
                 'inactive_reason' => $request->inactive_reason,
                 'termination_date' => $request->termination_date,
+                'branches_id' => $request->branches_id,
                 'updated_by' => auth()->user()->id,
             ]);
 
@@ -180,7 +184,7 @@ class EmployeeController extends Controller
             foreach ($request->service_id as $serviceId) {
                 ServiceEmployee::create([
                     'employee_id' => $employee->id,
-                   'service_id' => $serviceId,
+                    'service_id' => $serviceId,
                 ]);
             };
             DB::commit();
@@ -191,7 +195,6 @@ class EmployeeController extends Controller
             Alert::error(__('error'), __('error in update employee , please try again'));
             return redirect()->back();
         }
-
     }
 
     /**
@@ -217,9 +220,9 @@ class EmployeeController extends Controller
     private function calculateTotalSalary($request)
     {
         return ($request->basic_salary ?? 0) +
-               ($request->bonus_salary ?? 0) +
-               ($request->allowance1 ?? 0) +
-               ($request->allowance2 ?? 0) +
-               ($request->allowance3 ?? 0);
+            ($request->bonus_salary ?? 0) +
+            ($request->allowance1 ?? 0) +
+            ($request->allowance2 ?? 0) +
+            ($request->allowance3 ?? 0);
     }
 }

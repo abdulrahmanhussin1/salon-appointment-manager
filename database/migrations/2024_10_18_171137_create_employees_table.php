@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('inactive_reason')->nullable();
             $table->date('termination_date')->nullable();
             $table->foreignId('employee_level_id')->nullable()->constrained('employee_levels')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreignId('branch_id')->constrained('branches')->default(1)->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete()->cascadeOnUpdate();
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete()->cascadeOnUpdate();
 

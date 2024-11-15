@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Unit;
+use App\Models\Branch;
 use App\Models\Product;
 use App\Models\Supplier;
 use Carbon\Traits\Units;
@@ -32,8 +33,9 @@ class ProductController extends Controller
         $suppliers = Supplier::where('status', 'active')->select('id', 'name')->get();
         $units = Unit::where('status', 'active')->select('id', 'name')->get();
         $productCategories = ProductCategory::where('status', 'active')->select('id', 'name')->get();
+        $branches = Branch::where('status', 'active')->select('id', 'name')->get();
 
-        return view('admin.pages.products.products.create_edit', compact('suppliers', 'units', 'productCategories'));
+        return view('admin.pages.products.products.create_edit', compact('suppliers', 'units', 'productCategories','branches'));
     }
 
     /**
@@ -49,17 +51,18 @@ class ProductController extends Controller
         Product::create([
             'name' => $request->name,
             'description' => $request->description,
-            'supplier_price' => $request->supplier_price,
-            'customer_price' => $request->customer_price,
+            // 'supplier_price' => $request->supplier_price,
+            // 'customer_price' => $request->customer_price,
+            //'outside_price' => $request->outside_price,
             'unit_id' => $request->unit_id,
             'supplier_id' => $request->supplier_id,
             'category_id' => $request->category_id,
             'is_target' => $request->is_target,
-            'outside_price' => $request->outside_price,
             'initial_quantity' => $request->initial_quantity,
             'type' => $request->type,
             'status' => $request->status,
             'image' => $image,
+            'branch_id' => $request->branch_id,
             'created_by' => auth()->id(),
         ]);
 
@@ -83,8 +86,9 @@ class ProductController extends Controller
         $suppliers = Supplier::where('status', 'active')->select('id', 'name')->get();
         $units = Unit::where('status', 'active')->select('id', 'name')->get();
         $productCategories = ProductCategory::where('status', 'active')->select('id', 'name')->get();
+        $branches = Branch::where('status', 'active')->select('id', 'name')->get();
 
-        return view('admin.pages.products.products.create_edit', compact('product', 'suppliers', 'units', 'productCategories'));
+        return view('admin.pages.products.products.create_edit', compact('product', 'suppliers', 'units', 'productCategories', 'branches'));
     }
 
     /**
@@ -104,17 +108,18 @@ class ProductController extends Controller
         $product->update([
             'name' => $request->name,
             'description' => $request->description,
-            'supplier_price' => $request->supplier_price,
-            'customer_price' => $request->customer_price,
+            // 'supplier_price' => $request->supplier_price,
+            // 'customer_price' => $request->customer_price,
+            //'outside_price' => $request->outside_price,
             'unit_id' => $request->unit_id,
             'supplier_id' => $request->supplier_id,
             'category_id' => $request->category_id,
-            'outside_price' => $request->outside_price,
             'initial_quantity' => $request->initial_quantity,
             'is_target' => $request->is_target,
             'type' => $request->type,
             'status' => $request->status,
             'image' => $image,
+            'branch_id' => $request->branch_id,
             'updated_by' => auth()->id(),
         ]);
         Alert::success(__('Success'), __('Updated Successfully'));

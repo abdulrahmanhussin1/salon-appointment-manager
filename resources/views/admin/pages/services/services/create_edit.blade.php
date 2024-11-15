@@ -108,13 +108,24 @@
                                 <!-- Checkbox input -->
                                 <input class="form-check-input" type="checkbox" role="switch" value="1"
                                     name="is_target" id="flexSwitchCheckDefault"
-                                    {{ (isset($service)  && $service->is_target) || old('is_target') ? 'checked' : '' }}>
+                                    {{ (isset($service) && $service->is_target) || old('is_target') ? 'checked' : '' }}>
                                 <label class="form-check-label" for="flexSwitchCheckDefault">{{ __('Target?') }}</label>
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
+                            <div class="col-3">
+                            <x-input type="text" value="{{ $service->outsie_price ?? old('outsie_price') }}"
+                                label="Outside price" id="outsie_price" name='outsie_price' placeholder="Outside price"
+                                oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
+                        </div>
+                        <div class="col-3">
+                            <x-input type="text" value="{{ $service->duration ?? old('duration') }}"
+                                label="duration (in minutes)" id="duration" name='duration'
+                                placeholder="Duration in minustes"
+                                oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
+                        </div>
 
                         <div class="col-6">
                             <x-form-select name="service_category_id" id="service_category_id" label='Category' required>
@@ -126,13 +137,20 @@
                             </x-form-select>
                         </div>
 
+
+
                         <div class="col-6">
-                            <x-input type="text" value="{{ $service->duration ?? old('duration') }}" label="duration (in minutes)"
-                                id="duration" name='duration' placeholder="Duration in minustes"
-                                oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
+                            <x-form-select name="branch_id" id="branch_id" label='Branch' required>
+                                <option value="">{{ __('Select one Branch') }}</option>
+                                @foreach ($branches as $branch)
+                                    <option @if (isset($service) && ($service->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
+                                        value="{{ $branch->id }}">{{ $branch->name }}
+                                    </option>
+                                @endforeach
+                            </x-form-select>
                         </div>
 
-                        <div class="col-12">
+                        <div class="col-6">
                             <x-form-select name='status' id="status" label="status" required>
                                 <option @if (isset($service) && $service->status == 'active') selected @endif value="active">
                                     {{ __('Active') }}</option>
@@ -233,6 +251,15 @@
                         number: true,
                         min: 0
                     },
+                    outside_price :{
+                        required: true,
+                        number: true,
+                        min: 0
+                    },
+
+                    branch_id: {
+                        required: true
+                    },
 
                     service_category_id: {
                         required: true
@@ -261,6 +288,14 @@
                         min: "The price cannot be less than zero."
                     },
 
+                    outside_price: {
+                        required: "The outside price is required.",
+                        number: "Please enter a valid number.",
+                        min: "The outside price cannot be less than zero."
+                        },
+                    branch_id: {
+                        required: "Please select a branch."
+                    },
                     service_category_id: {
                         required: "Please select a category."
                     },

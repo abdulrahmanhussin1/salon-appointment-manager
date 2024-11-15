@@ -3,8 +3,8 @@
 
     <div class="d-flex align-items-center justify-content-between">
         <a href="{{ route('home.index') }}" class="logo d-flex align-items-center">
-            <img src="{{ asset('admin-assets') }}/assets/img/logo.png" alt="">
-            <span class="d-none d-lg-block">{{ __('POS Software') }}</span>
+            <img style="width: 50px" src="{{ !empty($adminPanelSetting->system_logo) ? (Storage::exists($adminPanelSetting->system_logo) ? Storage::url($adminPanelSetting->system_logo) : asset('admin-assets/assets/img/avatar.jpg')) : '' }}" alt="">
+            <span class="d-none d-lg-block">{{ $adminPanelSetting->system_name }}</span>
         </a>
         <i class="bi bi-list toggle-sidebar-btn"></i>
     </div><!-- End Logo -->

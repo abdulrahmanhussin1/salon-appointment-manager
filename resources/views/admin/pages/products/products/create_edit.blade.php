@@ -90,15 +90,22 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <x-input type='text' :value="isset($product) ? $product->name : old('name')" label="Name" name='name'
                                 placeholder='product Name' id="name" oninput="" required />
                         </div>
-                        <div class="col-4">
+                        <div class="col-3">
                             <x-input type="text" value="{{ $product->code ?? old('code') }}" label="Code"
                                 id="code" name='code' placeholder="Code"
                                 oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
                         </div>
+
+                        <div class="col-3">
+                            <x-input type="text" value="{{ $product->initial_quantity ?? old('initial_quantity') }}"
+                                label="initial quantity" id="initial_quantity" name='initial_quantity' placeholder="0"
+                                oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
+                        </div>
+
                         <div class="col-2">
                             <div class="form-check form-switch mt-4 mb-0 pt-2">
                                 <!-- Hidden input to handle unchecked state -->
@@ -106,21 +113,27 @@
                                 <!-- Checkbox input -->
                                 <input class="form-check-input" type="checkbox" role="switch" value="1"
                                     name="is_target" id="flexSwitchCheckDefault"
-                                    {{ (isset($product)  && $product->is_target) || old('is_target') ? 'checked' : '' }}>
+                                    {{ (isset($product) && $product->is_target) || old('is_target') ? 'checked' : '' }}>
                                 <label class="form-check-label" for="flexSwitchCheckDefault">{{ __('Target?') }}</label>
                             </div>
                         </div>
-                        <div class="col-6">
+                        {{-- <div class="col-4">
                             <x-input type="text" value="{{ $product->supplier_price ?? old('supplier_price') }}"
                                 label="Purchasing price" id="supplier_price" name='supplier_price'
                                 placeholder="Purchasing price" oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
                         </div>
 
-                        <div class="col-6">
+                        <div class="col-4">
                             <x-input type="text" value="{{ $product->customer_price ?? old('customer_price') }}"
                                 label="Selling price" id="customer_price" name='customer_price' placeholder="Selling price"
                                 oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
                         </div>
+
+                            <div class="col-4">
+                            <x-input type="text" value="{{ $product->outsie_price ?? old('outsie_price') }}"
+                                label="Outside price" id="outsie_price" name='outsie_price' placeholder="Outside price"
+                                oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
+                        </div> --}}
                     </div>
 
                     <div class="row">
@@ -144,8 +157,18 @@
                                 @endforeach
                             </x-form-select>
                         </div>
+                        <div class="col-6">
+                            <x-form-select name="branch_id" id="branch_id" label='Branch' required>
+                                <option value="">{{ __('Select one Branch') }}</option>
+                                @foreach ($branches as $branch)
+                                    <option @if (isset($product) && ($product->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
+                                        value="{{ $branch->id }}">{{ $branch->name }}
+                                    </option>
+                                @endforeach
+                            </x-form-select>
+                        </div>
 
-                        <div class="col-4">
+                        <div class="col-6">
                             <x-form-select name="unit_id" id="unit_id" label='unit' required>
                                 <option value="">{{ __('Select one unit') }}</option>
                                 @foreach ($units as $unit)
@@ -155,7 +178,7 @@
                             </x-form-select>
                         </div>
 
-                        <div class="col-4">
+                        <div class="col-6">
                             <x-form-select name='type' id="type" label="type" required>
                                 <option @if (isset($product) && $product->type == 'operation') selected @endif value="operation">
                                     {{ __('Operation') }}</option>
@@ -165,7 +188,7 @@
                         </div>
 
 
-                        <div class="col-4">
+                        <div class="col-6">
                             <x-form-select name='status' id="status" label="status" required>
                                 <option @if (isset($product) && $product->status == 'active') selected @endif value="active">
                                     {{ __('Active') }}</option>
@@ -217,83 +240,102 @@
 
     <script>
         $(document).ready(function() {
-            $('#productForm').validate({
-                rules: {
-                    name: {
-                        required: true,
-                        maxlength: 255,
-                    },
-                    code: {
-                        required: true,
-                        digits: true,
-                    },
-                    description: {
-                        maxlength: 500
-                    },
-                    category_id: {
-                        required: false
-                    },
-                    supplier_id: {
-                        required: false
-                    },
-                    unit_id: {
-                        required: false
-                    },
-                    supplier_price: {
-                        required: true,
-                        number: true,
-                        min: 0
-                    },
-                    customer_price: {
-                        required: true,
-                        number: true,
-                        min: 0
-                    },
-                    status: {
-                        required: true,
-                    }
-                },
-                messages: {
-                    name: {
-                        required: "Product name is required.",
-                        maxlength: "Product name should not exceed 255 characters.",
-                    },
-                    code: {
-                        required: "Product code is required.",
-                        digits: "Product code must be an integer.",
-                    },
-                    image: {
-                        extension: "Only JPEG, PNG, JPG, or GIF images are allowed.",
-                        maxsize: "Image size must not exceed 2 MB."
-                    },
-                    supplier_price: {
-                        required: "Supplier price is required.",
-                        number: "Supplier price must be a number.",
-                        min: "Supplier price cannot be negative."
-                    },
-                    customer_price: {
-                        required: "Customer price is required.",
-                        number: "Customer price must be a number.",
-                        min: "Customer price cannot be negative."
-                    },
-                    status: {
-                        required: "Status is required.",
-                    }
-                },
-                errorClass: "error text-danger fs--1",
-                errorElement: "span",
-                highlight: function(element, errorClass, validClass) {
-                    $(element).addClass(errorClass).removeClass(validClass);
-                    $(element.form).find("label[for=" + element.id + "]").addClass(errorClass);
-                },
-                unhighlight: function(element, errorClass, validClass) {
-                    $(element).removeClass(errorClass).addClass(validClass);
-                    $(element.form).find("label[for=" + element.id + "]").removeClass(errorClass);
-                },
-                submitHandler: function(form) {
-                    form.submit();
-                }
-            });
-        });
+                    $('#productForm').validate({
+                            rules: {
+                                name: {
+                                    required: true,
+                                    maxlength: 255,
+                                },
+                                code: {
+                                    required: true,
+                                    digits: true,
+                                },
+                                description: {
+                                    maxlength: 500
+                                },
+                                category_id: {
+                                    required: false
+                                },
+                                supplier_id: {
+                                    required: false
+                                },
+                                branch_id: {
+                                    required: true
+                                },
+                                unit_id: {
+                                    required: false
+                                },
+                                // supplier_price: {
+                                //     required: true,
+                                //     number: true,
+                                //     min: 0
+                                // },
+                                // customer_price: {
+                                //     required: true,
+                                //     number: true,
+                                //     min: 0
+                                // },
+                                // outside_price: {
+                                //     required: true,
+                                //     number: true,
+                                //     min: 0
+                                // },
+                                status: {
+                                    required: true,
+                                }
+                            },
+                            messages: {
+                                name: {
+                                    required: "Product name is required.",
+                                    maxlength: "Product name should not exceed 255 characters.",
+                                },
+                                code: {
+                                    required: "Product code is required.",
+                                    digits: "Product code must be an integer.",
+                                },
+                                image: {
+                                    extension: "Only JPEG, PNG, JPG, or GIF images are allowed.",
+                                    maxsize: "Image size must not exceed 2 MB."
+                                },
+                                branch_id: {
+                                    required: "Branch is required.",
+                                },
+                                // supplier_price: {
+                                //     required: "Supplier price is required.",
+                                //     number: "Supplier price must be a number.",
+                                //     min: "Supplier price cannot be negative."
+                                // },
+
+                                // customer_price: {
+                                //     required: "Customer price is required.",
+                                //     number: "Customer price must be a number.",
+                                //     min: "Customer price cannot be negative."
+                                // },
+
+                                // outside_price: {
+                                //     required: "Outside price is required.",
+                                //     number: "Outside price must be a number.",
+                                //     min: "Outside price cannot be negative."
+                                //     },
+                                category_id: {
+                                    status: {
+                                        required: "Status is required.",
+                                    }
+                                },
+                                errorClass: "error text-danger fs--1",
+                                errorElement: "span",
+                                highlight: function(element, errorClass, validClass) {
+                                    $(element).addClass(errorClass).removeClass(validClass);
+                                    $(element.form).find("label[for=" + element.id + "]").addClass(errorClass);
+                                },
+                                unhighlight: function(element, errorClass, validClass) {
+                                    $(element).removeClass(errorClass).addClass(validClass);
+                                    $(element.form).find("label[for=" + element.id + "]").removeClass(errorClass);
+                                },
+                                submitHandler: function(form) {
+                                    form.submit();
+                                }
+                            });
+                    });
     </script>
 @endsection

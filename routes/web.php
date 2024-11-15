@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\EmployeeLevelController;
 use App\Http\Controllers\Admin\ProductCategoryController;
+use App\Http\Controllers\Admin\PurchaseInvoiceController;
 use App\Http\Controllers\Admin\ServiceCategoryController;
 use App\Http\Controllers\Admin\AdminPanelSettingController;
 
@@ -62,6 +63,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::resource('services', ServiceController::class);
     Route::resource('customers',CustomerController::class);
     Route::resource('branches', BranchController::class);
-
+    Route::resource('purchase_invoices', PurchaseInvoiceController::class);
+    
 });
 require __DIR__ . '/auth.php';

@@ -30,13 +30,15 @@ class ProductRequest extends FormRequest
             'category_id' => 'nullable|exists:product_categories,id',
             'supplier_id' => 'nullable|exists:suppliers,id',
             'unit_id' => 'nullable|exists:units,id',
-            'supplier_price' => 'required|numeric|min:0',
-            'customer_price' => 'required|numeric|min:0',
-            'outside_price' => 'nullable|numeric|min:0',
+            // 'supplier_price' => 'required|numeric|min:0',
+            // 'customer_price' => 'required|numeric|min:0',
+            // 'outside_price' => 'nullable|numeric|min:0',
             'initial_quantity' => 'nullable|integer|min:0',
             'is_target' => 'required|boolean',
             'type' => 'required|in:operation,sales',
             'status' => 'required|in:active,inactive',
+            'branch_id' => 'required|integer|exists:branches,id',
+
         ];
 
         // If the request is a PUT (update), adjust the 'unique' validation rules

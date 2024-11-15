@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Tool;
+use App\Models\Branch;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\Employee;
@@ -42,7 +43,8 @@ class ServiceController extends Controller
         $employees = Employee::select('id', 'name')->where('status', 'active')->get();
         $tools = Tool::select('id', 'name')->where('status', 'active')->get();
         $products = Product::select('id', 'name')->where('status', 'active')->get();
-        return view('admin.pages.services.services.create_edit', compact('serviceCategories', 'employees', 'tools', 'products'));
+        $branches = Branch::select('id', 'name')->where('status', 'active')->get();
+        return view('admin.pages.services.services.create_edit', compact('serviceCategories', 'employees', 'tools', 'products','branches'));
     }
 
     /**
@@ -63,10 +65,12 @@ class ServiceController extends Controller
                 'price' => $request->price,
                 'service_category_id' => $request->service_category_id,
                 'is_target' => $request->is_target,
+                'outside_price' => $request->outside_price,
                 'status' => $request->status,
                 'duration' => $request->duration,
                 'created_by' => auth()->user()->id,
                 'image' => $image,
+                'branch_id' => $request->branch_id,
             ]);
 
             // Attach tools
@@ -125,7 +129,8 @@ class ServiceController extends Controller
         $employees = Employee::select('id', 'name')->where('status', 'active')->get();
         $tools = Tool::select('id', 'name')->where('status', 'active')->get();
         $products = Product::select('id', 'name')->where('status', 'active')->get();
-        return view('admin.pages.services.services.create_edit', compact('service', 'serviceCategories', 'employees', 'tools', 'products'));
+        $branches = Branch::select('id', 'name')->where('status', 'active')->get();
+        return view('admin.pages.services.services.create_edit', compact('service', 'serviceCategories', 'employees', 'tools', 'products','branches'));
     }
 
     /**
@@ -145,9 +150,11 @@ class ServiceController extends Controller
                 'price' => $request->price,
                 'service_category_id' => $request->service_category_id,
                 'is_target' => $request->is_target,
+                'outside_price' => $request->outside_price,
                 'status' => $request->status,
                 'duration' => $request->duration,
                 'image' => $image,
+                'branch_id' => $request->branch_id,
                 'updated_by' => auth()->user()->id,
             ]);
             // Detach previous associations

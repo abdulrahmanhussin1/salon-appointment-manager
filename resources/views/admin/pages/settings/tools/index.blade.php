@@ -31,7 +31,14 @@
             <div class="modal-body">
                 <x-input type='text' value="{{ old('name') }}" label="Name" name='name' placeholder='Tool Name'
                     id="name" oninput="" required />
-
+<x-form-select name="branch_id" id="branch_id" label='Branch' required>
+                                <option value="">{{ __('Select one Branch') }}</option>
+                                @foreach ($branches as $branch)
+                                    <option @if (isset($tool) && ($tool->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
+                                        value="{{ $branch->id }}">{{ $branch->name }}
+                                    </option>
+                                @endforeach
+                            </x-form-select>
                 <x-form-description value="{{ old('description') }}" label="Description" name='description'
                     placeholder='Tool Description' />
                         <x-form-select name='status' id="status" label="status" required>
@@ -54,7 +61,7 @@
 
     <script>
         $(document).ready(function() {
-            $("#status").select2({
+            $("#status,#branch_id").select2({
                 dropdownParent: $("#toolModal")
             });
             $(document).on('click', '.delete-this-tool', function(e) {

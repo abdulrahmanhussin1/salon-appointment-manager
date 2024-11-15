@@ -27,14 +27,18 @@ class ToolRequest extends FormRequest
                 'name'=>'required|string|unique:tools,name,'.$this->tool->id,
                 'description'=>'nullable|string|max:500',
                 'status'=> 'required|string|in:active,inactive',
-                'image'=>'nullable|image|mimes:png,jpg,jpeg|max:2048'
+                'image'=>'nullable|image|mimes:png,jpg,jpeg|max:2048',
+                'branch_id' => 'required|integer|exists:branches,id',
+
             ];
         }
         return [
             'name'=>'required|string|unique:tools,name',
             'description'=>'nullable|string|max:500',
             'status'=> 'required|string|in:active,inactive',
-            'image'=>'nullable|image|mimes:png,jpg,jpeg|max:2048'
+            'image'=>'nullable|image|mimes:png,jpg,jpeg|max:2048',
+            'branch_id' => 'required|integer|exists:branches,id',
+
 
         ];
     }

@@ -81,6 +81,7 @@ class EmployeeRequest extends FormRequest
             'break_time' => 'nullable|date_format:H:i|after:start_working_time',
             'service_id'=>'nullable|array',
             'service_id.*'=>'nullable|integer|exists:services,id',
+            'branch_id'=>'required|integer|exists:branches,id',
         ];
     }
 

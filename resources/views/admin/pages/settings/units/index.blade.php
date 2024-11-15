@@ -33,7 +33,14 @@
                     id="name" oninput="" required />
                     <x-input type='text' value="{{ old('symbol') }}" label="Symbol" name='symbol' placeholder='Unit Symbol'
                     id="symbol" oninput=""/>
-
+<x-form-select name="branch_id" id="branch_id" label='Branch' required>
+                                <option value="">{{ __('Select one Branch') }}</option>
+                                @foreach ($branches as $branch)
+                                    <option @if (isset($unit) && ($unit->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
+                                        value="{{ $branch->id }}">{{ $branch->name }}
+                                    </option>
+                                @endforeach
+                            </x-form-select>
                 <x-form-description value="{{ old('description') }}" label="Description" name='description'
                     placeholder='Unit Description' />
                         <x-form-select name='status' id="status" label="status" required>
@@ -54,7 +61,7 @@
 
     <script>
         $(document).ready(function() {
-            $("#status").select2({
+            $("#status,#branch_id").select2({
                 dropdownParent: $("#unitModal")
             });
             $(document).on('click', '.delete-this-unit', function(e) {

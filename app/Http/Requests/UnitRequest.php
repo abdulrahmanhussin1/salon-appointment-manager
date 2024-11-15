@@ -27,6 +27,8 @@ class UnitRequest extends FormRequest
                 'description'=>'nullable|string|max:500',
                 'symbol'=>'nullable|string|max:10',
                 'status'=> 'required|string|in:active,inactive',
+                'branch_id' => 'required|integer|exists:branches,id',
+
             ];
         }
         return [
@@ -34,6 +36,8 @@ class UnitRequest extends FormRequest
             'symbol'=>'nullable|string|max:10',
             'description'=>'nullable|string|max:500',
             'status'=> 'required|string|in:active,inactive',
+            'branch_id' => 'required|integer|exists:branches,id',
+
         ];
     }
 }

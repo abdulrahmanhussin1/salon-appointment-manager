@@ -208,7 +208,7 @@
                                         @enderror
                                         </div>
 
-                                        <div class="col-4">
+                                        <div class="col-6">
                                             <x-form-select name='status' id="status" label="status" required>
                                                 <option @if (isset($employee) && $employee->status == 'active') selected @endif value="active">
                                                     {{ __('Active') }}</option>
@@ -217,14 +217,27 @@
                                             </x-form-select>
                                         </div>
 
-                                        <div class="col-4">
+                                        <div class="col-6">
+                                            <x-form-select name="branch_id" id="branch_id"
+                                                label='Branch' required>
+                                                <option value="">{{ __('Select one Branch') }}</option>
+                                                @foreach ($branches as $branch)
+                                                    <option @if (isset($employee) &&
+                                                            ($employee->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
+                                                        value="{{ $branch->id }}">{{ $branch->name }}
+                                                    </option>
+                                                @endforeach
+                                            </x-form-select>
+                                        </div>
+
+                                        <div class="col-6">
                                             <x-input type='text' :value="isset($employee)
                                                 ? $employee->inactive_reason
                                                 : old('inactive_reason')" label="Inactive Reason"
                                                 name='inactive_reason' placeholder='employee Inactive Reason'
                                                 id="inactive_reason" oninput="" />
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-6">
                                             <label class="form-label" for="termination_date">{{ __('Termination Date') }}</label>
                                             <input type="date" name="termination_date" class="form-control @error('termination_date')  is-invalid @enderror" id="termination_date"
                                                 value="{{ isset($employee) ? $employee->termination_date : old('termination_date', date('Y-m-d')) }}"
@@ -555,6 +568,10 @@
                         required: true,
                         digits: true
                     },
+                    branch_id: {
+                        required: true,
+                        digits: true
+                    },
                     salary_type: {
                         required: false,
                     },
@@ -643,6 +660,10 @@
                     employee_level_id: {
                         required: "Employee level is required.",
                         digits: "Please select a valid employee level ID."
+                    },
+                                        branch_id: {
+                        required: "Branch is required.",
+                        digits: "Please select a valid branch ID."
                     },
                     basic_salary: {
                         number: "Please enter a valid number for Basic Salary.",

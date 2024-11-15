@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\DataTables\ToolDataTable;
 use App\Http\Requests\ToolRequest;
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -17,7 +18,10 @@ class ToolController extends Controller
      */
     public function index(ToolDataTable $dataTable)
     {
-        return $dataTable->render('admin.pages.settings.tools.index');
+        $branches = Branch::select('id','name')
+        ->where('status','active')
+        ->get();
+        return $dataTable->render('admin.pages.settings.tools.index',compact('branches'));
     }
 
     /**
@@ -43,6 +47,7 @@ class ToolController extends Controller
             'description'=> $request->description,
             'status'=> $request->status,
             'image'=> $image,
+            'branch_id'=> $request->branch_id,
             'created_by'=> auth()->id(),
         ]);
 
@@ -63,7 +68,8 @@ class ToolController extends Controller
      */
     public function edit(Tool $tool)
     {
-        return view('admin.pages.settings.tools.edit', compact('tool'));
+        $branches = Branch::select('id','name')->where('status','active')->get();
+        return view('admin.pages.settings.tools.edit', compact('tool','branches'));
     }
 
     /**
@@ -85,6 +91,7 @@ class ToolController extends Controller
             'description'=> $request->description,
             'status'=> $request->status,
             'image'=> $image,
+            'branch_id'=> $request->branch_id,
             'updated_by'=> auth()->id(),
             ]);
 
