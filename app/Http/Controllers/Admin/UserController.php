@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use App\DataTables\UsersDataTable;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -28,7 +29,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('admin.pages.users.create_edit');
+        $employees = Employee::where('status', 'active')->select('id','name')->get();
+        return view('admin.pages.users.create_edit',compact('employees'));
     }
 
     /**
@@ -47,6 +49,7 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
             'photo' => $photo,
             'status' => $request->status,
+            'employee_id' => $request->employee_id,
             'created_by' => auth()->id(),
         ]);
 
@@ -76,7 +79,8 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $roles = Role::select('id','name')->get();
-        return view('admin.pages.users.create_edit', compact('user', 'roles'));
+        $employees = Employee::select('id','name')->where('status','active')->get();
+        return view('admin.pages.users.create_edit', compact('user', 'roles','employees'));
     }
 
     /**
@@ -99,6 +103,7 @@ class UserController extends Controller
             'password' => $request->password ?  Hash::make($request->password) : $user->password,
             'photo' => $photo,
             'status' => $request->status,
+            'employee_id' => $request->employee_id,
             'updated_by' => auth()->id(),
         ]);
         $role = Role::find($request->role_id);
@@ -120,7 +125,7 @@ class UserController extends Controller
             Storage::delete($user->photo);
         }
         $user->syncRoles([]);
-        $user->syncPermissions([]);  
+        $user->syncPermissions([]);
         $user->delete();
         Alert::success(__('Success'), __('Deleted Successfully'));
     }

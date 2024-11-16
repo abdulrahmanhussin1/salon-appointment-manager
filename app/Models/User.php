@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Employee;
 use App\Traits\HasUserActions;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
@@ -56,4 +57,9 @@ class User extends Authenticatable
     /* protected $appends = [
         'photo',
     ]; */
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class,'employee_id');
+    }
 }

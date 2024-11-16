@@ -22,6 +22,10 @@ return new class extends Migration {
         Schema::table('supplier_prices', function (BluePrint $table) {
             $table->foreignId('purchase_invoice_id')->constrained('purchase_invoices')->after('product_id')->cascadeOnUpdate()->restrictOnDelete();
         });
+
+        schema::table('users', function (BluePrint $table) {
+            $table->foreignId('employee_id')->nullable()->after('email')->constrained('employees')->cascadeOnUpdate()->restrictOnDelete();
+        });
     }
 
     /**

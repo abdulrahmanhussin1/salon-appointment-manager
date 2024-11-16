@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('supplier_transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('supplier_id')->constrained('suppliers')->cascadeOnUpdate()->restrictOnDelete();
-            $table->enum('type', ['purchase','return' ,'payment', 'adjustment', 'initial_balance'])->default('purchase');
             $table->morphs('reference');
             $table->decimal('amount', 15, 2)->default(0);
             $table->string('notes')->nullable();

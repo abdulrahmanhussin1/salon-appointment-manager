@@ -13,24 +13,6 @@ class SupplierPrice extends Model
 
    protected $table = 'supplier_prices';
 
-
-
-
-    public static function createOrUpdatePrice($productId, $supplierId, $supplierPrice, $invoiceId)
-    {
-        $supplierPriceRecord = self::updateOrCreate(
-            [
-                'product_id' => $productId,
-                'supplier_id' => $supplierId,
-            ],
-            [
-                'supplier_price' => $supplierPrice,
-                'invoice_id' => $invoiceId,
-            ]
-        );
-
-        return $supplierPriceRecord;
-    }
 }
 
 

@@ -9,6 +9,9 @@ class SupplierTransaction extends Model
 {
     use HasFactory;
 
+    protected $guarded = ['id'];
+    protected $table ='supplier_transactions';
+
     public const TYPE_PURCHASE = 'purchase';
     public const TYPE_RETURN = 'return';
     public const TYPE_PAYMENT = 'payment';

@@ -30,6 +30,7 @@ class UserRequest extends FormRequest
             'photo'=> 'nullable|image|mimes:jpeg,png,jpg,gif',
             'status' => 'required|string|in:active,inactive',
             'role_id'=> 'required|integer|exists:roles,id',
+            'employee_id'=> 'nullable|integer|exists:employees,id|unique:users,employee_id,'.$this->user->id,
         ];
     }
 
@@ -40,6 +41,7 @@ class UserRequest extends FormRequest
             'photo'=> 'nullable|image|mimes:jpeg,png,jpg,gif',
             'status' => 'required|string|in:active,inactive',
             'role_id'=> 'required|integer|exists:roles,id',
+            'employee_id'=> 'nullable|integer|exists:employees,id|unique:users,employee_id',
         ];
 
     }

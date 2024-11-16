@@ -22,9 +22,11 @@ class PurchaseInvoiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'invoice_number' => 'required|unique:purchase_invoices,invoice_number|numeric',
+            'invoice_number' => 'nullable|unique:purchase_invoices,invoice_number|numeric',
             'invoice_date' => 'required|date',
             'total_amount' => 'required|numeric|min:0.01',
+            'invoice_discount'=>'nullable|numeric|min:0',
+            'invoice_notes'=>'nullable|string|max:500',
             'supplier_id' => 'required|exists:suppliers,id',
             'status' => 'required|in:active,inactive',
             'branch_id' => 'nullable|exists:branches,id',

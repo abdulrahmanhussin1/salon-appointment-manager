@@ -1,21 +1,21 @@
 @extends('admin.layouts.app')
 @section('title')
-    {{ __('Purchase Invoices Page ') }}
+    {{ __('Suppliers Page ') }}
 @endsection
 @section('content')
     {{-- Start breadcrumbs --}}
-    <x-breadcrumb pageName="Purchase Invoices">
+    <x-breadcrumb pageName="Suppliers">
         <x-breadcrumb-item>
             <a class="active" href="{{ route('home.index') }}">{{ __('Home') }}</a>
         </x-breadcrumb-item>
-        <x-breadcrumb-item>{{ __('Purchase Invoices') }}</x-breadcrumb-item>
+        <x-breadcrumb-item>{{ __('Suppliers') }}</x-breadcrumb-item>
     </x-breadcrumb>
     {{-- End breadcrumbs --}}
 
     <section class="section">
         <div class="d-flex justify-content-end">
-            @if (App\Traits\AppHelper::perUSer('purchase_invoices.create'))
-                <x-create-button title="New Invoice" route="purchase_invoices.create" />
+            @if (App\Traits\AppHelper::perUSer('suppliers.create'))
+                <x-modal-button title="Supplier" target="supplierModal"><i class="bi bi-plus-lg me-2"></i></x-modal-button>
             @endif
         </div>
         @include('admin.layouts.alerts')
@@ -23,20 +23,53 @@
             {{ $dataTable->table(['class' => ' responsive table fs--1 mb-0 bg-white my-3 rounded-2 shadow', 'width' => '100%']) }}
         </div>
     </section>
+
+
+    <x-modal id="supplierModal" title="Create Supplier">
+        <form action="{{ route('suppliers.store') }}" method="POST" id="supplierForm" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-body">
+                <x-input type='text' value="{{ old('name') }}" label="Name" name='name'
+                    placeholder='supplier Name' id="name" oninput="" required />
+                <x-input type="email" value="{{ old('email') }}" label="Email" name='email'
+                    placeholder='Example@gmail.com' id="email" oninput="{{ null }}" />
+                <x-input type="text" value="{{ old('phone') }}" label="phone" id="phone" name='phone'
+                    placeholder="phone  Ex: 010xxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
+
+                    <x-input type="text" value="{{ old('initial_balance') }}" label="initial balance" id="initial_balance" name='initial_balance'
+                    placeholder="0.00 L.E" oninput="this.value = this.value.replace(/[^0-9+-]/g, '')" />
+                <x-form-description value="{{ old('address') }}" label="address" name='address'
+                    placeholder='supplier Address' />
+
+                <x-form-select name='status' id="status" label="status" required>
+                    <option @if (old('status') == 'active') selected @endif value="active">
+                        {{ __('Active') }}</option>
+                    <option @if (old('status') == 'inactive') selected @endif value="inactive">
+                        {{ __('Inactive') }}</option>
+                </x-form-select>
+            </div>
+            <x-modal-footer />
+        </form>
+
+
+    </x-modal>
 @endsection
 @section('js')
     {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
 
     <script>
         $(document).ready(function() {
-            $(document).on('click', '.delete-this-purchase_invoice', function(e) {
+            $("#status").select2({
+                dropdownParent: $("#supplierModal")
+            });
+            $(document).on('click', '.delete-this-supplier', function(e) {
                 e.preventDefault();
                 let el = $(this);
                 let url = el.attr('data-url');
                 let id = el.attr('data-id');
 
                 Swal.fire({
-                    title: "Are you sure you really want to delete this purchase invoice?",
+                    title: "Are you sure you really want to delete this supplier?",
                     text: "You won't be able to revert this!",
                     icon: "warning",
                     showCancelButton: true,
@@ -58,13 +91,13 @@
                             },
                             success: function(msg) {
                                 window.location.href =
-                                    "{{ route('purchase_invoices.index') }}";
+                                "{{ route('suppliers.index') }}";
                             }
                         });
                     } else if (result.dismiss === Swal.DismissReason.cancel) {
                         Swal.fire({
                             title: "Cancelled",
-                            text: "purchase invoice is safe :)",
+                            text: "Supplier is safe :)",
                             icon: "error"
                         });
                     }

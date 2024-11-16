@@ -20,7 +20,15 @@ class PurchaseInvoice extends Model
         return $this->hasMany(PurchaseInvoiceDetail::class, 'purchase_invoice_id');
     }
 
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class,'supplier_id');
+    }
 
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class,'branch_id');
+    }
     protected static function boot()
     {
         parent::boot();
@@ -55,7 +63,13 @@ class PurchaseInvoice extends Model
                 'notes' => $detail['notes'] ?? null,
             ]);
 
-            SupplierPrice::createOrUpdatePrice($detail['product_id'], $this->supplier_id, $detail['supplier_price'], $this->id);
+            SupplierPrice::create([
+                'product_id' => $detail['product_id'],
+                'supplier_id' => $this->supplier_id,
+                'supplier_price' => $detail['supplier_price'],
+                 'discount' => $detail['discount'] ,
+                'purchase_invoice_id' => $this->id, // Purchase Invoice ID from the current invoice
+            ]);
         }
     }
 }

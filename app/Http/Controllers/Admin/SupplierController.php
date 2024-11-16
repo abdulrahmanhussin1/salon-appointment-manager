@@ -62,6 +62,7 @@ class SupplierController extends Controller
             DB::rollBack();
             dd($th->getMessage());
         }
+
     }
 
     /**

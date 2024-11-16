@@ -4,7 +4,7 @@
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <title>{{ env('APP_NAME') }} | @yield('title')</title>
+    <title>{{ $adminPanelSetting->system_name }} | @yield('title')</title>
 
     @include('admin.layouts.styles')
   </head>

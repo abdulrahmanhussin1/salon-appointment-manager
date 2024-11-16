@@ -23,4 +23,13 @@ class Employee extends Model
         return $this->belongsToMany(Service::class,'service_employees');
     }
 
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    public function user()
+    {
+        return $this->hasOne(User::class,'employee_id');
+    }
 }

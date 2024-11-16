@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('invoice_number')->unique();
             $table->date('invoice_date');
-            $table->unsignedDecimal('total_amount');
+            $table->unsignedDecimal('total_amount',15,2);
             $table->enum('status', ['active', 'inactive']);
+            $table->unsignedDecimal('invoice_discount', 10, 2)->default(0);
+            $table->text('invoice_notes')->nullable();
             $table->foreignId('supplier_id')->constrained('suppliers')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('branch_id')->nullable()->constrained('branches')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('created_by')->constrained('users', 'id')->cascadeOnUpdate()->restrictOnDelete();
