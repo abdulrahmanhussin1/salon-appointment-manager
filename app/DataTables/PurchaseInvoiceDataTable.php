@@ -33,9 +33,9 @@ class PurchaseInvoiceDataTable extends DataTable
                 if (AppHelper::perUser('purchase_invoices.edit')) {
                     $html .= '<a href="' . route('purchase_invoices.edit', ['purchase_invoice' => $model]) . '" class="dropdown-item">Edit</a>';
                 }
-                if (AppHelper::perUser('purchase_invoices.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-purchase_invoice" data-id="' . $model->id . '" data-url="' . route('purchase_invoices.destroy', ['purchase_invoice' => $model]) . '">Delete</a></div></div>';
-                }
+                // if (AppHelper::perUser('purchase_invoices.destroy')) {
+                //     $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-purchase_invoice" data-id="' . $model->id . '" data-url="' . route('purchase_invoices.destroy', ['purchase_invoice' => $model]) . '">Delete</a></div></div>';
+                // }
                 return $html;
             })
 

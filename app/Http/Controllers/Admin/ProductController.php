@@ -66,7 +66,7 @@ class ProductController extends Controller
             'created_by' => auth()->id(),
         ]);
 
-        Alert::success(__('Success'), __('Created Successfully'));
+        Alert::success(__(key: 'Success'), __('Created Successfully'));
         return redirect()->back();
     }
 

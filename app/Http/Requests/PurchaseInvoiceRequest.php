@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PurchaseInvoiceRequest extends FormRequest
@@ -22,7 +23,16 @@ class PurchaseInvoiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'invoice_number' => 'nullable|unique:purchase_invoices,invoice_number|numeric',
+            'invoice_number' => [
+                'required',
+                'string',
+                'max:20',
+                'regex:/^[a-zA-Z0-9-]+$/',
+                $this->routeIs('purchase_invoices.update')
+                    ? Rule::unique('purchase_invoices', 'invoice_number')->ignore($this->route('purchase_invoice'))
+                    : Rule::unique('purchase_invoices', 'invoice_number'),
+            ],
+
             'invoice_date' => 'required|date',
             'total_amount' => 'required|numeric|min:0.01',
             'invoice_discount'=>'nullable|numeric|min:0',

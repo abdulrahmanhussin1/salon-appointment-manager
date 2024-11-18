@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\SupplierTransaction;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use RealRashid\SweetAlert\Facades\Alert;
 use App\DataTables\PurchaseInvoiceDataTable;
 use App\Http\Requests\PurchaseInvoiceRequest;
 
@@ -93,8 +94,8 @@ class PurchaseInvoiceController extends Controller
 
             DB::commit();
 
-            return response()->json(['message' => 'Purchase invoice created successfully'], 201);
-        } catch (Exception $e) {
+            Alert::success(__(key: 'Success'), __('Created Successfully'));
+            return redirect()->back();        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error creating purchase invoice: ' . $e->getMessage());
 
@@ -117,9 +118,9 @@ class PurchaseInvoiceController extends Controller
     {
         $invoice = PurchaseInvoice::with(['details'])->findOrFail($id);
 
-        $suppliers = Supplier::where('status','active')->select('id', 'name')->get();
-        $products = Product::where('status','active')->select('id', 'name')->get();
-        $branches = Branch::where('status','active')->select('id', 'name')->get();
+        $suppliers = Supplier::where('status', 'active')->select('id', 'name')->get();
+        $products = Product::where('status', 'active')->select('id', 'name')->get();
+        $branches = Branch::where('status', 'active')->select('id', 'name')->get();
 
         $latestInvoiceNumber = null;
 
@@ -140,13 +141,74 @@ class PurchaseInvoiceController extends Controller
     }
 
 
+
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, PurchaseInvoice $id)
+    public function update(PurchaseInvoiceRequest $request, string $id)
     {
-        //
+        $invoice = PurchaseInvoice::with(['details'])->findOrFail($id);
+        try {
+            DB::beginTransaction();
+
+            $invoiceDiscount = $request->invoice_discount ?? 0;
+            $details = request()->details;
+
+            // Add the invoice ID to each detail
+            foreach ($details as &$detail) {
+                if (empty($detail['discount'])) {
+                    $detail['discount'] = 0;
+                }
+                // Add the invoice ID to each detail
+                $detail['purchase_invoice_id'] = $invoice->id;
+            }
+
+            // Merge the updated details back into the request
+           request()->merge(['details' => $details]);
+
+            // Update the invoice
+            $invoice->update([
+                'invoice_number' => $request->invoice_number,
+                'invoice_date' => $request->invoice_date,
+                'total_amount' => $request->total_amount,
+                'invoice_discount' => $invoiceDiscount,
+                'invoice_notes' => $request->invoice_notes,
+                'status' => $request->status,
+                'branch_id' => $request->branch_id,
+                'updated_by' => auth()->id(),
+            ]);
+
+            // Delete old invoice details
+            $invoice->details()->delete();
+
+            // Save the new details (with the invoice ID included)
+            $invoice->saveDetails($details);
+
+            // Update or create the supplier transaction
+            SupplierTransaction::where('reference_id', $invoice->id)
+                ->where('reference_type', SupplierTransaction::TYPE_PURCHASE)
+                ->delete();
+
+            SupplierTransaction::create([
+                'supplier_id' => $invoice->supplier_id,
+                'reference_id' => $invoice->id,
+                'reference_type' => SupplierTransaction::TYPE_PURCHASE,
+                'amount' => $invoice->total_amount,
+                'notes' => 'Purchase invoice #' . $invoice->invoice_number,
+            ]);
+
+            DB::commit();
+
+            Alert::success(__(key: 'Success'), __('Updated Successfully'));
+            return redirect()->back();
+        } catch (Exception $e) {
+            dd($e->getMessage());
+            DB::rollBack();
+            Log::error('Error updating purchase invoice: ' . $e->getMessage());
+            return back()->with('error', 'Failed to update purchase invoice. Please try again.');
+        }
     }
+
 
     /**
      * Remove the specified resource from storage.
