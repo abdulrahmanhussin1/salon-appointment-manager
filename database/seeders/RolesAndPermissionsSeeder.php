@@ -122,6 +122,28 @@ class RolesAndPermissionsSeeder extends Seeder
                 'purchase_invoices.destroy',
 
 
+                /* sales_invoices */
+                'sales_invoices.index',
+                'sales_invoices.show',
+                'sales_invoices.create',
+                'sales_invoices.edit',
+                'sales_invoices.destroy',
+
+                /* inventories */
+                'inventories.index',
+                'inventories.show',
+                'inventories.create',
+                'inventories.edit',
+                'inventories.destroy',
+
+                /* inventory_transactions */
+                'inventory_transactions.transferIn',
+                'inventory_transactions.transferOut'
+
+
+
+
+
             ],
         ];
 

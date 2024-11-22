@@ -1,20 +1,20 @@
 @extends('admin.layouts.app')
 @section('title')
-    {{  __('Edit Unit ')  }}
+    {{  __('Edit Employee Level ')  }}
 @endsection
 @section('css')
 @endsection
 @section('content')
     {{-- Start breadcrumbs --}}
-    <x-breadcrumb pageName="Units">
+    <x-breadcrumb pageName="Employee Level">
         <x-breadcrumb-item>
             <a class="active" href="{{ route('home.index') }}">{{ __('Home') }}</a>
         </x-breadcrumb-item>
         <x-breadcrumb-item>
-            <a href="{{ route('units.index') }}">{{ __('Units') }}</a>
+            <a href="{{ route('employee_levels.index') }}">{{ __('Employee Levels') }}</a>
         </x-breadcrumb-item>
-        <x-breadcrumb-item active="{{ isset($unit) }}">
-            {{  __('Edit :type', ['type' => $unit->name])  }}
+        <x-breadcrumb-item active="{{ isset($employeeLevel) }}">
+            {{  __('Edit :type', ['type' => $employeeLevel->name])  }}
         </x-breadcrumb-item>
     </x-breadcrumb>
 {{-- End breadcrumbs --}}
@@ -24,34 +24,24 @@
         <div class="card-body">
             <div class="card-title">
                 <h4 class="mb-0">
-                    {{  __('Edit :type', ['type' => $unit->name])  }}</h4>
+                    {{  __('Edit :type', ['type' => $employeeLevel->name])  }}</h4>
             </div>
             <hr>
-            <form method="POST" id="unitForm" enctype="multipart/form-data" id="unitForm"
-                action="{{ route('units.update', ['unit' => $unit]) }}">
+            <form method="POST" id="employyeLevelForm" enctype="multipart/form-data" id="employee_levelForm"
+                action="{{ route('employee_levels.update', ['employee_level' => $employeeLevel]) }}">
                 @csrf @method('PUT')
 
                 <div class="card-body">
-                    <x-input type="text" value="{{ isset($unit) ? $unit->name : old('name') }}" label="Name" name='name' placeholder='unit Name'
-                        id="unit_name" oninput="{{ null }}" required />
-                        <x-form-select name="branch_id" id="branch_id" label='Branch' required>
-                                <option value="">{{ __('Select one Branch') }}</option>
-                                @foreach ($branches as $branch)
-                                    <option @if (isset($unit) && ($unit->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
-                                                                @if (!isset($invoice) && Auth::user()->employee?->branch_id == $branch->id) selected @endif
-                                        value="{{ $branch->id }}">{{ $branch->name }}
-                                    </option>
-                                @endforeach
-                            </x-form-select>
-                    <x-form-description value="{{ isset($unit) ? $unit->description : old('description') }}"
-                        label="Description" name='description' placeholder='unit Description' />
-                    <x-form-select name='status' id="status" label="status" required>
-                        <option @if (isset($unit) && $unit->status == 'active') selected @endif value="active">
-                            {{ __('Active') }}</option>
-                        <option @if (isset($unit) && $unit->status == 'inactive') selected @endif value="inactive">
-                            {{ __('Inactive') }}</option>
-                    </x-form-select>
-                    <x-file-input name='image' id="image" label="Image" />
+                    <x-input type='text' value="{{ $employeeLevel->name ?? old('name') }}" label="Name" name='name'
+                    placeholder='Employee Level Name' id="name" oninput="" required />
+                <x-form-description value="{{ $employeeLevel->description ?? old('description') }}" label="description" name='description'
+                    placeholder='Employee Level description' />
+                <x-form-select name='status' id="status" label="status" required>
+                    <option @if (isset($employeeLevel) && $employeeLevel->status == 'active') selected @endif value="active">
+                        {{ __('Active') }}</option>
+                    <option @if (isset($employeeLevel) && $employeeLevel->status == 'inactive') selected @endif value="inactive">
+                        {{ __('Inactive') }}</option>
+                </x-form-select>
                     <div class="text-center mt-2">
                         <x-submit-button label='Confirm' />
                     </div>
@@ -64,15 +54,12 @@
 @section('js')
 <script>
     $(document).ready(function() {
-       $('#unitForm').validate({
+       $('#employyeLevelForm').validate({
            rules: {
                name: {
                    required: true,
                    maxlength: 150
                },
-               branch_id:{
-                   required: true
-                   },
                description: {
                     minlength: 3,
                     maxlength: 500
@@ -86,10 +73,6 @@
                    required: 'Please enter your name.',
                    maxlength: 'Name must not exceed 150 characters.'
                },
-               branch_id:{
-                required: 'Please select a branch.'
-                },
-
                description: {
                     minlength: 'Description must be at least 4 characters',
                     maxlength: 'Description must not exceed 500 characters.'

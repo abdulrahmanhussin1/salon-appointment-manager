@@ -115,7 +115,7 @@
                     </div>
 
                     <div class="row">
-                            <div class="col-3">
+                        <div class="col-3">
                             <x-input type="text" value="{{ $service->outsie_price ?? old('outsie_price') }}"
                                 label="Outside price" id="outsie_price" name='outsie_price' placeholder="Outside price"
                                 oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
@@ -144,6 +144,7 @@
                                 <option value="">{{ __('Select one Branch') }}</option>
                                 @foreach ($branches as $branch)
                                     <option @if (isset($service) && ($service->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
+                                        @if (!isset($invoice) && Auth::user()->employee?->branch_id == $branch->id) selected @endif
                                         value="{{ $branch->id }}">{{ $branch->name }}
                                     </option>
                                 @endforeach
@@ -198,8 +199,8 @@
 
 
                         <div class="col-12">
-                            <x-form-description value="{{ $service->notes ?? old('notes') }}" label="notes" name='notes'
-                                placeholder='service notes' />
+                            <x-form-description value="{{ $service->notes ?? old('notes') }}" label="notes"
+                                name='notes' placeholder='service notes' />
                         </div>
                     </div>
                 </div>
@@ -251,7 +252,7 @@
                         number: true,
                         min: 0
                     },
-                    outside_price :{
+                    outside_price: {
                         required: true,
                         number: true,
                         min: 0
@@ -292,7 +293,7 @@
                         required: "The outside price is required.",
                         number: "Please enter a valid number.",
                         min: "The outside price cannot be less than zero."
-                        },
+                    },
                     branch_id: {
                         required: "Please select a branch."
                     },

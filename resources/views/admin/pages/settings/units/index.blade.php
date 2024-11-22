@@ -37,6 +37,7 @@
                                 <option value="">{{ __('Select one Branch') }}</option>
                                 @foreach ($branches as $branch)
                                     <option @if (isset($unit) && ($unit->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
+                                                                @if (!isset($invoice) && Auth::user()->employee?->branch_id == $branch->id) selected @endif
                                         value="{{ $branch->id }}">{{ $branch->name }}
                                     </option>
                                 @endforeach

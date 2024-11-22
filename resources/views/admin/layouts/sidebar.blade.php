@@ -22,7 +22,17 @@
             </li>
         @endif
 
-@if (App\Traits\AppHelper::perUser('suppliers.index') )
+
+        @if (App\Traits\AppHelper::perUser('inventories.index'))
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="{{ route('inventories.index') }}">
+                    <i class="bi bi-houses-fill"></i>
+                    <span>{{ __('Inventories') }}</span>
+                </a>
+            </li>
+        @endif
+
+@if (App\Traits\AppHelper::perUser('suppliers.index') || App\Traits\AppHelper::perUser('purchase_invoices.index'))
 
             <li class="nav-item">
                 <a class="nav-link collapsed" data-bs-target="#suppier-nav" data-bs-toggle="collapse" href="#">

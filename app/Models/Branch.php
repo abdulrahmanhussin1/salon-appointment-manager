@@ -18,6 +18,11 @@ class Branch extends Model
         return $this->belongsTo(Employee::class, 'manager_id');
     }
 
+    public function inventory()
+    {
+        return $this->hasOne(Inventory::class);
+    }
+
     public function purchaseInvoices()
     {
         return $this->hasMany(PurchaseInvoice::class, 'branch_id');

@@ -13,11 +13,13 @@ use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\EmployeeLevelController;
 use App\Http\Controllers\Admin\ProductCategoryController;
 use App\Http\Controllers\Admin\PurchaseInvoiceController;
 use App\Http\Controllers\Admin\ServiceCategoryController;
 use App\Http\Controllers\Admin\AdminPanelSettingController;
+use App\Http\Controllers\Admin\InventoryTransactionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,6 +66,13 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::resource('customers',CustomerController::class);
     Route::resource('branches', BranchController::class);
     Route::resource('purchase_invoices', PurchaseInvoiceController::class);
-    
+    Route::resource('inventories', InventoryController::class);
+
+
+    Route::post('inventory_transactions/transfer_in', [InventoryTransactionController::class,'transferIn'])
+    ->name('inventory_transactions.transfer_in');
+    Route::post('inventory_transactions/transfer_out', [InventoryTransactionController::class, 'transferOut'])
+    ->name('inventory_transactions.transferOut');
+
 });
 require __DIR__ . '/auth.php';

@@ -157,12 +157,14 @@
                                 @endforeach
                             </x-form-select>
                         </div>
+
                         <div class="col-6">
                             <x-form-select name="branch_id" id="branch_id" label='Branch' required>
                                 <option value="">{{ __('Select one Branch') }}</option>
                                 @foreach ($branches as $branch)
                                     <option @if (isset($product) && ($product->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
-                                        value="{{ $branch->id }}">{{ $branch->name }}
+                                        @if (!isset($invoice) && Auth::user()->employee?->branch_id == $branch->id)  selected="selected"  @endif value="{{ $branch->id }}">
+                                        {{ $branch->name }}
                                     </option>
                                 @endforeach
                             </x-form-select>
@@ -335,6 +337,7 @@
                                 submitHandler: function(form) {
                                     form.submit();
                                 }
+                            }
                             });
                     });
     </script>

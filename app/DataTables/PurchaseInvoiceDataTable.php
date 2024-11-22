@@ -57,7 +57,7 @@ class PurchaseInvoiceDataTable extends DataTable
                 return '$'. $model->total_amount - $model->invoice_discount;
             })
             ->editColumn('branch_id', function ($model) {
-                return '$'. $model->branch_id ? $model->branch->name : '';
+                return $model->branch_id ? $model->branch->name : '';
             })
             ->rawColumns(['action', 'status'])->setRowId('id');
 

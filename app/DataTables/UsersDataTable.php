@@ -42,6 +42,10 @@ class UsersDataTable extends DataTable
                 return $model->photo && Storage::exists($model->photo) ? '<img src="' . asset('storage') . '/' . $model->photo . '" alt="avatar" style="width:50px">' : '<img src="' . asset('admin-assets/assets/img/avatar.jpg') . '" alt="avatar" style="width:50px">';
             })
 
+            ->addColumn('employee_id', function ($model) {
+                return $model->employee_id ? $model->employee->name : null;
+            })
+
             ->addColumn('role', function (User $model) {
                 return $model->roles->map(function ($role) {
                     return '<span style="font-size: 10pt;" class="badge bg-primary mx-1">' . __(ucwords($role->name)) . '</span>';
@@ -109,6 +113,7 @@ class UsersDataTable extends DataTable
             Column::make('id')->addClass('text-center'),
             Column::make('photo')->addClass('text-center'),
             Column::make('name')->addClass('text-center'),
+            Column::make('employee_id')->addClass('text-center')->title('Employee'),
             Column::make('role')->addClass('text-center'),
             Column::make('status')->addClass('text-center'),
             Column::make('created_by')->addClass('text-center'),

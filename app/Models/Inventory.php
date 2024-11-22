@@ -6,25 +6,26 @@ use App\Traits\HasUserActions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Supplier extends Model
+class Inventory extends Model
 {
-    use HasFactory,HasUserActions;
+    use HasFactory, HasUserActions;
 
     protected $guarded = ['id'];
-    protected $table ='suppliers';
+    protected $table = 'inventories';
 
     public function products()
     {
         return $this->hasMany(Product::class);
     }
 
-    public function purchaseInvoices()
+    public function branch()
     {
-        return $this->hasMany(PurchaseInvoice::class, 'supplier_id');
+        return $this->belongsTo(Branch::class);
     }
 
     public function inventoryTransactions()
     {
         return $this->morphMany(InventoryTransaction::class, 'reference');
     }
+
 }

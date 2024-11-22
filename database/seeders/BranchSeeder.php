@@ -13,6 +13,16 @@ class BranchSeeder extends Seeder
      */
     public function run(): void
     {
+
+        Branch::create([
+            'name' => 'master branch',
+            'address' => '123 Main St',
+            'phone' => '123-456-7890',
+            'email' => 'admin@master.com',
+            'status' => 'active',
+            'created_by' => 1,
+        ]);
+
         Branch::factory()->count(100)->create();
 
     }

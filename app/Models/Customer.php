@@ -12,4 +12,9 @@ class Customer extends Model
 
     protected $guarded = ['id'];
     protected $table = 'customers';
+
+    public function inventoryTransactions()
+    {
+        return $this->morphMany(InventoryTransaction::class, 'reference');
+    }
 }

@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('purchase_invoices', function (Blueprint $table) {
+        Schema::create('sales_invoices', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('invoice_number')->unique();
             $table->date('invoice_date');
-            $table->unsignedDecimal('total_amount',15,2);
+            $table->unsignedDecimal('total_amount', 15, 2);
             $table->enum('status', ['active', 'inactive']);
             $table->unsignedDecimal('invoice_discount', 10, 2)->default(0);
             $table->text('invoice_notes')->nullable();
-            $table->foreignId('supplier_id')->constrained('suppliers')->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('customer_id')->constrained('customers')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('branch_id')->default(1)->constrained('branches')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('created_by')->constrained('users', 'id')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users', 'id')->cascadeOnUpdate()->nullOnDelete();
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('purchase_invoices');
+        Schema::dropIfExists('sales_invoices');
     }
 };

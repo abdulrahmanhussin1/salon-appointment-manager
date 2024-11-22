@@ -87,13 +87,24 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <x-input type='text' :value="isset($user) ? $user->name : old('name')" label="Name" name='name'
                                 placeholder='User Name' id="name" oninput="" required />
                         </div>
-                        <div class="col-6">
+                        <div class="col-4">
                             <x-input type='email' :value="isset($user) ? $user->email : old('email')" label="email" name='email'
                                 placeholder='User Email' id="email" oninput="" required />
+                        </div>
+
+
+                        <div class="col-4">
+                            <x-form-select name="employee_id" id="employee_id" label='Employee'>
+                                <option value="">{{ __('Select one Employee') }}</option>
+                                @foreach ($employees as $employee)
+                                    <option @if (isset($user) && ($user->employee_id == $employee->id || old('employee_id') == $employee->id)) selected="selected" @endif
+                                        value="{{ $employee->id }}">{{ $employee->name }}</option>
+                                @endforeach
+                            </x-form-select>
                         </div>
                     </div>
 
