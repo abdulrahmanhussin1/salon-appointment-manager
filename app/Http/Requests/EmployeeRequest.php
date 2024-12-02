@@ -79,9 +79,19 @@ class EmployeeRequest extends FormRequest
             'sales_target_settings' => 'nullable|in:no,total_sales,employee_daily_service',
             'start_working_time' => 'nullable|date_format:H:i|before:break_time',
             'break_time' => 'nullable|date_format:H:i|after:start_working_time',
+            'branch_id' => 'required|integer|exists:branches,id',
+
             'service_id'=>'nullable|array',
             'service_id.*'=>'nullable|integer|exists:services,id',
-            'branch_id'=>'required|integer|exists:branches,id',
+
+            'is_immediate_commission' => 'required|array',
+            'commission_type' => 'required|array',
+
+            'is_immediate_commission.*' => 'required|boolean',
+            'commission_type.*' => 'required|string|in:percentage,value',
+
+            'commission_value.*' => 'nullable|numeric|min:0',
+
         ];
     }
 

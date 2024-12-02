@@ -40,10 +40,14 @@ class ServiceRequest extends FormRequest
             'is_target' => 'required|boolean',
             'outside_price' => 'nullable|numeric|min:0',
             'status' => 'required|in:active,inactive',
-            'is_immediate_commission'=> 'required|boolean',
             'service_category_id' => 'nullable|exists:service_categories,id',
             'branch_id' => 'required|integer|exists:branches,id',
 
+            'is_immediate_commission' => 'required|array',
+            'commission_type' => 'required|array',
+
+            'is_immediate_commission.*' => 'required|boolean',
+            'commission_type.*' => 'required|string|in:percentage,value',
 
             'tool_id' => 'nullable|array',
             'tool_id.*' => 'nullable|exists:tools,id',
@@ -51,8 +55,7 @@ class ServiceRequest extends FormRequest
             'employee_id' => 'nullable|array',
             'employee_id.*' => 'nullable|exists:employees,id',
 
-            'commission_percentage' => 'nullable|integer|between:0,100',
-            'commission_value' => 'nullable|numeric|min:0',
+            'commission_value.*' => 'nullable|numeric|min:0',
 
             'product_id' => 'nullable|array',
             'product_id.*' => 'nullable|exists:products,id',

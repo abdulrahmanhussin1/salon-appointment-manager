@@ -13,7 +13,7 @@ class ToolSeeder extends Seeder
      */
     public function run(): void
     {
-        Tool::factory()->count(100)->create();
+        Tool::factory()->count(5)->create();
 
     }
 }

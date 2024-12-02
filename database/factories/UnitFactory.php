@@ -19,8 +19,8 @@ class UnitFactory extends Factory
         return [
             'name' => $this->faker->word,
             'symbol' => $this->faker->optional()->lexify('?'),
-            'status' => $this->faker->randomElement(['active', 'inactive']),
-            'branch_id' =>rand(1,10), // Assuming Branch
+            'status' => 'active',
+            'branch_id' =>rand(1,3), // Assuming Branch
             'created_by' => 1,
             'created_at' => now(),
         ];

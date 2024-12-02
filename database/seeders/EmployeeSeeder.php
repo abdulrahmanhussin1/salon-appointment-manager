@@ -15,13 +15,13 @@ class EmployeeSeeder extends Seeder
      */
     public function run(): void
     {
-        Employee::factory()->count(100)->create();
-        EmployeeWage::factory()->count(100)->create();
+        Employee::factory()->count(5)->create();
+        EmployeeWage::factory()->count(5)->create();
 
     $branches = Branch::all();
 
     foreach ($branches as $branch) {
-        $branch['manager_id'] = rand(1, 10); // Assuming you have 10 employees
+        $branch['manager_id'] = rand(1, 3); // Assuming you have 10 employees
         $branch->save();
     }
     }

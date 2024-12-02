@@ -144,8 +144,8 @@
                                 <option value="">{{ __('Select one Branch') }}</option>
                                 @foreach ($branches as $branch)
                                     <option @if (isset($service) && ($service->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
-                                        @if (!isset($invoice) && Auth::user()->employee?->branch_id == $branch->id) selected @endif
-                                        value="{{ $branch->id }}">{{ $branch->name }}
+                                        @if (!isset($invoice) && Auth::user()->employee?->branch_id == $branch->id) selected @endif value="{{ $branch->id }}">
+                                        {{ $branch->name }}
                                     </option>
                                 @endforeach
                             </x-form-select>
@@ -203,6 +203,54 @@
                                 name='notes' placeholder='service notes' />
                         </div>
                     </div>
+                    <div class="row">
+
+                        <!-- Placeholder for dynamically generated inputs -->
+                        <div id="employee-details-container">
+                            @if (isset($service) && $service->employees)
+                                @foreach ($service->employees as $employee)
+                                    <div class="employee-details" data-employee-id="{{ $employee->id }}">
+                                        <h6>Commission for Employee: {{ $employee->name }}</h6>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <label for="commission_type_{{ $employee->id }}">Commission Type</label>
+                                                <select name="commission_type[{{ $employee->id }}]"
+                                                    id="commission_type_{{ $employee->id }}" class="form-control">
+                                                    <option value="percentage"
+                                                        {{ $employee->pivot->commission_type === 'percentage' ? 'selected' : '' }}>
+                                                        Percentage</option>
+                                                    <option value="value"
+                                                        {{ $employee->pivot->commission_type === 'value' ? 'selected' : '' }}>
+                                                        Value</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="commission_value_{{ $employee->id }}">Commission Value</label>
+                                                <input type="number" name="commission_value[{{ $employee->id }}]"
+                                                    id="commission_value_{{ $employee->id }}" class="form-control"
+                                                    value="{{ $employee->pivot->commission_value }}">
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label for="is_immediate_{{ $employee->id }}">Immediate Commission</label>
+                                                <select name="is_immediate_commission[{{ $employee->id }}]"
+                                                    id="is_immediate_{{ $employee->id }}" class="form-control">
+                                                    <option value="1"
+                                                        {{ $employee->pivot->is_immediate_commission ? 'selected' : '' }}>
+                                                        Yes</option>
+                                                    <option value="0"
+                                                        {{ !$employee->pivot->is_immediate_commission ? 'selected' : '' }}>
+                                                        No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                    </div>
+                                @endforeach
+                            @endif
+                        </div>
+
+                    </div>
                 </div>
                 <div class="text-center mt-2">
                     <x-submit-button label='Confirm' />
@@ -213,6 +261,56 @@
     </div>
 @endsection
 @section('js')
+<script>
+    $(document).ready(function () {
+        const employeesData = @json($employees);
+
+        // Listen to changes on the multi-select
+        $('#employee_id').on('change', function () {
+            const selectedEmployees = $(this).val();
+            const container = $('#employee-details-container');
+            container.empty(); // Clear existing inputs
+
+            selectedEmployees.forEach(employeeId => {
+                const employee = employeesData.find(e => e.id == employeeId);
+                if (!employee) return;
+
+                // Generate inputs dynamically
+                const html = `
+                    <div class="employee-details" data-employee-id="${employeeId}">
+                        <h6>Commission for Employee: ${employee.name}</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="commission_type_${employeeId}">Commission Type</label>
+                                <select name="commission_type[${employeeId}]" id="commission_type_${employeeId}" class="form-control">
+                                    <option value="percentage">Percentage</option>
+                                    <option value="value">Value</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="commission_value_${employeeId}">Commission Value</label>
+                                <input type="number" name="commission_value[${employeeId}]" id="commission_value_${employeeId}" class="form-control">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="is_immediate_${employeeId}">Immediate Commission</label>
+                                <select name="is_immediate_commission[${employeeId}]" id="is_immediate_${employeeId}" class="form-control">
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                        </div>
+                        <hr>
+                    </div>
+                `;
+                container.append(html);
+            });
+        });
+
+        // Trigger change event on page load for edit mode
+        $('#employee_id').trigger('change');
+    });
+</script>
     <script>
         function openFileInput() {
             document.getElementById('fileInput').click();
@@ -257,11 +355,9 @@
                         number: true,
                         min: 0
                     },
-
                     branch_id: {
                         required: true
                     },
-
                     service_category_id: {
                         required: true
                     },
@@ -288,7 +384,6 @@
                         number: "Please enter a valid number.",
                         min: "The price cannot be less than zero."
                     },
-
                     outside_price: {
                         required: "The outside price is required.",
                         number: "Please enter a valid number.",
@@ -321,16 +416,24 @@
                     $(element.form).find("label[for=" + element.id + "]").removeClass(errorClass);
                 },
                 submitHandler: function(form) {
-                    // Additional check for custom fields if necessary
+                    // Custom validation logic can go here
                     let hasErrors = false;
-                };
 
-                if (!hasErrors) {
-                    form.submit(); // Only submit if there are no errors
-                } else {
-                    alert('Please fix the errors in the form before submitting.');
+                    // Example of a custom check (optional)
+                    // Replace this section if specific checks are needed.
+                    // if (customConditionFails) {
+                    //     hasErrors = true;
+                    //     alert('Custom validation error message.');
+                    // }
+
+                    if (!hasErrors) {
+                        form.submit(); // Submit the form if there are no custom errors
+                    } else {
+                        alert('Please fix the errors in the form before submitting.');
+                    }
                 }
             });
+
         });
     </script>
 @endsection

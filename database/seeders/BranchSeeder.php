@@ -23,7 +23,7 @@ class BranchSeeder extends Seeder
             'created_by' => 1,
         ]);
 
-        Branch::factory()->count(100)->create();
+        Branch::factory()->count(5)->create();
 
     }
 }

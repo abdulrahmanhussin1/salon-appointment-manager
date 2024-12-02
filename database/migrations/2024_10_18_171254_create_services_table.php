@@ -33,7 +33,6 @@ return new class extends Migration
             $table->foreignId('service_id')->constrained('services', 'id')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('employee_id')->constrained('employees', 'id')->cascadeOnUpdate()->cascadeOnDelete();
             $table->enum('commission_type', ['percentage', 'value'])->default('percentage');  // New column for commission type
-            $table->unsignedTinyInteger('commission_percentage')->default(0);
             $table->unsignedDecimal('commission_value', 10, 2)->default(0);  // New column for commission value if it's a fixed value
             $table->boolean('is_immediate_commission')->default(false);  // Whether commission is immediate or not
             $table->timestamps();

@@ -137,10 +137,12 @@
 
                                         <div class="col-6">
                                             <label class="form-label" for="hiring_date">{{ __('Hiring Date') }}</label>
-                                            <input type="date" name="hiring_date" class="form-control  @error('hiring_date') is-invalid @enderror" id="hiring_date"
+                                            <input type="date" name="hiring_date"
+                                                class="form-control  @error('hiring_date') is-invalid @enderror"
+                                                id="hiring_date"
                                                 value="{{ isset($employee) ? $employee->hiring_date : old('hiring_date', date('Y-m-d')) }}"
                                                 required>
-                                                @error('hiring_date')
+                                            @error('hiring_date')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
                                                 </span>
@@ -149,9 +151,10 @@
 
                                         <div class="col-6">
                                             <label class="form-label" for="dob">{{ __('Date Of birth') }}</label>
-                                            <input type="date" name="dob" class="form-control @error('dob') is-invalid @enderror" id="dob"
+                                            <input type="date" name="dob"
+                                                class="form-control @error('dob') is-invalid @enderror" id="dob"
                                                 value="{{ isset($employee) ? $employee->dob : old('dob', date('Y-m-d')) }}">
-                                                @error('dob')
+                                            @error('dob')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
                                                 </span>
@@ -200,12 +203,13 @@
                                         <div class="col-6">
                                             <label for="idCardInput"
                                                 class="form-label">{{ __('National Id Card') }}</label>
-                                            <input class="form-control @error('id_card') is-invalid @enderror" type="file" name="id_card" id="idCardInput">
+                                            <input class="form-control @error('id_card') is-invalid @enderror"
+                                                type="file" name="id_card" id="idCardInput">
                                             @error('id_card')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $message }}</strong>
-                                            </span>
-                                        @enderror
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
                                         </div>
 
                                         <div class="col-6">
@@ -218,14 +222,12 @@
                                         </div>
 
                                         <div class="col-6">
-                                            <x-form-select name="branch_id" id="branch_id"
-                                                label='Branch' required>
+                                            <x-form-select name="branch_id" id="branch_id" label='Branch' required>
                                                 <option value="">{{ __('Select one Branch') }}</option>
                                                 @foreach ($branches as $branch)
-                                                    <option @if (isset($employee) &&
-                                                            ($employee->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
-                                                                               @if (!isset($invoice) && Auth::user()->employee?->branch_id == $branch->id) selected @endif
-                                                       value="{{ $branch->id }}">{{ $branch->name }}
+                                                    <option @if (isset($employee) && ($employee->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
+                                                        @if (!isset($invoice) && Auth::user()->employee?->branch_id == $branch->id) selected @endif
+                                                        value="{{ $branch->id }}">{{ $branch->name }}
                                                     </option>
                                                 @endforeach
                                             </x-form-select>
@@ -239,15 +241,18 @@
                                                 id="inactive_reason" oninput="" />
                                         </div>
                                         <div class="col-6">
-                                            <label class="form-label" for="termination_date">{{ __('Termination Date') }}</label>
-                                            <input type="date" name="termination_date" class="form-control @error('termination_date')  is-invalid @enderror" id="termination_date"
+                                            <label class="form-label"
+                                                for="termination_date">{{ __('Termination Date') }}</label>
+                                            <input type="date" name="termination_date"
+                                                class="form-control @error('termination_date')  is-invalid @enderror"
+                                                id="termination_date"
                                                 value="{{ isset($employee) ? $employee->termination_date : old('termination_date', date('Y-m-d')) }}"
                                                 required>
-                                                @error('termination_date')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $message }}</strong>
-                                            </span>
-                                        @enderror
+                                            @error('termination_date')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
                                         </div>
 
 
@@ -353,8 +358,8 @@
                                         <div class="col-12 my-3">
                                             <label class="form-label" for="total_salary">{{ __('Total Salary') }}</label>
                                             <input type="text" id="total_salary" name="total_salary"
-                                                class="form-control form-control-lg text-danger text-center" style="background-color: lightgray"
-                                                value="0.00" readonly>
+                                                class="form-control form-control-lg text-danger text-center"
+                                                style="background-color: lightgray" value="0.00" readonly>
                                         </div>
 
                                         <hr>
@@ -369,14 +374,16 @@
                                         <div class="col-4">
                                             <label for="inputTime"
                                                 class="form-label">{{ __('Start Working Time') }}</label>
-                                            <input type="time" class="form-control @error('start_working_time') is-invalid @enderror" name="start_working_time"
-                                                id="inputTime" value="{{ $employeeWage->start_working_time ?? old('start_working_time') }}">
+                                            <input type="time"
+                                                class="form-control @error('start_working_time') is-invalid @enderror"
+                                                name="start_working_time" id="inputTime"
+                                                value="{{ $employeeWage->start_working_time ?? old('start_working_time') }}">
 
-                                                @error('start_working_time')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $message }}</strong>
-                                            </span>
-                                        @enderror
+                                            @error('start_working_time')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
                                         </div>
 
                                         <div class="col-4">
@@ -408,19 +415,22 @@
 
                                         <div class="col-6">
                                             <label for="inputTime" class="form-label">{{ __('Break Time') }}</label>
-                                            <input type="time" class="form-control  @error('break_time') is-invalid @enderror" name="break_time" id="inputTime" value="{{ $employeeWage->break_time ?? old('break_time') }}">
+                                            <input type="time"
+                                                class="form-control  @error('break_time') is-invalid @enderror"
+                                                name="break_time" id="inputTime"
+                                                value="{{ $employeeWage->break_time ?? old('break_time') }}">
                                             @error('break_time')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $message }}</strong>
-                                            </span>
-                                        @enderror
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
                                         </div>
 
                                         <div class="col-6">
                                             <x-input type="text"
                                                 value="{{ $employeeWage->break_duration_minutes ?? old('break_duration_minutes') }}"
-                                                label="Break duration (in minutes)" id="break_duration_minutes" name='break_duration_minutes'
-                                                placeholder="Break duration (in minutes)"
+                                                label="Break duration (in minutes)" id="break_duration_minutes"
+                                                name='break_duration_minutes' placeholder="Break duration (in minutes)"
                                                 oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')" />
                                         </div>
 
@@ -443,34 +453,143 @@
 
                                     <div class="row">
                                         <div class="col-12">
-                                            <x-form-multi-select label="Services" name="service_id[]" id="service_id">
+                                            <x-form-multi-select label="Services" name="service_id[]" id="service_id"
+                                                multiple>
                                                 @foreach ($services as $service)
-                                                    <option value="{{ $service->id }}" @if (isset($employee) &&
-                                                            ($employee->services->pluck('service_id')->contains($service->id) ||
-                                                                (old('service_id') && in_array($service->id, old('service_id'))))) selected @endif>
+                                                    <option value="{{ $service->id }}"
+                                                        @if (isset($employee) &&
+                                                                ($employee->services->pluck('service_id')->contains($service->id) ||
+                                                                    (old('service_id') && in_array($service->id, old('service_id'))))) selected @endif>
                                                         {{ $service->name }}
                                                     </option>
                                                 @endforeach
                                             </x-form-multi-select>
                                         </div>
                                     </div>
+                                    <hr>
+
+                                    <!-- Placeholder for dynamically generated inputs -->
+                                    <div id="service-details-container">
+                                        @if (isset($employee) && $employee->services)
+                                            @foreach ($employee->services as $service)
+                                                <div class="service-details" data-service-id="{{ $service->id }}">
+                                                    <h6>Commission for Service: {{ $service->name }}</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <label for="commission_type_{{ $service->id }}">Commission
+                                                                Type</label>
+                                                            <select name="commission_type[{{ $service->id }}]"
+                                                                id="commission_type_{{ $service->id }}"
+                                                                class="form-control">
+                                                                <option value="percentage"
+                                                                    {{ $service->pivot->commission_type === 'percentage' ? 'selected' : '' }}>
+                                                                    Percentage</option>
+                                                                <option value="value"
+                                                                    {{ $service->pivot->commission_type === 'value' ? 'selected' : '' }}>
+                                                                    Value</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label for="commission_value_{{ $service->id }}">Commission
+                                                                Value</label>
+                                                            <input type="number" min="0"
+                                                                name="commission_value[{{ $service->id }}]"
+                                                                id="commission_value_{{ $service->id }}"
+                                                                class="form-control"
+                                                                value="{{ $service->pivot->commission_value }}">
+                                                        </div>
+
+                                                        <div class="col-md-4">
+                                                            <label for="is_immediate_{{ $service->id }}">Immediate
+                                                                Commission</label>
+                                                            <select name="is_immediate_commission[{{ $service->id }}]"
+                                                                id="is_immediate_{{ $service->id }}"
+                                                                class="form-control">
+                                                                <option value="1"
+                                                                    {{ $service->pivot->is_immediate_commission ? 'selected' : '' }}>
+                                                                    Yes</option>
+                                                                <option value="0"
+                                                                    {{ !$service->pivot->is_immediate_commission ? 'selected' : '' }}>
+                                                                    No</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                    </div>
+                                    @endforeach
+                                    @endif
                                 </div>
                             </div>
                         </div>
-
-
-
-
-                    </div><!-- End Default Accordion Example -->
-                    <div class="text-center mt-3">
-                        <x-submit-button label='Confirm' />
                     </div>
-                </form>
+
+
+
+
+            </div><!-- End Default Accordion Example -->
+            <div class="text-center mt-3">
+                <x-submit-button label='Confirm' />
             </div>
+            </form>
         </div>
+    </div>
     </div>
 @endsection
 @section('js')
+    <script>
+        $(document).ready(function() {
+            const servicesData = @json($services);
+
+            // Listen to changes on the multi-select
+            $('#service_id').on('change', function() {
+                const selectedServices = $(this).val();
+                const container = $('#service-details-container');
+                container.empty(); // Clear existing inputs
+
+                selectedServices.forEach(serviceId => {
+                    const service = servicesData.find(s => s.id == serviceId);
+                    if (!service) return;
+
+                    // Generate inputs dynamically
+                    const html = `
+                    <div class="service-details" data-service-id="${serviceId}">
+                        <h6>Commission for Service: ${service.name}</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="commission_type_${serviceId}">Commission Type</label>
+                                <select name="commission_type[${serviceId}]" id="commission_type_${serviceId}" class="form-control">
+                                    <option value="percentage">Percentage</option>
+                                    <option value="value">Value</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="commission_value_${serviceId}">Commission Value</label>
+                                <input type="number" name="commission_value[${serviceId}]" min="0" id="commission_value_${serviceId}" class="form-control">
+                            </div>
+                           <div class="col-md-4">
+                                  <label for="is_immediate_${serviceId}">Immediate Commission</label>
+                                <select name="is_immediate_commission[${serviceId}]" id="is_immediate_${serviceId}" class="form-control">
+                                                                        <option value="0">No</option>
+
+                                    <option value="1">Yes</option>
+                                </select>
+                            </div>
+                                                    </div>
+
+                        <hr>
+                    </div>
+                `;
+                    container.append(html);
+                });
+            });
+
+            // Trigger change event on page load for edit mode
+            $('#service_id').trigger('change');
+        });
+    </script>
+
+
     <script>
         function openFileInput() {
             document.getElementById('fileInput').click();
@@ -662,7 +781,7 @@
                         required: "Employee level is required.",
                         digits: "Please select a valid employee level ID."
                     },
-                                        branch_id: {
+                    branch_id: {
                         required: "Branch is required.",
                         digits: "Please select a valid branch ID."
                     },

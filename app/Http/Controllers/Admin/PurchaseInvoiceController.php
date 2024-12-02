@@ -95,7 +95,8 @@ class PurchaseInvoiceController extends Controller
             DB::commit();
 
             Alert::success(__(key: 'Success'), __('Created Successfully'));
-            return redirect()->back();        } catch (Exception $e) {
+            return redirect()->back();
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error creating purchase invoice: ' . $e->getMessage());
 
@@ -164,7 +165,7 @@ class PurchaseInvoiceController extends Controller
             }
 
             // Merge the updated details back into the request
-           request()->merge(['details' => $details]);
+            request()->merge(['details' => $details]);
 
             // Update the invoice
             $invoice->update([

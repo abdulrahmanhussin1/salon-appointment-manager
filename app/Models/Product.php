@@ -28,6 +28,11 @@ class Product extends Model
         return $this->belongsTo(Supplier::class);
     }
 
+    public function supplierPrices()
+    {
+        return $this->hasMany(SupplierPrice::class,'product_id');
+    }
+
     protected static function boot()
     {
         parent::boot();

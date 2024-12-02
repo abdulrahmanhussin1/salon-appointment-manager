@@ -18,14 +18,11 @@
                 <x-modal-button title="Inventory" target="employeeLevelsModal"><i
                         class="bi bi-plus-lg me-2"></i></x-modal-button>
             @endif
-            @if (App\Traits\AppHelper::perUSer('inventory_transactions.transferIn'))
-                <x-modal-button class="btn-primary mx-2" title="Transfer In" target="employeeLevelsModal"><i
-                        class="bi bi-house-down-fill me-2"></i></x-modal-button>
+            @if (App\Traits\AppHelper::perUSer('inventory_transactions.transferInView'))
+                <x-create-button title="Transfer In" route='inventory_transactions.transferInView' class="btn-primary ms-2"/>
             @endif
-
-            @if (App\Traits\AppHelper::perUSer('inventory_transactions.transferOut'))
-                <x-modal-button class="btn-primary" title="Transfer Out" target="employeeLevelsModal"><i
-                        class="bi bi-house-up-fill me-2"></i></x-modal-button>
+                        @if (App\Traits\AppHelper::perUSer('inventory_transactions.transferOutView'))
+                <x-create-button title="Transfer Out" route='inventory_transactions.transferOutView' class="btn-primary ms-2"/>
             @endif
         </div>
         @include('admin.layouts.alerts')

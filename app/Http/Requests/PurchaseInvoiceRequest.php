@@ -24,7 +24,7 @@ class PurchaseInvoiceRequest extends FormRequest
     {
         return [
             'invoice_number' => [
-                'required',
+                $this->routeIs('purchase_invoices.update') ? 'required' :'nullable',
                 'string',
                 'max:20',
                 'regex:/^[a-zA-Z0-9-]+$/',
@@ -44,6 +44,7 @@ class PurchaseInvoiceRequest extends FormRequest
             'details' => 'required|array',
             'details.*.product_id' => 'required|exists:products,id',
             'details.*.supplier_price' => 'required|numeric|min:0',
+            'details.*.customer_price' => 'required|numeric|min:0',
             'details.*.quantity' => 'required|integer|min:1',
             'details.*.subtotal' => 'required|numeric|min:0',
             'details.*.discount' => 'nullable|numeric|min:0',

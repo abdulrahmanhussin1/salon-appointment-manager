@@ -17,7 +17,7 @@ class EmployeeWageFactory extends Factory
     public function definition(): array
     {
         return [
-            'employee_id' =>rand(1,10), // Assuming Employee factory exists
+            'employee_id' =>rand(1,3), // Assuming Employee factory exists
             'salary_type' => $this->faker->randomElement(['daily', 'weekly', 'monthly', 'commission']),
             'basic_salary' => $this->faker->randomFloat(2, 0, 10000), // Random basic salary up to 10,000
             'bonus_salary' => $this->faker->randomFloat(2, 0, 1000), // Random bonus salary

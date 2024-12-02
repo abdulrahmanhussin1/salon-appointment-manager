@@ -43,6 +43,7 @@
         <div class="card-header text-dark">
             <h4 class="mb-0">Create Purchase Invoice</h4>
         </div>
+        @include('admin.layouts.alerts')
         <div class="card-body">
     @include('admin.pages.suppliers.purchase_invoices.includes.form')
 

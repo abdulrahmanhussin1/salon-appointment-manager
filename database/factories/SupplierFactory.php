@@ -20,7 +20,7 @@ class SupplierFactory extends Factory
             'email' =>$this->faker->unique()->safeEmail(), // Optional and unique email
             'phone' => $this->faker->optional()->phoneNumber, // Optional phone number
             'address' => $this->faker->optional()->address, // Optional address
-            'status' => $this->faker->randomElement(['active', 'inactive']),
+            'status' => 'active',
             'created_by' => 1, // Nullable, links to an existing user ID
             'created_at' => now(),
         ];

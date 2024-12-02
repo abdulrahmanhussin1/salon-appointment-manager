@@ -75,32 +75,41 @@ class EmployeeController extends Controller
             EmployeeWage::create([
                 'employee_id' => $employee->id,
                 'salary_type' => $request->salary_type,
-                'basic_salary' => $request->basic_salary,
-                'bonus_salary' => $request->bonus_salary,
-                'allowance1' => $request->allowance1,
-                'allowance2' => $request->allowance2,
-                'allowance3' => $request->allowance3,
+                'basic_salary' => $request->basic_salary ?? 0,
+                'bonus_salary' => $request->bonus_salary ?? 0,
+                'allowance1' => $request->allowance1 ?? 0,
+                'allowance2' => $request->allowance2 ?? 0,
+                'allowance3' => $request->allowance3 ?? 0,
                 'total_salary' => $request->total_salary == $totalSalary ? $request->total_salary : $totalSalary,
                 'working_hours' => $request->working_hours,
-                'overtime_rate' => $request->overtime_rate,
-                'penalty_late_hour' => $request->penalty_late_hour,
-                'penalty_absence_day' => $request->penalty_absence_day,
+                'overtime_rate' => $request->overtime_rate ?? 0,
+                'penalty_late_hour' => $request->penalty_late_hour ?? 0,
+                'penalty_absence_day' => $request->penalty_absence_day ?? 0,
                 'sales_target_settings' => $request->sales_target_settings,
                 'start_working_time' => $request->start_working_time,
                 'break_time' => $request->break_time,
                 'break_duration_minutes' => $request->break_duration_minutes,
             ]);
 
-            foreach ($request->service_id as $serviceId) {
-                ServiceEmployee::create([
-                    'employee_id' => $employee->id,
-                    'service_id' => $serviceId,
-                ]);
-            };
+            if($request->has('service_id'))
+            {
+                $services = $request->input('service_id');
+                foreach ($services as $serviceId) {
+                    ServiceEmployee::create([
+                        'employee_id' => $employee->id,
+                        'service_id' => $serviceId,
+                        'commission_type' => $request->input("commission_type.$serviceId"),
+                        'commission_value' => $request->input("commission_value.$serviceId"),
+                        'is_immediate_commission' => $request->input("is_immediate_commission.$serviceId", false),
+                    ]);
+                };
+            }
+
             DB::commit();
             Alert::success(__('Success'), __('Created Successfully'));
             return redirect()->back();
         } catch (\Throwable $th) {
+            dd($th->getMessage());
             DB::rollBack();
             Alert::error(__('error'), __('error in create employee , please try again'));
         }
@@ -164,16 +173,16 @@ class EmployeeController extends Controller
             $totalSalary = $this->calculateTotalSalary($request);
             $employeeWage->update([
                 'salary_type' => $request->salary_type,
-                'basic_salary' => $request->basic_salary,
-                'bonus_salary' => $request->bonus_salary,
-                'allowance1' => $request->allowance1,
-                'allowance2' => $request->allowance2,
+                'basic_salary' => $request->basic_salary ?? 0,
+                'bonus_salary' => $request->bonus_salary ?? 0,
+                'allowance1' => $request->allowance1 ?? 0,
+                'allowance2' => $request->allowance2 ?? 0,
                 'allowance3' => $request->allowance3,
                 'total_salary' => $request->total_salary == $totalSalary ? $request->total_salary : $totalSalary,
                 'working_hours' => $request->working_hours,
-                'overtime_rate' => $request->overtime_rate,
-                'penalty_late_hour' => $request->penalty_late_hour,
-                'penalty_absence_day' => $request->penalty_absence_day,
+                'overtime_rate' => $request->overtime_rate ?? 0,
+                'penalty_late_hour' => $request->penalty_late_hour ?? 0,
+                'penalty_absence_day' => $request->penalty_absence_day ?? 0,
                 'sales_target_settings' => $request->sales_target_settings,
                 'start_working_time' => $request->start_working_time,
                 'break_time' => $request->break_time,
@@ -181,12 +190,18 @@ class EmployeeController extends Controller
             ]);
 
             ServiceEmployee::where('employee_id', $employee->id)->delete();
-            foreach ($request->service_id as $serviceId) {
-                ServiceEmployee::create([
-                    'employee_id' => $employee->id,
-                    'service_id' => $serviceId,
-                ]);
-            };
+            if ($request->has('service_id')) {
+                $services = $request->input('service_id');
+                foreach ($services as $serviceId) {
+                    ServiceEmployee::create([
+                        'employee_id' => $employee->id,
+                        'service_id' => $serviceId,
+                        'commission_type' => $request->input("commission_type.$serviceId"),
+                        'commission_value' => $request->input("commission_value.$serviceId"),
+                        'is_immediate_commission' => $request->input("is_immediate_commission.$serviceId", false),
+                    ]);
+                };
+            }
             DB::commit();
             Alert::success(__('Success'), __('Updated Successfully'));
             return redirect()->route('employees.index');
@@ -225,4 +240,28 @@ class EmployeeController extends Controller
             ($request->allowance2 ?? 0) +
             ($request->allowance3 ?? 0);
     }
+
+    public function getRelatedEmployees(Request $request)
+    {
+
+        $itemType = $request->query('item_type');
+        $itemId = $request->query('item_id');
+
+        if (!$itemType || !$itemId) {
+            return response()->json(['error' => 'Invalid parameters'], 400);
+        }
+
+        if($itemType == 'product')
+        {
+            $employees = Employee::select('id', 'name')->where('status', 'active')->get();
+
+        }elseif($itemType == 'service'){
+            $employeesId = ServiceEmployee::where('service_id',$itemId)->pluck('employee_id')->toArray();
+            $employees = Employee::whereIn('id', $employeesId)
+            ->select('id', 'name')
+                ->get();
+        }
+        return response()->json($employees);
+    }
+
 }

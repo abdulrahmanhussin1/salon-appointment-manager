@@ -67,6 +67,7 @@ class PurchaseInvoice extends Model
                 'product_id' => $detail['product_id'],
                 'supplier_id' => $this->supplier_id,
                 'supplier_price' => $detail['supplier_price'],
+                'customer_price'=> $detail['customer_price'],
                  'discount' => $detail['discount'] ,
                 'purchase_invoice_id' => $this->id, // Purchase Invoice ID from the current invoice
             ]);

@@ -35,10 +35,12 @@ class CheckRole
                 || ($page === 'store' && self::perUSer($type . '.create'))
                 || ($page === 'export' && self::perUSer($type . '.export'))
                 || ($page === 'update' && self::perUSer($type . '.edit'))
+                || ($page === 'transferOut' && self::perUSer($type . '.transferOutView'))
+                || ($page === 'transferIn' && self::perUSer($type . '.transferInView'))
+
                 || self::perUSer($this->getRoute())
-                ||in_array($this->getRoute(), ['dashboard', 'users.profile', 'users.profile_update'])
-            )
-            {
+                || in_array($this->getRoute(), ['dashboard', 'sales_invoices.getItem', 'sales_invoices.getRelatedEmployees'])
+            ) {
                 return $next($request);
             }
             return abort(403);

@@ -65,9 +65,9 @@ class ServiceController extends Controller
                 'price' => $request->price,
                 'service_category_id' => $request->service_category_id,
                 'is_target' => $request->is_target,
-                'outside_price' => $request->outside_price,
+                'outside_price' => $request->outside_price ?? 0,
                 'status' => $request->status,
-                'duration' => $request->duration,
+                'duration' => $request->duration ?? 0,
                 'created_by' => auth()->user()->id,
                 'image' => $image,
                 'branch_id' => $request->branch_id,
@@ -95,10 +95,14 @@ class ServiceController extends Controller
 
             // Attach employees
             if ($request->has('employee_id')) {
-                foreach ($request->employee_id as $employeeId) {
+                $employees = $request->input('employee_id');
+                foreach ($employees as $employeeId) {
                     ServiceEmployee::create([
                         'service_id' => $service->id,
                         'employee_id' => $employeeId,
+                        'commission_type' => $request->input("commission_type.$employeeId"),
+                        'commission_value' => $request->input("commission_value.$employeeId"),
+                        'is_immediate_commission' => $request->input("is_immediate_commission.$employeeId", false),
                     ]);
                 }
             }
@@ -150,9 +154,9 @@ class ServiceController extends Controller
                 'price' => $request->price,
                 'service_category_id' => $request->service_category_id,
                 'is_target' => $request->is_target,
-                'outside_price' => $request->outside_price,
+                'outside_price' => $request->outside_price ?? 0,
                 'status' => $request->status,
-                'duration' => $request->duration,
+                'duration' => $request->duration ?? 0,
                 'image' => $image,
                 'branch_id' => $request->branch_id,
                 'updated_by' => auth()->user()->id,
@@ -181,10 +185,14 @@ class ServiceController extends Controller
                 }
             }
             if ($request->has('employee_id')) {
-                foreach ($request->employee_id as $employeeId) {
+                $employees = $request->input('employee_id');
+                foreach ($employees as $employeeId) {
                     ServiceEmployee::create([
                         'service_id' => $service->id,
                         'employee_id' => $employeeId,
+                        'commission_type' => $request->input("commission_type.$employeeId"),
+                        'commission_value' => $request->input("commission_value.$employeeId"),
+                        'is_immediate_commission' => $request->input("is_immediate_commission.$employeeId", false),
                     ]);
                 }
             }

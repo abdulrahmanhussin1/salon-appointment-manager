@@ -19,7 +19,7 @@ class EmployeeLevelFactory extends Factory
         return [
             'name' => $this->faker->word, // Generates a single random word for category name
             'description' => $this->faker->optional()->sentence, // Optional, generates a sentence for description
-            'status' => $this->faker->randomElement(['active', 'inactive']),
+            'status' => 'active',
             'created_by' => 1, // Nullable, links to an existing user ID
         ];
     }

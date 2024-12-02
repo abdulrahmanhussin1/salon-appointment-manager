@@ -13,6 +13,15 @@
         <!-- End Dashboard Nav -->
         <hr>
 
+        @if (App\Traits\AppHelper::perUser('sales_invoices.index'))
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="{{ route('sales_invoices.index') }}">
+                    <i class="bi bi-receipt-cutoff"></i>
+                    <span>{{ __('Sales Invoices') }}</span>
+                </a>
+            </li>
+        @endif
+
         @if (App\Traits\AppHelper::perUser('customers.index'))
             <li class="nav-item">
                 <a class="nav-link collapsed" href="{{ route('customers.index') }}">

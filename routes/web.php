@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\SalesInvoiceController;
 use App\Http\Controllers\Admin\EmployeeLevelController;
 use App\Http\Controllers\Admin\ProductCategoryController;
 use App\Http\Controllers\Admin\PurchaseInvoiceController;
@@ -69,10 +70,26 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::resource('inventories', InventoryController::class);
 
 
+    /* Transfer In */
+    Route::get('inventory_transactions/transfer_in', [InventoryTransactionController::class, 'transferInView'])
+    ->name('inventory_transactions.transferInView');
     Route::post('inventory_transactions/transfer_in', [InventoryTransactionController::class,'transferIn'])
-    ->name('inventory_transactions.transfer_in');
+    ->name('inventory_transactions.transferIn');
+
+    /* Transfer Out */
+    Route::get('inventory_transactions/transfer_out', [InventoryTransactionController::class, 'transferOutView'])
+    ->name('inventory_transactions.transferOutView');
     Route::post('inventory_transactions/transfer_out', [InventoryTransactionController::class, 'transferOut'])
     ->name('inventory_transactions.transferOut');
+
+
+    /* sales invoice  */
+    Route::resource('sales_invoices', SalesInvoiceController::class);
+
+    Route::get('/get-items', [SalesInvoiceController::class, 'getItem'])->name('sales_invoices.getItem');
+    Route::get('/get-related-employees', [EmployeeController::class, 'getRelatedEmployees'])->name('sales_invoices.getRelatedEmployees');
+
+
 
 });
 require __DIR__ . '/auth.php';
