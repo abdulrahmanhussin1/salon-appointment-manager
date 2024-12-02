@@ -72,8 +72,64 @@
         @endif
 
 
+ @if (App\Traits\AppHelper::perUser('service_categories.index') || App\Traits\AppHelper::perUser('services.index'))
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#services-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-box-seam-fill"></i><span>{{ __('Services') }}</span><i
+                        class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                @if (App\Traits\AppHelper::perUser('service_categories.index'))
+                    <ul id="services-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('service_categories.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Service Categories') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
+
+                @if (App\Traits\AppHelper::perUser('services.index'))
+                    <ul id="services-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('services.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Services') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
+            </li>
+        @endif
 
 
+
+         @if (App\Traits\AppHelper::perUser('expense_types.index') || App\Traits\AppHelper::perUser('expenses.index'))
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#expense-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-cash-stack"></i><span>{{ __('Expenses') }}</span><i
+                        class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                @if (App\Traits\AppHelper::perUser('expense_types.index'))
+                    <ul id="expense-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('expense_types.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Expense Types') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
+                @if (App\Traits\AppHelper::perUser('expenses.index'))
+                    <ul id="expense-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('expenses.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Expenses') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
+            </li>
+
+        @endif
 
 
 
@@ -137,42 +193,16 @@
             </li>
         @endif
 
-        @if (App\Traits\AppHelper::perUser('service_categories.index') || App\Traits\AppHelper::perUser('services.index'))
 
-            <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#services-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-box-seam-fill"></i><span>{{ __('Services') }}</span><i
-                        class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                @if (App\Traits\AppHelper::perUser('service_categories.index'))
-                    <ul id="services-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                        <li>
-                            <a href="{{ route('service_categories.index') }}">
-                                <i class="bi bi-circle"></i><span>{{ __('Service Categories') }}</span>
-                            </a>
-                        </li>
-                    </ul>
-                @endif
-
-                @if (App\Traits\AppHelper::perUser('services.index'))
-                    <ul id="services-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                        <li>
-                            <a href="{{ route('services.index') }}">
-                                <i class="bi bi-circle"></i><span>{{ __('Services') }}</span>
-                            </a>
-                        </li>
-                    </ul>
-                @endif
-            </li>
-
-        @endif
 
         <hr>
 
         @if (App\Traits\AppHelper::perUser('units.index') ||
                 App\Traits\AppHelper::perUser('tools.index') ||
                 App\Traits\AppHelper::perUser('admin_panel_settings.index') ||
-                App\Traits\AppHelper::perUser('branches.index'))
+                App\Traits\AppHelper::perUser('branches.index') ||
+                App\Traits\AppHelper::perUser('payment_methods.index')
+                )
 
 
             <li class="nav-item">
@@ -186,6 +216,17 @@
                         <li>
                             <a href="{{ route('branches.index') }}">
                                 <i class="bi bi-circle"></i><span>{{ __('Branches') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
+
+                @if (App\Traits\AppHelper::perUser('payment_methods.index'))
+                    {{-- payment_methods --}}
+                    <ul id="settings-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('payment_methods.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Payment Methods') }}</span>
                             </a>
                         </li>
                     </ul>

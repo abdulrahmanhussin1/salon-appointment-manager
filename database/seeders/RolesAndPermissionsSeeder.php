@@ -114,6 +114,29 @@ class RolesAndPermissionsSeeder extends Seeder
                 'branches.edit',
                 'branches.destroy',
 
+
+                /* expense_types */
+                'expense_types.index',
+                'expense_types.show',
+                'expense_types.create',
+                'expense_types.edit',
+                'expense_types.destroy',
+
+                /* expenses */
+                'expenses.index',
+                'expenses.show',
+                'expenses.create',
+                'expenses.edit',
+                'expenses.destroy',
+
+                /* payment_types */
+                'payment_methods.index',
+                'payment_methods.show',
+                'payment_methods.create',
+                'payment_methods.edit',
+                'payment_methods.destroy',
+
+
                 /* purchase_invoices */
                 'purchase_invoices.index',
                 'purchase_invoices.show',

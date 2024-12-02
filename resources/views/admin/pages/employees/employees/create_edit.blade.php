@@ -115,7 +115,7 @@
                                         <div class="col-12">
                                             <x-form-select name="employee_level_id" id="employee_level_id"
                                                 label='Employee Level' required>
-                                                <option value="">{{ __('Select one Employe Level') }}</option>
+                                                <option value="">{{ __('Select one Employee Level') }}</option>
                                                 @foreach ($employeeLevels as $employeeLevel)
                                                     <option @if (isset($employee) &&
                                                             ($employee->employee_level_id == $employeeLevel->id || old('employee_level_id') == $employeeLevel->id)) selected="selected" @endif

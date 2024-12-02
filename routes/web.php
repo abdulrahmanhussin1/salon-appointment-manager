@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\BranchController;
+use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ServiceController;
@@ -14,8 +15,10 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\ExpenseTypeController;
 use App\Http\Controllers\Admin\SalesInvoiceController;
 use App\Http\Controllers\Admin\EmployeeLevelController;
+use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\ProductCategoryController;
 use App\Http\Controllers\Admin\PurchaseInvoiceController;
 use App\Http\Controllers\Admin\ServiceCategoryController;
@@ -68,6 +71,9 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::resource('branches', BranchController::class);
     Route::resource('purchase_invoices', PurchaseInvoiceController::class);
     Route::resource('inventories', InventoryController::class);
+    Route::resource('expense_types', ExpenseTypeController::class);
+    Route::resource('expenses', ExpenseController::class);
+    Route::resource('payment_methods', PaymentMethodController::class);
 
 
     /* Transfer In */
