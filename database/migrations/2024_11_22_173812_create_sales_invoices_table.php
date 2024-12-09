@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('sales_invoices', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('invoice_number')->unique();
             $table->date('invoice_date');
             $table->unsignedDecimal('total_amount', 15, 2);
-            $table->enum('status', ['active', 'inactive']);
+            $table->enum('status', ['active', 'inactive','draft']);
             $table->unsignedDecimal('invoice_discount', 10, 2)->default(0);
+            $table->unsignedDecimal('invoice_deposit', 15, 2)->default(0);
+            $table->unsignedDecimal('invoice_tax', 15, 2)->default(0);
+            $table->unsignedDecimal('balance_due', 15, 2);
             $table->text('invoice_notes')->nullable();
             $table->foreignId('customer_id')->constrained('customers')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('branch_id')->default(1)->constrained('branches')->cascadeOnUpdate()->restrictOnDelete();

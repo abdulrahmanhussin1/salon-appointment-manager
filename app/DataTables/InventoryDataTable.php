@@ -71,7 +71,7 @@ class InventoryDataTable extends DataTable
                 return $model->createdBy ? $model->createdBy->name : null;
             })
 
-            ->rawColumns(['action', 'status', ])->setRowId('id');
+            ->rawColumns(['action', 'status' ])->setRowId('id');
     }
 
     /**

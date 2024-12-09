@@ -46,6 +46,7 @@
             <select class="form-select select2" id="status" name="status" required>
                 <option value="active" @if(isset($invoice) && $invoice->status == 'active') selected @endif>Active</option>
                 <option value="inactive" @if(isset($invoice) && $invoice->status == 'inactive') selected @endif>Inactive</option>
+                <option value="draft" @if(isset($invoice) && $invoice->status == 'draft') selected @endif>Draft</option>
             </select>
         </div>
 
@@ -116,7 +117,7 @@
                         <td><input type="text" name="details[{{ $key }}][quantity]" value="{{ $detail->quantity }}" class="form-control quantity" required></td>
                         <td><input type="text" name="details[{{ $key }}][supplier_price]" value="{{ $detail->supplier_price }}" class="form-control price" required></td>
                         <td><input type="text" name="details[{{ $key }}][customer_price]" value="{{ $detail->customer_price }}" class="form-control price"></td>
-                        <td><input type="text" name="details[{{ $key }}][discount]" value="{{ $detail->discount }}" class="form-control discount"></td>
+                        <td><input type="number" name="details[{{ $key }}][discount]" value="{{ $detail->discount }}" class="form-control discount"></td>
                         <td><input type="text" name="details[{{ $key }}][subtotal]" value="{{ $detail->subtotal }}" class="form-control subtotal" readonly></td>
                         <td><textarea name="details[{{ $key }}][notes]" class="form-control">{{ $detail->notes }}</textarea></td>
                         <td><button type="button" class="btn btn-danger removeRow"><i class="bi-trash"></i></button></td>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Branch;
 use App\Models\Employee;
+use App\Models\Inventory;
 use Illuminate\Http\Request;
 use App\DataTables\BranchDataTable;
 use App\Http\Controllers\Controller;
@@ -34,13 +35,19 @@ class BranchController extends Controller
      */
     public function store(BranchRequest $request)
     {
-        Branch::create([
+        $branch = Branch::create([
             'name' => $request->name,
             'address' => $request->address,
             'phone' => $request->phone,
             'email' => $request->email,
             'status' => $request->status,
             'manager_id' => $request->manager_id,
+            'created_by' => auth()->id(),
+        ]);
+
+        Inventory::create([
+            'name'=> $branch->name .' Inventory',
+            'branch_id' => $branch->id,
             'created_by' => auth()->id(),
         ]);
         Alert::success(__('Success'), __('Created Successfully'));
@@ -80,6 +87,24 @@ class BranchController extends Controller
             'manager_id' => $request->manager_id,
             'updated_by' => auth()->id(),
         ]);
+
+        $inventory = $branch->inventory;
+        if(!empty($inventory))
+        {
+            $inventory->update([
+                'name' => $branch->name . ' Inventory',
+                'branch_id' => $branch->id,
+                'updated_by' => auth()->id(),
+            ]);
+        }else{
+            Inventory::create([
+                'name' => $branch->name . ' Inventory',
+                'branch_id' => $branch->id,
+                'created_by' => auth()->id(),
+            ]);
+        }
+
+
         Alert::success(__('Success'), __('Updated Successfully'));
         return redirect()->route('branches.index');
     }

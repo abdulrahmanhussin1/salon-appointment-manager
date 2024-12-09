@@ -16,16 +16,19 @@ class Service extends Model
 
     public function tools()
     {
-        return $this->BelongsToMany(ServiceTool::class);
+        return $this->belongsToMany(Tool::class, 'service_tools', 'service_id', 'tool_id');
     }
+
 
     public function employees()
     {
-        return $this->BelongsToMany(ServiceEmployee::class);
+        return $this->belongsToMany(Employee::class, 'service_employees', 'service_id', 'employee_id')
+        ->withPivot('commission_type', 'commission_value', 'is_immediate_commission');
     }
+
 
     public function products()
     {
-        return $this->BelongsToMany(ServiceProduct::class);
+        return $this->BelongsToMany(Product::class, 'service_products', 'service_id', 'product_id');
     }
 }

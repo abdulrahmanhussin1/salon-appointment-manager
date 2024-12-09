@@ -20,7 +20,7 @@ class UnitFactory extends Factory
             'name' => $this->faker->word,
             'symbol' => $this->faker->optional()->lexify('?'),
             'status' => 'active',
-            'branch_id' =>rand(1,3), // Assuming Branch
+            'branch_id' =>1, // Assuming Branch
             'created_by' => 1,
             'created_at' => now(),
         ];

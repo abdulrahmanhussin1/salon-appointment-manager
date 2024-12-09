@@ -20,7 +20,7 @@ class Employee extends Model
 
     public function services()
     {
-        return $this->belongsToMany(Service::class,'service_employees');
+        return $this->belongsToMany(Service::class,'service_employees', 'employee_id','service_id');
     }
 
     public function branch()
@@ -32,4 +32,6 @@ class Employee extends Model
     {
         return $this->hasOne(User::class,'employee_id');
     }
+
+
 }

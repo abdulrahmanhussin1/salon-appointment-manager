@@ -50,7 +50,7 @@
     {{-- End breadcrumbs --}}
 
     <div class="row">
-        <div class="col-9">
+        <div class="col-8">
             <div class=" me-2 mb-3">
                 {{-- Customer Details --}}
                 <div class="card mb-3">
@@ -63,33 +63,63 @@
                             @endif
                         </div>
                     </div>
+                    @include('admin.layouts.alerts')
                     <form action="{{ route('sales_invoices.store') }}" method="POST">
                         @csrf
                         <div class="card-body">
                             <div class="row">
+                                <div class="col-6 ">
+                                    <x-form-select name="branch_id" id="branch_id" label='Branch' required>
+                                        <option value="">{{ __('Select one Branch') }}</option>
+                                        @foreach ($branches as $branch)
+                                            <option @if (isset($product) && ($product->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
+                                                @if (!isset($invoice) && Auth::user()->expense?->branch_id == $branch->id) selected="selected" @endif
+                                                value="{{ $branch->id }}">
+                                                {{ $branch->name }}
+                                            </option>
+                                        @endforeach
+                                    </x-form-select>
+                                </div>
                                 <div class="col-6 mb-3">
-                                    <label for="customer" class="form-label">Customer:</label>
-                                    <select id="customer" class="form-select">
+                                    <label for="customer_id" class="form-label">Customer:</label>
+                                    <select id="customer_id" name="customer_id"class="form-select form-select-sm">
                                         <option value="" disabled selected>Select Customer</option>
                                         @foreach ($customers as $customer)
                                             <option value="{{ $customer->id }}">{{ $customer->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="col-6 mb-3">
+                                    <label for="invoice_date" class="form-label">Invoice Date:</label>
+                                    <input type="date" id="invoice_date" name="invoice_date"
+                                        class="form-control form-control-sm @error('dob') is-invalid @enderror"
+                                        value="{{ old('invoice_date') }}">
+                                </div>
+                                <div class="mb-3">
+                                     <x-form-select name='status' id="status" label="status" required>
+                            <option value="active">{{ __('Active') }}</option>
+                            <option  value="inactive">{{ __('Inactive') }}</option>
+                            <option value="draft">{{ __('Draft') }}</option>
+                        </x-form-select>
+                                </div>
                                 <hr>
                                 <table class="table table-sm col-12 table-bordered">
                                     <tr>
                                         <td id="customer-since" class="text-center">
                                             <h5>Customer Since</h5>
-                                            <p>value</p>
+                                            <p></p>
                                         </td>
                                         <td id="last-visit" class="text-center">
                                             <h5>Last Visit</h5>
-                                            <p>value</p>
+                                            <p></p>
                                         </td>
                                         <td id="dob" class="text-center">
                                             <h5>Birthday</h5>
-                                            <p>value</p>
+                                            <p></p>
+                                        </td>
+                                        <td id="is_vip" class="text-center">
+                                            <h5>VIP</h5>
+                                            <p></p>
                                         </td>
                                     </tr>
                                 </table>
@@ -133,7 +163,7 @@
 
         </div>
         {{-- Payment Summary --}}
-        <div class="col-3 ">
+        <div class="col-4 ">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">Payment Summary</div>
@@ -171,6 +201,17 @@
                         <tr>
                             <th>Net Total</th>
                             <td id="net-total" class="text-end">$0.00</td>
+                        </tr>
+                        <tr>
+                            <th>Payment Method</th>
+                            <td id="" class="text-end">
+                                <select id="payment_method_id" name="payment_method_id" class="form-select">
+                                    @foreach ($paymentMethods as $paymentMethod)
+                                        <option value="{{ $paymentMethod->id }}">{{ $paymentMethod->name }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            </td>
                         </tr>
                     </table>
                 </div>
@@ -281,15 +322,11 @@
 
 @section('js')
     <script>
-        const products = @json($products);
-        const services = @json($services);
-        const employees = @json($employees);
-    </script>
-
-    <script>
         $(document).ready(function() {
-            // Populate provider selector with all employees on document ready
-            populateProviderSelector();
+            // Store products, services, and employees data
+            const products = @json($products);
+            const services = @json($services);
+            const employees = @json($employees);
 
             // Add a new item row on click
             $("#add-item").on("click", addItemRow);
@@ -302,59 +339,93 @@
 
             $("#deposit-input").on("input", updateInvoice); // Update payment summary on deposit change
 
-            function populateProviderSelector() {
-                // Fetch all employees (replace with your endpoint or logic)
+            // Send data to the server using AJAX on checkout button click
+            $("#checkout").on("click", function(e) {
+                e.preventDefault();
+
+                // Collect data for submission
+                const customerId = $("#customer_id").val();
+                const paymentMethodId = $("#payment_method_id").val();
+                const invoiceDate = $("#invoice_date").val();
+                const branchId = $("#branch_id").val();
+                const status = $("#status").val();
+                const items = [];
+
+                $("#invoice-items tbody tr").each(function() {
+                    const $row = $(this);
+                    items.push({
+                        type: $row.find(".item-type").val(),
+                        item_id: $row.find(".item-selector").val(),
+                        code: $row.find(".item-code").val(),
+                        provider_id: $row.find(".provider-selector").val(),
+                        quantity: parseFloat($row.find(".item-qty").val()) || 0,
+                        price: parseFloat($row.find(".item-price").val()) || 0,
+                        discount: parseFloat($row.find(".item-discount").val()) || 0,
+                        tax: parseFloat($row.find(".item-tax").val()) || 0,
+                    });
+                });
+
+                // Prepare the data payload
+                const data = {
+                    customer_id: customerId,
+                    payment_method_id: paymentMethodId,
+                    branch_id:branchId,
+                    invoice_date:invoice_date
+                    items: items,
+                    status:status
+
+                };
+
+                // Send the data using AJAX
                 $.ajax({
-                    url: `/get-all-employees`,
-                    method: "GET",
-                    success: function(data) {
-                        $(".provider-selector").each(function() {
-                            const $providerSelector = $(this);
-                            $providerSelector.html(
-                                '<option value="" selected disabled>Provider</option>');
-                            data.forEach((employee) => {
-                                $providerSelector.append(new Option(employee.name,
-                                    employee.id));
-                            });
-                        });
+                    url: "{{ route('sales_invoices.store') }}", // Update with your endpoint
+                    type: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
                     },
-                    error: function(xhr, status, error) {
-                        console.error(`Error fetching employees: ${status} - ${error}`);
+                    contentType: "application/json",
+                    data: JSON.stringify(data),
+                    success: function(response) {
+                        alert("Invoice created successfully!");
+                        window.location.href = "{{ route('sales_invoices.index') }}";
+                    },
+                    error: function(xhr) {
+                        console.error("Error:", xhr.responseJSON);
+                        alert("An error occurred while creating the invoice.");
                     },
                 });
-            }
+            });
 
             function addItemRow() {
                 const newRow = `
-        <tr>
-            <td>
-                <select class="form-select form-select-sm item-type">
-                    <option value="" selected disabled>Type</option>
-                    <option value="product">Product</option>
-                    <option value="service">Service</option>
-                </select>
-            </td>
-            <td>
-                <select class="form-select form-select-sm item-selector" disabled>
-                    <option value="" selected disabled>Item</option>
-                </select>
-            </td>
-            <td><input type="text" class="form-control form-control-sm item-code" placeholder="Code" readonly></td>
-            <td>
-                <select class="form-select form-select-sm provider-selector">
-                    <option value="" selected disabled>Provider</option>
-                </select>
-            </td>
-            <td><input type="number" class="form-control form-control-sm item-qty" value="1" min="1"></td>
-            <td><input type="number" class="form-control form-control-sm item-price" value="0" min="0" step="0.01"></td>
-            <td><input type="number" class="form-control form-control-sm item-discount" value="0" min="0" max="100" step="0.01"></td>
-            <td><input type="number" class="form-control form-control-sm item-tax" value="0" min="0" max="100" step="0.01"></td>
-            <td class="item-due">$0.00</td>
-            <td><button class="btn btn-sm btn-danger remove-item"><i class="bi bi-trash"></i></button></td>
-        </tr>
+            <tr>
+                <td>
+                    <select name="type" class="form-select form-select-sm item-type">
+                        <option value="" selected disabled>Type</option>
+                        <option value="product">Product</option>
+                        <option value="service">Service</option>
+                    </select>
+                </td>
+                <td>
+                    <select name='item' class="form-select form-select-sm item-selector" disabled>
+                        <option value="" selected disabled>Item</option>
+                    </select>
+                </td>
+                <td><input type="text" name="code" class="form-control form-control-sm item-code" placeholder="Code" readonly></td>
+                <td>
+                    <select name="provider" class="form-select form-select-sm provider-selector">
+                        <option value="" selected disabled>Provider</option>
+                    </select>
+                </td>
+                <td><input type="number" name="quantity" class="form-control form-control-sm item-qty" value="1" min="1"></td>
+                <td><input type="number" name="price" class="form-control form-control-sm item-price" value="0" min="0" step="0.01"></td>
+                <td><input type="number" name="discount" class="form-control form-control-sm item-discount" value="0" min="0" max="100" step="0.01"></td>
+                <td><input type="number" name="tax" class="form-control form-control-sm item-tax" value="0" min="0" max="100" step="0.01"></td>
+                <td class="item-due">$0.00</td>
+                <td><button class="btn btn-sm btn-danger remove-item"><i class="bi bi-trash"></i></button></td>
+            </tr>
         `;
                 $("#invoice-items tbody").append(newRow);
-                populateProviderSelector();
             }
 
             function handleTypeChange() {
@@ -362,10 +433,6 @@
                 const type = $(this).val();
                 const $itemSelector = $row.find(".item-selector");
                 const $providerSelector = $row.find(".provider-selector");
-
-                if (type === "service") {
-                    $providerSelector.html('<option value="" selected disabled>Provider</option>');
-                }
 
                 $itemSelector.prop("disabled", false).html('<option value="" selected disabled>Item</option>');
 
@@ -384,17 +451,26 @@
                 const $row = $(this).closest("tr");
                 const type = $row.find(".item-type").val();
                 const itemId = $(this).val();
-                const $providerSelector = $row.find(".provider-selector");
                 const $itemCode = $row.find(".item-code");
                 const $itemPrice = $row.find(".item-price");
+                const $providerSelector = $row.find(".provider-selector");
 
+                const itemList = type === "product" ? products : services;
+                const selectedItem = itemList.find((item) => item.id == itemId);
+
+                if (selectedItem) {
+                    $itemCode.val(selectedItem.code || selectedItem.id);
+                    $itemPrice.val(selectedItem.price || 0).prop("readonly", true);
+                }
+
+                // Populate providers for services if applicable
                 if (type === "service") {
                     $.ajax({
-                        url: `/get-related-employees`,
+                        url: "{{ route('sales_invoices.getRelatedEmployees') }}", // Adjust this endpoint
                         method: "GET",
                         data: {
                             item_type: type,
-                            item_id: itemId
+                            item_id: itemId,
                         },
                         success: function(data) {
                             $providerSelector.html(
@@ -405,19 +481,17 @@
                             });
                         },
                         error: function(xhr, status, error) {
-                            console.error(`Error fetching employees: ${status} - ${error}`);
+                            console.error(`Error fetching providers: ${status} - ${error}`);
                         },
                     });
+                } else {
+                    // Clear providers for non-service items
+                    $providerSelector.html('<option value="" selected disabled>Provider</option>');
                 }
 
-                // Update code and price based on selected item
-                const item = (type === "product" ? products : services).find((i) => i.id === itemId);
-                if (item) {
-                    $itemCode.val(item.code || item.id);
-                    $itemPrice.val(item.price || 0);
-                    updateInvoice();
-                }
+                updateInvoice();
             }
+
 
             function updateInvoice() {
                 const $rows = $("#invoice-items tbody tr");
@@ -463,6 +537,38 @@
             $("#invoice-items").on("click", ".remove-item", function() {
                 $(this).closest("tr").remove();
                 updateInvoice();
+            });
+        });
+    </script>
+
+
+
+    <script>
+        $(document).ready(function() {
+            // Assuming all customer data is available in a variable
+            const customers = @json($customers);
+
+            // Event listener for customer selection
+            $('#customer').change(function() {
+                const customerId = $(this).val();
+
+                // Find the selected customer from the customer list
+                const selectedCustomer = customers.find(customer => customer.id == customerId);
+
+                if (selectedCustomer) {
+                    // Update the customer information on the page
+                    $('#customer-since p').text(selectedCustomer.created_at ? new Date(selectedCustomer
+                        .created_at).toLocaleDateString() : 'N/A');
+                    $('#last-visit p').text(selectedCustomer.last_service ? new Date(selectedCustomer
+                        .last_service).toLocaleDateString() : 'N/A');
+                    $('#dob p').text(selectedCustomer.dob ? new Date(selectedCustomer.dob)
+                        .toLocaleDateString() : 'N/A');
+                    $('#is_vip p').html(
+                        selectedCustomer.is_vip ?
+                        '<i class="bi bi-star-fill" style="color:#D38E29;font-size: x-large;"></i> Yes' :
+                        '<i class="bi bi-star-fill" style="color:#D9DCE1;font-size: x-large;"></i> No'
+                    );
+                }
             });
         });
     </script>

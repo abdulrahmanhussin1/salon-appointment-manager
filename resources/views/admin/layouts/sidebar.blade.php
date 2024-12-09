@@ -13,11 +13,11 @@
         <!-- End Dashboard Nav -->
         <hr>
 
-        @if (App\Traits\AppHelper::perUser('sales_invoices.index'))
+        @if (App\Traits\AppHelper::perUser('sales_invoices.create'))
             <li class="nav-item">
-                <a class="nav-link collapsed" href="{{ route('sales_invoices.index') }}">
+                <a class="nav-link collapsed" href="{{ route('sales_invoices.create') }}">
                     <i class="bi bi-receipt-cutoff"></i>
-                    <span>{{ __('Sales Invoices') }}</span>
+                    <span>{{ __('New Sales Invoices') }}</span>
                 </a>
             </li>
         @endif

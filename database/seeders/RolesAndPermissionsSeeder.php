@@ -160,7 +160,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'inventories.destroy',
 
                 /* inventory_transactions */
-                'inventory_transactions.transferInView',
+                'inventory_transactions.transferView',
                 'inventory_transactions.transferOutView'
 
 

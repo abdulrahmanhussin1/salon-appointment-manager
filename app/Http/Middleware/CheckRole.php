@@ -36,7 +36,7 @@ class CheckRole
                 || ($page === 'export' && self::perUSer($type . '.export'))
                 || ($page === 'update' && self::perUSer($type . '.edit'))
                 || ($page === 'transferOut' && self::perUSer($type . '.transferOutView'))
-                || ($page === 'transferIn' && self::perUSer($type . '.transferInView'))
+                || ($page === 'transfer' && self::perUSer($type . '.transferView'))
 
                 || self::perUSer($this->getRoute())
                 || in_array($this->getRoute(), ['dashboard', 'sales_invoices.getItem', 'sales_invoices.getRelatedEmployees'])

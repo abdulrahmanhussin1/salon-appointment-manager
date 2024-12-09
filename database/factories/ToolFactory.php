@@ -20,7 +20,7 @@ class ToolFactory extends Factory
             'name' => $this->faker->word, // Generates a single random word for category name
             'description' => $this->faker->optional()->sentence, // Optional, generates a sentence for description
             'status' => 'active',
-            'branch_id' => rand(1,3), // Assuming Branch
+            'branch_id' => 1, // Assuming Branch
             'created_by' => 1, // Nullable, links to an existing user ID
             'created_at' => now(),
         ];

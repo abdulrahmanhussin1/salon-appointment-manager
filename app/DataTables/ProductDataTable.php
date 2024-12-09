@@ -75,6 +75,13 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                     return '<span class="badge text-bg-danger">'. ucfirst('target'). '</span>';
                 }
             })
+
+            ->editColumn('price_can_change', function ($model) {
+                if ($model->price_can_change) {
+                    return 'Yes';
+                }
+                return 'No';
+            })
             ->editColumn('type', function ($model) {
                 if ($model->type == 'operation') {
                 return '<span class="badge text-bg-success">' . ucfirst($model->type) . '</span>';
@@ -159,6 +166,8 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
             Column::make('supplier_id')->addClass('text-center')->title('Supplier'),
             Column::make('unit_id')->addClass('text-center')->title('Unit'),
             Column::make('is_target')->addClass('text-center')->title('Target'),
+            Column::make('price_can_change')->addClass('text-center')->title('Price change in invoice'),
+
             Column::make('type')->addClass('text-center'),
             Column::make('status')->addClass('text-center'),
 

@@ -35,6 +35,8 @@ class ProductRequest extends FormRequest
             // 'outside_price' => 'nullable|numeric|min:0',
             'initial_quantity' => 'nullable|integer|min:0',
             'is_target' => 'required|boolean',
+            'price_can_change' => 'required|boolean',
+
             'type' => 'required|in:operation,sales',
             'status' => 'required|in:active,inactive',
             'branch_id' => 'required|integer|exists:branches,id',

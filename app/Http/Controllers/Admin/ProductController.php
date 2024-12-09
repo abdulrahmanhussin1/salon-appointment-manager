@@ -58,6 +58,8 @@ class ProductController extends Controller
             'supplier_id' => $request->supplier_id,
             'category_id' => $request->category_id,
             'is_target' => $request->is_target,
+            'price_can_change' => $request->price_can_change,
+
             'initial_quantity' => $request->initial_quantity,
             'type' => $request->type,
             'status' => $request->status,
@@ -116,6 +118,8 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
             'initial_quantity' => $request->initial_quantity,
             'is_target' => $request->is_target,
+            'price_can_change' => $request->price_can_change,
+
             'type' => $request->type,
             'status' => $request->status,
             'image' => $image,

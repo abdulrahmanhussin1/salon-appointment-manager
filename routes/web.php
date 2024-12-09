@@ -76,25 +76,19 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::resource('payment_methods', PaymentMethodController::class);
 
 
-    /* Transfer In */
-    Route::get('inventory_transactions/transfer_in', [InventoryTransactionController::class, 'transferInView'])
-    ->name('inventory_transactions.transferInView');
-    Route::post('inventory_transactions/transfer_in', [InventoryTransactionController::class,'transferIn'])
-    ->name('inventory_transactions.transferIn');
+    /* Transfer  */
+    Route::get('inventory_transactions/transfer', [InventoryTransactionController::class, 'transferView'])
+    ->name('inventory_transactions.transferView');
+    Route::post('inventory_transactions/transfer', [InventoryTransactionController::class,'transfer'])
+    ->name('inventory_transactions.transfer');
 
-    /* Transfer Out */
-    Route::get('inventory_transactions/transfer_out', [InventoryTransactionController::class, 'transferOutView'])
-    ->name('inventory_transactions.transferOutView');
-    Route::post('inventory_transactions/transfer_out', [InventoryTransactionController::class, 'transferOut'])
-    ->name('inventory_transactions.transferOut');
+
 
 
     /* sales invoice  */
     Route::resource('sales_invoices', SalesInvoiceController::class);
-
     Route::get('/get-items', [SalesInvoiceController::class, 'getItem'])->name('sales_invoices.getItem');
     Route::get('/get-related-employees', [EmployeeController::class, 'getRelatedEmployees'])->name('sales_invoices.getRelatedEmployees');
-
 
 
 });

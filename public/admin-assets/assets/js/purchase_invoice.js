@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td><input type="text" name="details[${rowCounter}][supplier_price]" class="form-control price" required></td>
                 <td><input type="text" name="details[${rowCounter}][customer_price]" class="form-control customer_price" ></td>
 
-                <td><input type="text" name="details[${rowCounter}][discount]" class="form-control discount"></td>
+                <td><input type="number" name="details[${rowCounter}][discount]" class="form-control discount"></td>
                 <td><input type="text" name="details[${rowCounter}][subtotal]" class="form-control subtotal" readonly></td>
                 <td><textarea name="details[${rowCounter}][notes]" class="form-control"></textarea></td>
                 <td><button type="button" class="btn btn-danger removeRow"><i class="bi-trash"></i></button></td>

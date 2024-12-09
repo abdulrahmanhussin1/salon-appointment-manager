@@ -26,32 +26,9 @@
 
 
     <x-modal id="ExpensesModal" title="Create Expense">
-        <form action="{{ route('expenses.store') }}" method="POST" id="ExpensesForm" enctype="multipart/form-data">
+        <form action="{{ route('expenses.store') }}" method="POST" id="expensesForm" enctype="multipart/form-data">
             @csrf
             <div class="modal-body">
-                <x-form-select name="expense_type_id" id="expense_type_id" label='expense Level' required>
-                    <option value="">{{ __('Select one Expense Level') }}</option>
-                    @foreach ($expenseTypes as $expenseType)
-                        <option @if (isset($expense) &&
-                                ($expense->expense_type_id == $expenseType->id || old('expense_type_id') == $expenseType->id)) selected="selected" @endif
-                            value="{{ $expenseType->id }}">{{ $expenseType->name }}
-                        </option>
-                    @endforeach
-                </x-form-select>
-
-                <x-form-description value="{{ old('description') }}" label="description" name='description'
-                    placeholder='Expense description' />
-
-                    <div class="row">
-                        <div class="col-6">
-                                                <x-input type='text' value="{{ old('amount') }}" label="Amount" name='amount' placeholder='Amount' oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
-                        </div>
-                        <div class="col-6">
-                                                <x-input type='text' value="{{ old('paid_amount') }}" label="paid amount" name='paid_amount' placeholder='paid_amount' oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
-
-                        </div>
-                    </div>
-                    <x-input type='date' value="{{ old('paid_at') }}" label="paid_at" name='paid_at' placeholder="paid_at" />
 
 
                 <x-form-select name="branch_id" id="branch_id" label='Branch' required>
@@ -64,6 +41,47 @@
                     @endforeach
                 </x-form-select>
 
+                <x-form-select name="expense_type_id" id="expense_type_id" label='expense Type' required>
+                    <option value="">{{ __('Select one Expense Type') }}</option>
+                    @foreach ($expenseTypes as $expenseType)
+                        <option @if (isset($expense) && ($expense->expense_type_id == $expenseType->id || old('expense_type_id') == $expenseType->id)) selected="selected" @endif value="{{ $expenseType->id }}">
+                            {{ $expenseType->name }}
+                        </option>
+                    @endforeach
+                </x-form-select>
+
+                <x-form-description value="{{ old('description') }}" label="description" name='description'
+                    placeholder='Expense description' />
+
+                <div class="row">
+                    <div class="col-6">
+                        <x-input type='text' value="{{ old('amount')  }}" label="Amount" name='amount'
+                            placeholder='Amount' oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
+                    </div>
+                    <div class="col-6">
+                        <x-input type='text' value="{{ old('paid_amount')  }}" label="paid amount" name='paid_amount'
+                            placeholder='paid_amount' oninput="this.value = this.value.replace(/[^0-9+]/g, '')" required />
+                    </div>
+
+                    <div class="col-6">
+                                        <x-input type='date' value="{{ old('paid_at') ?? now() }}" label="paid_at" name='paid_at'
+                    placeholder="paid_at" />
+                    </div>
+                    <div class="col-6">
+                        <x-input type='text' value="{{ old('invoice _number') }}" label="invoice number" name='invoice_number'
+                    placeholder="invoice _number" />
+                    </div>
+                </div>
+
+                <x-form-select name="payment_method_id" id="payment_method_id" label='Payment Method ' required>
+                    <option value="">{{ __('Select one Payment Method ') }}</option>
+                    @foreach ($paymentMethods as $paymentMethod)
+                        <option @if (isset($expense) && ($expense->payment_method == $paymentMethod->id || old('payment_method_id') == $paymentMethod->id)) selected="selected" @endif
+                            @if (!isset($expense) && Auth::user()->expense?->payment_method == $paymentMethod->id) selected="selected" @endif value="{{ $paymentMethod->id }}">
+                            {{ $paymentMethod->name }}
+                        </option>
+                    @endforeach
+                </x-form-select>
 
                 <x-form-select name='status' id="status" label="status" required>
                     <option @if (isset($expenses) && $expenses->status == 'active') selected @endif value="active">
@@ -74,8 +92,6 @@
             </div>
             <x-modal-footer />
         </form>
-
-
     </x-modal>
 @endsection
 @section('js')
@@ -83,8 +99,8 @@
 
     <script>
         $(document).ready(function() {
-            $("#status,#branch_id,#expense_type_id").select2({
-                dropdownParent: $("#ExpensesModal")
+            $("#status,#branch_id,#expense_type_id,#payment_method").select2({
+                dropdownParent: $("#expensesForm")
             });
             $(document).on('click', '.delete-this-expense', function(e) {
                 e.preventDefault();

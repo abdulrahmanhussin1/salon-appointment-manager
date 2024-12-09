@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Branch;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Inventory;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class BranchSeeder extends Seeder
 {
@@ -13,8 +14,7 @@ class BranchSeeder extends Seeder
      */
     public function run(): void
     {
-
-        Branch::create([
+        $branch = Branch::create([
             'name' => 'master branch',
             'address' => '123 Main St',
             'phone' => '123-456-7890',
@@ -23,7 +23,11 @@ class BranchSeeder extends Seeder
             'created_by' => 1,
         ]);
 
-        Branch::factory()->count(5)->create();
 
+        Inventory::create([
+            'name'=>'master Inventory',
+            'branch_id' => $branch->id,
+            'created_by' => 1,
+        ]);
     }
 }

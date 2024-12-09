@@ -18,12 +18,10 @@
                 <x-modal-button title="Inventory" target="employeeLevelsModal"><i
                         class="bi bi-plus-lg me-2"></i></x-modal-button>
             @endif
-            @if (App\Traits\AppHelper::perUSer('inventory_transactions.transferInView'))
-                <x-create-button title="Transfer In" route='inventory_transactions.transferInView' class="btn-primary ms-2"/>
+            @if (App\Traits\AppHelper::perUSer('inventory_transactions.transferView'))
+                <x-create-button title="Transfer" route='inventory_transactions.transferView' class="btn-primary ms-2"/>
             @endif
-                        @if (App\Traits\AppHelper::perUSer('inventory_transactions.transferOutView'))
-                <x-create-button title="Transfer Out" route='inventory_transactions.transferOutView' class="btn-primary ms-2"/>
-            @endif
+
         </div>
         @include('admin.layouts.alerts')
         <div>
@@ -70,7 +68,7 @@
 
     <script>
         $(document).ready(function() {
-            $("#status").select2({
+            $("#status,#branch_id").select2({
                 dropdownParent: $("#employeeLevelsModal")
             });
             $(document).on('click', '.delete-this-employee_level', function(e) {

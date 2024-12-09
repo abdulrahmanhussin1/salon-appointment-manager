@@ -81,7 +81,7 @@ class PurchaseInvoiceController extends Controller
             ]);
 
             // Save purchase invoice details
-            $purchaseInvoice->saveDetails($details);
+            $purchaseInvoice->saveDetails($details,$request);
 
             // Create supplier transaction
             SupplierTransaction::create([

@@ -31,13 +31,14 @@ class DatabaseSeeder extends Seeder
             BranchSeeder::class,
             ProductCategorySeeder::class,
             UnitSeeder::class,
+            PaymentMethodSeeder::class,
             SupplierSeeder::class,
             ProductSeeder::class,
             ToolSeeder::class,
             EmployeeLevelSeeder::class,
             ServiceCategorySeeder::class,
             EmployeeSeeder::class,
-            
+
         ]);
     }
 }

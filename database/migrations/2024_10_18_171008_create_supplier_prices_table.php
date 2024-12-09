@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedDecimal('supplier_price',10,2)->default(0);
             $table->decimal('customer_price', 10, 2)->default(0);
             $table->unsignedDecimal('discount', 10, 2)->default(0);
+            $table->unsignedInteger('quantity')->default(0);
             $table->timestamps();
         });
     }

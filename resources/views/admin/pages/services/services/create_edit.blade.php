@@ -163,8 +163,7 @@
                             <x-form-multi-select label="Tools" name="tool_id[]" id="tool_id" multiple>
                                 @foreach ($tools as $tool)
                                     <option value="{{ $tool->id }}" @if (isset($service) &&
-                                            ($service->tools->pluck('tool_id')->contains($tool->id) ||
-                                                (old('tool_id') && in_array($tool->id, old('tool_id'))))) selected @endif>
+                                            ($service->tools->pluck('id')->contains($tool->id) || (old('tool_id') && in_array($tool->id, old('tool_id'))))) selected @endif>
                                         {{ $tool->name }}
                                     </option>
                                 @endforeach
@@ -173,29 +172,37 @@
 
 
 
-                        <div class="col-12">
-                            <x-form-multi-select label="Products" name="product_id[]" id="product_id" multiple>
-                                @foreach ($products as $product)
-                                    <option value="{{ $product->id }}" @if (isset($service) &&
-                                            ($service->products->pluck('product_id')->contains($product->id) ||
-                                                (old('product_id') && in_array($product->id, old('product_id'))))) selected @endif>
-                                        {{ $product->name }}
-                                    </option>
-                                @endforeach
-                            </x-form-multi-select>
-                        </div>
 
-                        <div class="col-12">
-                            <x-form-multi-select label="Employees" name="employee_id[]" id="employee_id" multiple>
-                                @foreach ($employees as $employee)
-                                    <option value="{{ $employee->id }}" @if (isset($service) &&
-                                            ($service->employees->pluck('employee_id')->contains($employee->id) ||
-                                                (old('employee_id') && in_array($employee->id, old('employee_id'))))) selected @endif>
-                                        {{ $employee->name }}
-                                    </option>
-                                @endforeach
-                            </x-form-multi-select>
-                        </div>
+<div class="col-12">
+    <x-form-multi-select label="Products" name="product_id[]" id="product_id" multiple>
+        @foreach ($products as $product)
+            <option value="{{ $product->id }}"
+                @if (isset($service) &&
+                    ($service->products->pluck('id')->contains($product->id) ||
+                     (old('product_id') && in_array($product->id, old('product_id')))))
+                    selected
+                @endif>
+                {{ $product->name }}
+            </option>
+        @endforeach
+    </x-form-multi-select>
+</div>
+
+
+<div class="col-12">
+    <x-form-multi-select label="Employees" name="employee_id[]" id="employee_id" multiple>
+        @foreach ($employees as $employee)
+            <option value="{{ $employee->id }}"
+                @if (isset($service) &&
+                    ($service->employees->pluck('id')->contains($employee->id) ||
+                     (old('employee_id') && in_array($employee->id, old('employee_id')))))
+                    selected
+                @endif>
+                {{ $employee->name }}
+            </option>
+        @endforeach
+    </x-form-multi-select>
+</div>
 
 
                         <div class="col-12">
@@ -205,50 +212,11 @@
                     </div>
                     <div class="row">
 
-                        <!-- Placeholder for dynamically generated inputs -->
-                        <div id="employee-details-container">
-                            @if (isset($service) && $service->employees)
-                                @foreach ($service->employees as $employee)
-                                    <div class="employee-details" data-employee-id="{{ $employee->id }}">
-                                        <h6>Commission for Employee: {{ $employee->name }}</h6>
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <label for="commission_type_{{ $employee->id }}">Commission Type</label>
-                                                <select name="commission_type[{{ $employee->id }}]"
-                                                    id="commission_type_{{ $employee->id }}" class="form-control">
-                                                    <option value="percentage"
-                                                        {{ $employee->pivot->commission_type === 'percentage' ? 'selected' : '' }}>
-                                                        Percentage</option>
-                                                    <option value="value"
-                                                        {{ $employee->pivot->commission_type === 'value' ? 'selected' : '' }}>
-                                                        Value</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label for="commission_value_{{ $employee->id }}">Commission Value</label>
-                                                <input type="number" name="commission_value[{{ $employee->id }}]"
-                                                    id="commission_value_{{ $employee->id }}" class="form-control"
-                                                    value="{{ $employee->pivot->commission_value }}">
-                                            </div>
+<!-- Placeholder for dynamically generated inputs -->
+<div id="employee-details-container">
 
-                                            <div class="col-md-4">
-                                                <label for="is_immediate_{{ $employee->id }}">Immediate Commission</label>
-                                                <select name="is_immediate_commission[{{ $employee->id }}]"
-                                                    id="is_immediate_{{ $employee->id }}" class="form-control">
-                                                    <option value="1"
-                                                        {{ $employee->pivot->is_immediate_commission ? 'selected' : '' }}>
-                                                        Yes</option>
-                                                    <option value="0"
-                                                        {{ !$employee->pivot->is_immediate_commission ? 'selected' : '' }}>
-                                                        No</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <hr>
-                                    </div>
-                                @endforeach
-                            @endif
-                        </div>
+</div>
+
 
                     </div>
                 </div>
@@ -264,46 +232,74 @@
 <script>
     $(document).ready(function () {
         const employeesData = @json($employees);
+        const preloadedEmployees = @json($service->employees ?? []); // Preloaded employees from the server
+        const container = $('#employee-details-container');
+
+        function renderEmployeeDetails(employeeId, preloadedData = null) {
+            const employee = employeesData.find(e => e.id == employeeId);
+            if (!employee) return;
+
+            // Use preloaded data if available, otherwise default values
+            const commissionType = preloadedData?.pivot?.commission_type || '';
+            const commissionValue = preloadedData?.pivot?.commission_value || '';
+            const isImmediate = preloadedData?.pivot?.is_immediate_commission || '';
+
+            // Generate inputs dynamically
+            const html = `
+            <div class="employee-details" data-employee-id="${employeeId}">
+                <h6>Commission for Employee: ${employee.name}</h6>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="commission_type_${employeeId}">Commission Type</label>
+                        <select name="commission_type[${employeeId}]" id="commission_type_${employeeId}" class="form-control">
+                            <option value="percentage" ${commissionType === 'percentage' ? 'selected' : ''}>Percentage</option>
+                            <option value="value" ${commissionType === 'value' ? 'selected' : ''}>Value</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="commission_value_${employeeId}">Commission Value</label>
+                        <input type="number" name="commission_value[${employeeId}]" id="commission_value_${employeeId}" class="form-control" value="${commissionValue}">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="is_immediate_${employeeId}">Immediate Commission</label>
+                        <select name="is_immediate_commission[${employeeId}]" id="is_immediate_${employeeId}" class="form-control">
+                            <option value="1" ${isImmediate == 1 ? 'selected' : ''}>Yes</option>
+                            <option value="0" ${isImmediate == 0 ? 'selected' : ''}>No</option>
+                        </select>
+                    </div>
+                </div>
+                <hr>
+            </div>
+        `;
+            container.append(html);
+        }
+
+        // Populate preloaded employees
+        preloadedEmployees.forEach(employee => {
+            renderEmployeeDetails(employee.id, employee);
+        });
 
         // Listen to changes on the multi-select
         $('#employee_id').on('change', function () {
-            const selectedEmployees = $(this).val();
-            const container = $('#employee-details-container');
-            container.empty(); // Clear existing inputs
+            const selectedEmployees = $(this).val() || [];
+            const existingEmployeeIds = container.find('.employee-details').map(function () {
+                return $(this).data('employee-id');
+            }).get();
 
+            // Remove unselected employees
+            container.find('.employee-details').each(function () {
+                const employeeId = $(this).data('employee-id');
+                if (!selectedEmployees.includes(employeeId.toString())) {
+                    $(this).remove();
+                }
+            });
+
+            // Add newly selected employees
             selectedEmployees.forEach(employeeId => {
-                const employee = employeesData.find(e => e.id == employeeId);
-                if (!employee) return;
-
-                // Generate inputs dynamically
-                const html = `
-                    <div class="employee-details" data-employee-id="${employeeId}">
-                        <h6>Commission for Employee: ${employee.name}</h6>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <label for="commission_type_${employeeId}">Commission Type</label>
-                                <select name="commission_type[${employeeId}]" id="commission_type_${employeeId}" class="form-control">
-                                    <option value="percentage">Percentage</option>
-                                    <option value="value">Value</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="commission_value_${employeeId}">Commission Value</label>
-                                <input type="number" name="commission_value[${employeeId}]" id="commission_value_${employeeId}" class="form-control">
-                            </div>
-
-                            <div class="col-md-4">
-                                <label for="is_immediate_${employeeId}">Immediate Commission</label>
-                                <select name="is_immediate_commission[${employeeId}]" id="is_immediate_${employeeId}" class="form-control">
-                                    <option value="1">Yes</option>
-                                    <option value="0">No</option>
-                                </select>
-                            </div>
-                        </div>
-                        <hr>
-                    </div>
-                `;
-                container.append(html);
+                if (!existingEmployeeIds.includes(parseInt(employeeId))) {
+                    renderEmployeeDetails(employeeId);
+                }
             });
         });
 
@@ -311,6 +307,7 @@
         $('#employee_id').trigger('change');
     });
 </script>
+
     <script>
         function openFileInput() {
             document.getElementById('fileInput').click();

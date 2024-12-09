@@ -25,6 +25,7 @@ return new class extends Migration
             // $table->unsignedDecimal('outside_price', 10, 2)->default(0);
             $table->unsignedInteger('initial_quantity')->default(0);
             $table->boolean('is_target')->default(false);
+            $table->boolean('price_can_change')->default(false);
             $table->enum('type', ['operation', 'sales'])->default('operation');
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->foreignId('branch_id')->constrained('branches')->default(1)->cascadeOnUpdate()->restrictOnDelete();

@@ -93,7 +93,7 @@
                 </x-form-select>
             </div>
             <div class="col-12">
-                <x-form-select name='add_from' id="add_from" label="Added From">
+                <x-form-select name='added_from' id="added_from" label="Added From">
                     <option @if (($customer && $customer->add_from == 'direct') || old('add_from') == 'direct') selected @endif value="direct">{{ __('Direct') }}</option>
                     <option @if (($customer && $customer->add_from == 'online') || old('add_from') == 'online') selected @endif value="online">{{ __('Online') }}</option>
                     <option @if (($customer && $customer->add_from == 'advertisement') || old('add_from') == 'advertisement') selected @endif value="advertisement">{{ __('Advertisement') }}</option>

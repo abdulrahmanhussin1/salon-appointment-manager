@@ -39,6 +39,11 @@ class ExpenseDataTable extends DataTable
                 return $html;
             })
 
+
+            ->editColumn('expense_type_id', function ($model) {
+                return $model->expense_type_id ? $model->expenseType->name : 'N/A';
+            })
+            
             ->editColumn('status', function ($model) {
                 if ($model->status == 'active') {
                     return '<i class="bi bi-check-circle-fill text-success" style="font-size:large"></i>';

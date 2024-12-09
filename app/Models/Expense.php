@@ -13,6 +13,9 @@ class Expense extends Model
     protected $guarded = ['id'];
     protected $table = 'expenses';
 
+    protected $casts = [
+        'paid_at' => 'datetime',
+    ];
     public function expenseType()
     {
         return $this->belongsTo(ExpenseType::class);
