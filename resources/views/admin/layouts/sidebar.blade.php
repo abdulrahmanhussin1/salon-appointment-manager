@@ -41,6 +41,40 @@
             </li>
         @endif
 
+
+
+
+@if (App\Traits\AppHelper::perUser('sales_invoices.index') || App\Traits\AppHelper::perUser('sales_invoices.create'))
+
+<li class="nav-item">
+    <a class="nav-link collapsed" data-bs-target="#sales-nav" data-bs-toggle="collapse" href="#">
+       <i class="bi bi-person-fill-down"></i><span>{{ __('Sales Invoices') }}</span><i
+            class="bi bi-chevron-down ms-auto"></i>
+    </a>
+    @if (App\Traits\AppHelper::perUser('sales_invoices.index'))
+        <ul id="sales-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+            <li>
+                <a href="{{ route('sales_invoices.index') }}">
+                    <i class="bi bi-circle"></i><span>{{ __('Invoices') }}</span>
+                </a>
+            </li>
+        </ul>
+    @endif
+
+     @if (App\Traits\AppHelper::perUser('sales_invoices.create'))
+        <ul id="sales-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+            <li>
+                <a href="{{ route('sales_invoices.create') }}">
+                    <i class="bi bi-circle"></i><span>{{ __('New Invoices') }}</span>
+                </a>
+            </li>
+        </ul>
+    @endif
+</li>
+
+@endif
+
+
 @if (App\Traits\AppHelper::perUser('suppliers.index') || App\Traits\AppHelper::perUser('purchase_invoices.index'))
 
             <li class="nav-item">

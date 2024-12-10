@@ -15,15 +15,16 @@ use App\Models\SupplierPrice;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\DataTables\SalesInvoiceDataTable;
 
 class SalesInvoiceController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SalesInvoiceDataTable $dataTable)
     {
-        //
+        return $dataTable->render('admin.pages.Sales.invoices.index');
     }
 
     /**
@@ -105,6 +106,8 @@ class SalesInvoiceController extends Controller
                     if (!$product) {
                         return back()->withErrors(['items' => 'Invalid or inactive product selected.']);
                     }
+
+
 
                     // Allocate prices dynamically
                     $allocatedPrices = [];

@@ -80,6 +80,16 @@
                                         @endforeach
                                     </x-form-select>
                                 </div>
+                                <div class="col-6">
+                                    <x-form-select name='status' id="status" label="status" required>
+                                        <option @if (old('status') == 'active') selected @endif value="active">
+                                            {{ __('Active') }}</option>
+                                        <option @if (old('status') == 'inactive') selected @endif value="inactive">
+                                            {{ __('Inactive') }}</option>
+                                            <option @if (old('status') == 'draft') selected @endif value="draft">
+                                                {{ __('Draft') }}</option>
+                                    </x-form-select>
+                                </div>
                                 <div class="col-6 mb-3">
                                     <label for="customer_id" class="form-label">Customer:</label>
                                     <select id="customer_id" name="customer_id"class="form-select form-select-sm">
@@ -95,16 +105,7 @@
                                         class="form-control form-control-sm @error('invoice_date') is-invalid @enderror"
                                         value="{{ old('invoice_date') }}">
                                 </div>
-                    <div class="col-6">
-                        <x-form-select name='status' id="status" label="status" required>
-                            <option @if (old('status') == 'active') selected @endif value="active">
-                                {{ __('Active') }}</option>
-                            <option @if (old('status') == 'inactive') selected @endif value="inactive">
-                                {{ __('Inactive') }}</option>
-                                <option @if (old('status') == 'draft') selected @endif value="draft">
-                                    {{ __('Draft') }}</option>
-                        </x-form-select>
-                    </div>
+
                                 <hr>
                                 <table class="table table-sm col-12 table-bordered">
                                     <tr>
@@ -464,7 +465,7 @@
                 }
 
                 // Populate providers for services if applicable
-               
+
                     $.ajax({
                         url: "{{ route('sales_invoices.getRelatedEmployees') }}", // Adjust this endpoint
                         method: "GET",
@@ -546,7 +547,7 @@
             const customers = @json($customers);
 
             // Event listener for customer selection
-            $('#customer').change(function() {
+            $('#customer_id').change(function() {
                 const customerId = $(this).val();
 
                 // Find the selected customer from the customer list
