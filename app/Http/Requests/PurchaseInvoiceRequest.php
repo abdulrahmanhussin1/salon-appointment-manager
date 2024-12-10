@@ -38,7 +38,7 @@ class PurchaseInvoiceRequest extends FormRequest
             'invoice_discount'=>'nullable|numeric|min:0',
             'invoice_notes'=>'nullable|string|max:500',
             'supplier_id' => 'required|exists:suppliers,id',
-            'status' => 'required|in:active,inactive',
+            'status' => 'required|in:active,inactive,draft',
             'branch_id' => 'nullable|exists:branches,id',
 
             'details' => 'required|array',

@@ -92,16 +92,19 @@
                                 <div class="col-6 mb-3">
                                     <label for="invoice_date" class="form-label">Invoice Date:</label>
                                     <input type="date" id="invoice_date" name="invoice_date"
-                                        class="form-control form-control-sm @error('dob') is-invalid @enderror"
+                                        class="form-control form-control-sm @error('invoice_date') is-invalid @enderror"
                                         value="{{ old('invoice_date') }}">
                                 </div>
-                                <div class="mb-3">
-                                     <x-form-select name='status' id="status" label="status" required>
-                            <option value="active">{{ __('Active') }}</option>
-                            <option  value="inactive">{{ __('Inactive') }}</option>
-                            <option value="draft">{{ __('Draft') }}</option>
+                    <div class="col-6">
+                        <x-form-select name='status' id="status" label="status" required>
+                            <option @if (old('status') == 'active') selected @endif value="active">
+                                {{ __('Active') }}</option>
+                            <option @if (old('status') == 'inactive') selected @endif value="inactive">
+                                {{ __('Inactive') }}</option>
+                                <option @if (old('status') == 'draft') selected @endif value="draft">
+                                    {{ __('Draft') }}</option>
                         </x-form-select>
-                                </div>
+                    </div>
                                 <hr>
                                 <table class="table table-sm col-12 table-bordered">
                                     <tr>
@@ -282,7 +285,7 @@
                 <x-form-description value="{{ old('notes') }}" label="notes" name='notes' placeholder='Notes' />
                 <div class="row">
                     <div class="col-6">
-                        <x-form-select name='status' id="status" label="status" required>
+                        <x-form-select name='status' id="customer-status" label="status" required>
                             <option @if (old('status') == 'active') selected @endif value="active">
                                 {{ __('Active') }}</option>
                             <option @if (old('status') == 'inactive') selected @endif value="inactive">
@@ -370,10 +373,9 @@
                     customer_id: customerId,
                     payment_method_id: paymentMethodId,
                     branch_id:branchId,
-                    invoice_date:invoice_date
+                    invoice_date:invoiceDate,
                     items: items,
                     status:status
-
                 };
 
                 // Send the data using AJAX
@@ -386,12 +388,10 @@
                     contentType: "application/json",
                     data: JSON.stringify(data),
                     success: function(response) {
-                        alert("Invoice created successfully!");
                         window.location.href = "{{ route('sales_invoices.index') }}";
                     },
-                    error: function(xhr) {
-                        console.error("Error:", xhr.responseJSON);
-                        alert("An error occurred while creating the invoice.");
+                    error: function(response) {
+
                     },
                 });
             });
@@ -464,7 +464,7 @@
                 }
 
                 // Populate providers for services if applicable
-                if (type === "service") {
+               
                     $.ajax({
                         url: "{{ route('sales_invoices.getRelatedEmployees') }}", // Adjust this endpoint
                         method: "GET",
@@ -484,10 +484,7 @@
                             console.error(`Error fetching providers: ${status} - ${error}`);
                         },
                     });
-                } else {
-                    // Clear providers for non-service items
-                    $providerSelector.html('<option value="" selected disabled>Provider</option>');
-                }
+
 
                 updateInvoice();
             }

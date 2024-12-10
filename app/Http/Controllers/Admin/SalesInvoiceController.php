@@ -34,34 +34,24 @@ class SalesInvoiceController extends Controller
         $customers = Customer::select('id', 'name', 'dob', 'last_service', 'created_at', 'is_vip')->where('status', 'active')->get();
         $paymentMethods = PaymentMethod::select('id', 'name')->where('status', 'active')->get();
         $products = Product::select('id', 'name', 'code')
-            ->with(['supplierPrices:id,product_id,quantity,customer_price,created_at'])
-            ->where('status', 'active')
-            ->get()
-            ->map(function ($product) {
-                $product->supplierPrices = $product->supplierPrices->sortBy('created_at'); // Sort by created_at to get the oldest prices first
+        ->with(['supplierPrices:id,product_id,quantity,customer_price,created_at'])
+        ->where('status', 'active')
+        ->get()
+        ->map(function ($product) {
+            // Find the first price where quantity > 0
+            $firstPriceWithQuantity = $product->supplierPrices
+                ->sortBy('created_at') // Sort by created_at
+                ->first(fn($price) => $price->quantity > 0);
 
-                $allocatedPrices = [];
-                // $requestedQuantity = 900; // Example quantity needed, adjust as needed
-                // foreach ($product->supplierPrices as $price) {
-                //     if ($requestedQuantity <= 0) {
-                //         break;
-                //     }
+            // Set the price to the first valid customer price
+            $product->price = $firstPriceWithQuantity ? $firstPriceWithQuantity->customer_price : null;
 
-                //     $allocatedQuantity = min($requestedQuantity, $price->quantity);
-                //     $allocatedPrices[] = [
-                //         'price' => $price->customer_price,
-                //         'quantity' => $allocatedQuantity,
-                //     ];
+            // Optionally, unset supplierPrices if not needed
+            unset($product->supplierPrices);
 
-                //     $requestedQuantity -= $allocatedQuantity; // Reduce the quantity needed
-                // }
+            return $product;
+        });
 
-                // $product->price = $allocatedPrices; // Store the allocated prices in the product
-                // unset($product->supplierPrices); // Remove the supplierPrices data if not needed
-
-                return $product;
-            });
-        dd($products);
         $services = Service::select('id', 'name', 'price')->where('status', 'active')->get();
         $employees = Employee::select('id', 'name')->where('status', 'active')->get();
         $branches = Branch::select('id', 'name')->where('status', 'active')->get();
@@ -86,6 +76,9 @@ class SalesInvoiceController extends Controller
             'items.*.tax' => 'nullable|numeric|min:0|max:100',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'deposit' => 'nullable|numeric|min:0',
+            'invoice_date'=> 'required|date' ,
+            'branch_id' => 'required|exists:branches,id',
+            'status'=>'required|string|in:active,inactive,draft',
         ]);
         // Fetch customer and validate status
         $customer = Customer::findOrFail($validatedData['customer_id']);
@@ -198,20 +191,21 @@ class SalesInvoiceController extends Controller
                 'invoice_tax' => $totalTax,
                 'invoice_deposit' => $deposit,
                 'balance_due' => $netTotal - $deposit,
-                'status' => $validatedData['status']
+                'status' => $validatedData['status'],
+                'created_by' => auth()->id(),
             ]);
 
             // Save invoice items
             foreach ($invoiceItems as $item) {
-                $invoice->items()->create($item);
+                $invoice->salesInvoiceDetails()->create($item);
             }
             DB::commit();
-            Alert::success('success', 'Invoice created successfully.');
-            return redirect()->route('sales_invoices.index');
+            Alert::success('success','invoice created successfully');
         } catch (\Exception $e) {
+            dd($e->getMessage());
             DB::rollBack();
-            Alert::error('error', 'Failed to create invoice. ' . $e->getMessage());
-            return back();
+            Alert::error('error','invoice failed to create');
+            return redirect()->back();
         }
     }
 
