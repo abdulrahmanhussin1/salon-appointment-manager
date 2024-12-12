@@ -53,7 +53,7 @@
         <div class="col-6">
             <label for="invoice_date" class="form-label">Invoice Date</label>
             <input type="date" class="form-control form-control-sm" id="invoice_date" name="invoice_date"
-                   value="{{ isset($invoice) ? $invoice->invoice_date : '' }}" required>
+                   value="{{ isset($invoice) ? $invoice->invoice_date : old('invoice_date', date('Y-m-d'))}}"  required>
         </div>
 
         <div class="col-6">

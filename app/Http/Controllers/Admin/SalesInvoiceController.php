@@ -32,7 +32,7 @@ class SalesInvoiceController extends Controller
      */
     public function create()
     {
-        $customers = Customer::select('id', 'name', 'dob', 'last_service', 'created_at', 'is_vip')->where('status', 'active')->get();
+        $customers = Customer::select('id', 'name', 'phone','dob', 'last_service', 'created_at', 'is_vip')->where('status', 'active')->get();
         $paymentMethods = PaymentMethod::select('id', 'name')->where('status', 'active')->get();
         $products = Product::select('id', 'name', 'code')
         ->with(['supplierPrices:id,product_id,quantity,customer_price,created_at'])

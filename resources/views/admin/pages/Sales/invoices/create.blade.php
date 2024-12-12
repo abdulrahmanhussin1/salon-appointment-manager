@@ -73,7 +73,7 @@
                                         <option value="">{{ __('Select one Branch') }}</option>
                                         @foreach ($branches as $branch)
                                             <option @if (isset($product) && ($product->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
-                                                @if (!isset($invoice) && Auth::user()->expense?->branch_id == $branch->id) selected="selected" @endif
+                                                @if (!isset($invoice) && Auth::user()->employee?->branch_id == $branch->id) selected="selected" @endif
                                                 value="{{ $branch->id }}">
                                                 {{ $branch->name }}
                                             </option>
@@ -86,24 +86,30 @@
                                             {{ __('Active') }}</option>
                                         <option @if (old('status') == 'inactive') selected @endif value="inactive">
                                             {{ __('Inactive') }}</option>
-                                            <option @if (old('status') == 'draft') selected @endif value="draft">
-                                                {{ __('Draft') }}</option>
+                                        <option @if (old('status') == 'draft') selected @endif value="draft">
+                                            {{ __('Draft') }}</option>
                                     </x-form-select>
                                 </div>
                                 <div class="col-6 mb-3">
-                                    <label for="customer_id" class="form-label">Customer:</label>
-                                    <select id="customer_id" name="customer_id"class="form-select form-select-sm">
-                                        <option value="" disabled selected>Select Customer</option>
+                                    <x-form-select name="customer_id" id="customer_id" label='Customers' required>
+                                        <option value="">{{ __('Select one Customer') }}</option>
                                         @foreach ($customers as $customer)
-                                            <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                                            <option @if (isset($invoice) && ($invoice->customer_id == $customer->id || old('customer_id') == $customer->id)) selected="selected" @endif
+                                                @if (!isset($invoice) && Auth::user()->employee?->customer_id == $customer->id) selected="selected" @endif
+                                                value="{{ $customer->id }}">
+                                                {{ $customer->name }} - {{ $customer->phone }}
+                                            </option>
                                         @endforeach
-                                    </select>
+                                    </x-form-select>
                                 </div>
+
+
+
                                 <div class="col-6 mb-3">
                                     <label for="invoice_date" class="form-label">Invoice Date:</label>
                                     <input type="date" id="invoice_date" name="invoice_date"
                                         class="form-control form-control-sm @error('invoice_date') is-invalid @enderror"
-                                        value="{{ old('invoice_date') }}">
+                                        value="{{ old('invoice_date', date('Y-m-d')) }}">
                                 </div>
 
                                 <hr>
@@ -285,14 +291,14 @@
                     placeholder='Customer Address' />
                 <x-form-description value="{{ old('notes') }}" label="notes" name='notes' placeholder='Notes' />
                 <div class="row">
-                    <div class="col-6">
+                    {{-- <div class="col-6">
                         <x-form-select name='status' id="customer-status" label="status" required>
                             <option @if (old('status') == 'active') selected @endif value="active">
                                 {{ __('Active') }}</option>
                             <option @if (old('status') == 'inactive') selected @endif value="inactive">
                                 {{ __('Inactive') }}</option>
                         </x-form-select>
-                    </div>
+                    </div> --}}
                     <div class="col-6">
                         <x-form-select name='gender' id="gender" label="gender" required>
                             <option @if (old('gender') == 'male') selected @endif value="male">
@@ -341,7 +347,7 @@
                 .on("change", ".item-selector", handleItemChange)
                 .on("input", ".item-qty, .item-price, .item-discount, .item-tax", updateInvoice);
 
-            $("#deposit-input").on("input", updateInvoice); // Update payment summary on deposit change
+            $("#deposit-input").on("input", updateInvoice);
 
             // Send data to the server using AJAX on checkout button click
             $("#checkout").on("click", function(e) {
@@ -373,15 +379,15 @@
                 const data = {
                     customer_id: customerId,
                     payment_method_id: paymentMethodId,
-                    branch_id:branchId,
-                    invoice_date:invoiceDate,
+                    branch_id: branchId,
+                    invoice_date: invoiceDate,
                     items: items,
-                    status:status
+                    status: status
                 };
 
                 // Send the data using AJAX
                 $.ajax({
-                    url: "{{ route('sales_invoices.store') }}", // Update with your endpoint
+                    url: "{{ route('sales_invoices.store') }}",
                     type: "POST",
                     headers: {
                         "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
@@ -391,9 +397,6 @@
                     success: function(response) {
                         window.location.href = "{{ route('sales_invoices.index') }}";
                     },
-                    error: function(response) {
-
-                    },
                 });
             });
 
@@ -402,38 +405,39 @@
             <tr>
                 <td>
                     <select name="type" class="form-select form-select-sm item-type">
-                        <option value="" selected disabled>Type</option>
+                        <option value="service" selected>Service</option>
                         <option value="product">Product</option>
-                        <option value="service">Service</option>
                     </select>
                 </td>
                 <td>
-                    <select name='item' class="form-select form-select-sm item-selector" disabled>
+                    <select name="item" id="item"  class="item-selector" required>
                         <option value="" selected disabled>Item</option>
                     </select>
                 </td>
                 <td><input type="text" name="code" class="form-control form-control-sm item-code" placeholder="Code" readonly></td>
-                <td>
-                    <select name="provider" class="form-select form-select-sm provider-selector">
-                        <option value="" selected disabled>Provider</option>
-                    </select>
-                </td>
+                <td><select name="provider" class="form-select form-select-sm provider-selector"><option value="" selected disabled>Provider</option></select></td>
                 <td><input type="number" name="quantity" class="form-control form-control-sm item-qty" value="1" min="1"></td>
                 <td><input type="number" name="price" class="form-control form-control-sm item-price" value="0" min="0" step="0.01"></td>
                 <td><input type="number" name="discount" class="form-control form-control-sm item-discount" value="0" min="0" max="100" step="0.01"></td>
                 <td><input type="number" name="tax" class="form-control form-control-sm item-tax" value="0" min="0" max="100" step="0.01"></td>
                 <td class="item-due">$0.00</td>
                 <td><button class="btn btn-sm btn-danger remove-item"><i class="bi bi-trash"></i></button></td>
-            </tr>
-        `;
+            </tr>`;
+
                 $("#invoice-items tbody").append(newRow);
+
+                // Load services into the item selector by default
+                loadItemsForType($("#invoice-items tbody tr:last-child .item-type"));
             }
 
             function handleTypeChange() {
                 const $row = $(this).closest("tr");
-                const type = $(this).val();
-                const $itemSelector = $row.find(".item-selector");
-                const $providerSelector = $row.find(".provider-selector");
+                loadItemsForType($(this));
+            }
+
+            function loadItemsForType($typeSelector) {
+                const type = $typeSelector.val();
+                const $itemSelector = $typeSelector.closest("tr").find(".item-selector");
 
                 $itemSelector.prop("disabled", false).html('<option value="" selected disabled>Item</option>');
 
@@ -457,6 +461,7 @@
                 const $providerSelector = $row.find(".provider-selector");
 
                 const itemList = type === "product" ? products : services;
+
                 const selectedItem = itemList.find((item) => item.id == itemId);
 
                 if (selectedItem) {
@@ -466,25 +471,23 @@
 
                 // Populate providers for services if applicable
 
-                    $.ajax({
-                        url: "{{ route('sales_invoices.getRelatedEmployees') }}", // Adjust this endpoint
-                        method: "GET",
-                        data: {
-                            item_type: type,
-                            item_id: itemId,
-                        },
-                        success: function(data) {
-                            $providerSelector.html(
-                                '<option value="" selected disabled>Provider</option>');
-                            data.forEach((employee) => {
-                                $providerSelector.append(new Option(employee.name, employee
-                                .id));
-                            });
-                        },
-                        error: function(xhr, status, error) {
-                            console.error(`Error fetching providers: ${status} - ${error}`);
-                        },
-                    });
+                $.ajax({
+                    url: "{{ route('sales_invoices.getRelatedEmployees') }}",
+                    method: "GET",
+                    data: {
+                        item_type: type,
+                        item_id: itemId
+                    },
+                    success: function(data) {
+                        $providerSelector.html('<option value="" selected disabled>Provider</option>');
+                        data.forEach((employee) => {
+                            $providerSelector.append(new Option(employee.name, employee.id));
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(`Error fetching providers: ${status} - ${error}`);
+                    },
+                });
 
 
                 updateInvoice();
@@ -539,7 +542,63 @@
         });
     </script>
 
+<script>
+$(document).ready(function () {
+        $('#customerForm').submit(function(e) {
+    e.preventDefault();
 
+    var form = $(this);
+    var url = form.attr('action');
+    var method = form.attr('method');
+
+    $.ajax({
+        url: url,
+        type: method,
+        data: form.serialize(),
+        success: function(response) {
+            if (response.success) {
+                // Handle successful creation or update
+                if (method === 'POST') {
+                    // Create a new option for the newly created customer
+                    var newCustomerOption = $('<option>')
+                        .val(response.customer_id)
+                        .text(response.customer_name + ' - ' + response.customer_phone);
+                    $('#customer_id').append(newCustomerOption);
+
+                    // Select the newly created customer
+                    $('#customer_id').val(response.customer_id);
+                } else {
+                    // Update the existing customer option
+                    $('#customer_id option[value="' + response.customer_id + '"]').text(response.customer_name + ' - ' + response.customer_phone);
+                }
+
+                // Close the modal
+                $('#customerModal').modal('hide');
+
+                // Display a success message or perform other actions
+    Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Customer saved successfully!'
+    });
+        $('#customerForm')[0].reset();
+
+} else {
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error saving customer: ' + response.message
+    });
+}
+        },
+        error: function() {
+            // Handle AJAX request errors
+            alert('An error occurred while saving the customer.');
+        }
+    });
+});
+});
+</script>
 
     <script>
         $(document).ready(function() {

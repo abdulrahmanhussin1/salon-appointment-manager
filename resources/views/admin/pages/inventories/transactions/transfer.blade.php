@@ -46,7 +46,7 @@
 <div class="row mb-3">
     <div class="col-md-6">
         <label for="invoice_date" class="form-label">Date</label>
-        <input type="date" id="invoice_date" name="invoice_date" class="form-control" required>
+        <input type="date" id="invoice_date" name="invoice_date" value="{{ old('invoice_Date',date('Y-m-d')) }}" class="form-control" required>
     </div>
     <div class="col-md-6">
         <label for="statement_type" class="form-label">Statement Type</label>

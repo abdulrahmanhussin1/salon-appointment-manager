@@ -113,6 +113,14 @@
 
 
                                         <div class="col-12">
+                                            <x-form-select name='status' id="status" label="status" required>
+                                                <option @if (isset($employee) && $employee->status == 'active') selected @endif value="active">
+                                                    {{ __('Active') }}</option>
+                                                <option @if (isset($employee) && $employee->status == 'inactive') selected @endif value="inactive">
+                                                    {{ __('Inactive') }}</option>
+                                            </x-form-select>
+                                        </div>
+                                        <div class="col-6">
                                             <x-form-select name="employee_level_id" id="employee_level_id"
                                                 label='Employee Level' required>
                                                 <option value="">{{ __('Select one Employee Level') }}</option>
@@ -120,6 +128,17 @@
                                                     <option @if (isset($employee) &&
                                                             ($employee->employee_level_id == $employeeLevel->id || old('employee_level_id') == $employeeLevel->id)) selected="selected" @endif
                                                         value="{{ $employeeLevel->id }}">{{ $employeeLevel->name }}
+                                                    </option>
+                                                @endforeach
+                                            </x-form-select>
+                                        </div>
+                                         <div class="col-6">
+                                            <x-form-select name="branch_id" id="branch_id" label='Branch' required>
+                                                <option value="">{{ __('Select one Branch') }}</option>
+                                                @foreach ($branches as $branch)
+                                                    <option @if (isset($employee) && ($employee->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
+                                                        @if (!isset($invoice) && Auth::user()->employee?->branch_id == $branch->id) selected @endif
+                                                        value="{{ $branch->id }}">{{ $branch->name }}
                                                     </option>
                                                 @endforeach
                                             </x-form-select>
@@ -132,7 +151,7 @@
                                         <div class="col-6">
                                             <x-input type="text" value="{{ $employee->phone ?? old('phone') }}"
                                                 label="Phone" id="phone" name='phone' placeholder="Phone"
-                                                oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')" required />
+                                                oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')"  />
                                         </div>
 
                                         <div class="col-6">
@@ -141,7 +160,7 @@
                                                 class="form-control  @error('hiring_date') is-invalid @enderror"
                                                 id="hiring_date"
                                                 value="{{ isset($employee) ? $employee->hiring_date : old('hiring_date', date('Y-m-d')) }}"
-                                                required>
+                                                >
                                             @error('hiring_date')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -153,7 +172,7 @@
                                             <label class="form-label" for="dob">{{ __('Date Of birth') }}</label>
                                             <input type="date" name="dob"
                                                 class="form-control @error('dob') is-invalid @enderror" id="dob"
-                                                value="{{ isset($employee) ? $employee->dob : old('dob', date('Y-m-d')) }}">
+                                                value="{{ isset($employee) ? $employee->dob : old('dob') }}">
                                             @error('dob')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -183,7 +202,7 @@
 
 
                                         <div class="col-6">
-                                            <x-form-select name='gender' id="gender" label="gender" required>
+                                            <x-form-select name='gender' id="gender" label="gender" >
                                                 <option @if (isset($employee) && $employee->gender == 'male') selected @endif value="male">
                                                     {{ __('Male') }}</option>
                                                 <option @if (isset($employee) && $employee->gender == 'female') selected @endif value="female">
@@ -213,27 +232,6 @@
                                         </div>
 
                                         <div class="col-6">
-                                            <x-form-select name='status' id="status" label="status" required>
-                                                <option @if (isset($employee) && $employee->status == 'active') selected @endif value="active">
-                                                    {{ __('Active') }}</option>
-                                                <option @if (isset($employee) && $employee->status == 'inactive') selected @endif value="inactive">
-                                                    {{ __('Inactive') }}</option>
-                                            </x-form-select>
-                                        </div>
-
-                                        <div class="col-6">
-                                            <x-form-select name="branch_id" id="branch_id" label='Branch' required>
-                                                <option value="">{{ __('Select one Branch') }}</option>
-                                                @foreach ($branches as $branch)
-                                                    <option @if (isset($employee) && ($employee->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
-                                                        @if (!isset($invoice) && Auth::user()->employee?->branch_id == $branch->id) selected @endif
-                                                        value="{{ $branch->id }}">{{ $branch->name }}
-                                                    </option>
-                                                @endforeach
-                                            </x-form-select>
-                                        </div>
-
-                                        <div class="col-6">
                                             <x-input type='text' :value="isset($employee)
                                                 ? $employee->inactive_reason
                                                 : old('inactive_reason')" label="Inactive Reason"
@@ -247,7 +245,7 @@
                                                 class="form-control @error('termination_date')  is-invalid @enderror"
                                                 id="termination_date"
                                                 value="{{ isset($employee) ? $employee->termination_date : old('termination_date', date('Y-m-d')) }}"
-                                                required>
+                                                >
                                             @error('termination_date')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -654,7 +652,7 @@
                         email: true,
                     },
                     phone: {
-                        required: true,
+                        required: false,
                         maxlength: 15,
                     },
                     national_id: {
@@ -667,7 +665,7 @@
                         maxlength: 500
                     },
                     hiring_date: {
-                        required: true,
+                        required: false,
                         date: true
                     },
                     dob: {

@@ -81,14 +81,14 @@ class EmployeeController extends Controller
                 'allowance2' => $request->allowance2 ?? 0,
                 'allowance3' => $request->allowance3 ?? 0,
                 'total_salary' => $request->total_salary == $totalSalary ? $request->total_salary : $totalSalary,
-                'working_hours' => $request->working_hours,
+                'working_hours' => $request->working_hours ?? 0,
                 'overtime_rate' => $request->overtime_rate ?? 0,
                 'penalty_late_hour' => $request->penalty_late_hour ?? 0,
                 'penalty_absence_day' => $request->penalty_absence_day ?? 0,
-                'sales_target_settings' => $request->sales_target_settings,
-                'start_working_time' => $request->start_working_time,
-                'break_time' => $request->break_time,
-                'break_duration_minutes' => $request->break_duration_minutes,
+                'sales_target_settings' => $request->sales_target_settings ??  'no',
+                'start_working_time' => $request->start_working_time ?? 0,
+                'break_time' => $request->break_time ?? 0,
+                'break_duration_minutes' => $request->break_duration_minutes ?? 0,
             ]);
 
             if($request->has('service_id'))
@@ -177,16 +177,16 @@ class EmployeeController extends Controller
                 'bonus_salary' => $request->bonus_salary ?? 0,
                 'allowance1' => $request->allowance1 ?? 0,
                 'allowance2' => $request->allowance2 ?? 0,
-                'allowance3' => $request->allowance3,
+                'allowance3' => $request->allowance3 ?? 0,
                 'total_salary' => $request->total_salary == $totalSalary ? $request->total_salary : $totalSalary,
-                'working_hours' => $request->working_hours,
+                'working_hours' => $request->working_hours ?? 0,
                 'overtime_rate' => $request->overtime_rate ?? 0,
                 'penalty_late_hour' => $request->penalty_late_hour ?? 0,
                 'penalty_absence_day' => $request->penalty_absence_day ?? 0,
-                'sales_target_settings' => $request->sales_target_settings,
-                'start_working_time' => $request->start_working_time,
-                'break_time' => $request->break_time,
-                'break_duration_minutes' => $request->break_duration_minutes,
+                'sales_target_settings' => $request->sales_target_settings ??  'no',
+                'start_working_time' => $request->start_working_time ?? 0,
+                'break_time' => $request->break_time ?? 0,
+                'break_duration_minutes' => $request->break_duration_minutes ?? 0,
             ]);
 
             ServiceEmployee::where('employee_id', $employee->id)->delete();

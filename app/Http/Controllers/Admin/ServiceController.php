@@ -101,7 +101,7 @@ class ServiceController extends Controller
                         'service_id' => $service->id,
                         'employee_id' => $employeeId,
                         'commission_type' => $request->input("commission_type.$employeeId"),
-                        'commission_value' => $request->input("commission_value.$employeeId"),
+                        'commission_value' => $request->input("commission_value.$employeeId") ?? 0 ,
                         'is_immediate_commission' => $request->input("is_immediate_commission.$employeeId", false),
                     ]);
                 }
@@ -111,6 +111,7 @@ class ServiceController extends Controller
             Alert::success(__('Success'), __('Create Successfully'));
             return redirect()->route('services.create');
         } catch (\Throwable $th) {
+            dd($th->getMessage());
             DB::rollBack();
             Alert::error(__('error'), __('error in create service , please try again'));
         }
@@ -191,7 +192,7 @@ class ServiceController extends Controller
                         'service_id' => $service->id,
                         'employee_id' => $employeeId,
                         'commission_type' => $request->input("commission_type.$employeeId"),
-                        'commission_value' => $request->input("commission_value.$employeeId"),
+                        'commission_value' => $request->input("commission_value.$employeeId") ?? 0,
                         'is_immediate_commission' => $request->input("is_immediate_commission.$employeeId", false),
                     ]);
                 }

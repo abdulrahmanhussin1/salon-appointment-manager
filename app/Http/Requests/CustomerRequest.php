@@ -25,7 +25,7 @@ class CustomerRequest extends FormRequest
         $rules = [
             'name' => 'required|string|max:255',
             'salutation' => 'nullable|in:Mr,Mrs,Ms,Dr,Eng',
-            'status' => 'required|in:active,inactive',
+            'status' => 'nullable|in:active,inactive',
             'gender' => 'required|in:male,female',
             'added_from' => 'required|in:online,referral,walk_in,advertisement,direct',
             'dob' => 'nullable|date',

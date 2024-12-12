@@ -26,7 +26,7 @@ class EmployeeRequest extends FormRequest
                 : 'unique:employees,email',
             ],
             'phone' => [
-                'required',
+                'nullable',
                 'string',
                 'max:20',
                 $isUpdate
@@ -45,7 +45,7 @@ class EmployeeRequest extends FormRequest
             'notes' => 'nullable|string|max:500',
             'photo' => 'nullable|image|max:2048',
             'id_card' => 'nullable|image|max:2048',
-            'hiring_date' => 'required|date|before_or_equal:termination_date|after:dob',
+            'hiring_date' => 'nullable|date|before_or_equal:termination_date|after:dob',
             'dob' => 'nullable|date|before:today|before:termination_date|before:hiring_date',
             'finger_print_code' => [
                 'nullable',
@@ -84,8 +84,8 @@ class EmployeeRequest extends FormRequest
             'service_id'=>'nullable|array',
             'service_id.*'=>'nullable|integer|exists:services,id',
 
-            'is_immediate_commission' => 'required|array',
-            'commission_type' => 'required|array',
+            'is_immediate_commission' => 'nullable|array',
+            'commission_type' => 'nullable|array',
 
             'is_immediate_commission.*' => 'required|boolean',
             'commission_type.*' => 'required|string|in:percentage,value',

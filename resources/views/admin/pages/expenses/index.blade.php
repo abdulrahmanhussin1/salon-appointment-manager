@@ -35,7 +35,7 @@
                     <option value="">{{ __('Select one Branch') }}</option>
                     @foreach ($branches as $branch)
                         <option @if (isset($product) && ($product->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
-                            @if (!isset($invoice) && Auth::user()->expense?->branch_id == $branch->id) selected="selected" @endif value="{{ $branch->id }}">
+                            @if (!isset($invoice) && Auth::user()->employee?->branch_id == $branch->id) selected="selected" @endif value="{{ $branch->id }}">
                             {{ $branch->name }}
                         </option>
                     @endforeach
@@ -77,7 +77,7 @@
                     <option value="">{{ __('Select one Payment Method ') }}</option>
                     @foreach ($paymentMethods as $paymentMethod)
                         <option @if (isset($expense) && ($expense->payment_method == $paymentMethod->id || old('payment_method_id') == $paymentMethod->id)) selected="selected" @endif
-                            @if (!isset($expense) && Auth::user()->expense?->payment_method == $paymentMethod->id) selected="selected" @endif value="{{ $paymentMethod->id }}">
+                            @if (!isset($expense) && Auth::user()->employee?->payment_method == $paymentMethod->id) selected="selected" @endif value="{{ $paymentMethod->id }}">
                             {{ $paymentMethod->name }}
                         </option>
                     @endforeach

@@ -32,10 +32,12 @@ class CustomerController extends Controller
      */
     public function store(CustomerRequest $request)
     {
-        Customer::create([
+
+
+        $customer = Customer::create([
             'name' => $request->name,
             'salutation' => $request->salutation,
-            'status' => $request->status,
+            'status' => $request->status ?? 'active',
             'gender' => $request->gender,
             'added_from' => $request->added_from,
             'dob' => $request->dob,
@@ -46,6 +48,16 @@ class CustomerController extends Controller
             'address' => $request->address,
             'created_by' => auth()->id()
         ]);
+
+        if($request->ajax())
+        {
+            return response()->json([
+                'success' => true,
+                'customer_id' => $customer->id,
+                'customer_name' => $customer->name,
+                'customer_phone' => $customer->phone
+        ],201);
+        }
         Alert::success(__('Success'), __('Created Successfully'));
         return redirect()->back();
     }
@@ -74,7 +86,7 @@ class CustomerController extends Controller
         $customer->update([
             'name' => $request->name,
             'salutation' => $request->salutation,
-            'status' => $request->status,
+            'status' => $request->status ?? 'active',
             'gender' => $request->gender,
             'added_from' => $request->added_from,
             'dob' => $request->dob,
