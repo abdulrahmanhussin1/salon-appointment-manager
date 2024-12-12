@@ -1,5 +1,6 @@
 @extends('admin.layouts.app')
 @section('title')
+{{ _('Sales Invoice') }}
 @endsection
 @section('css')
     <style>

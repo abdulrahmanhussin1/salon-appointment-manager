@@ -2,9 +2,9 @@
 <html lang="en">
 @include('admin.layouts.head')
 
-<body>
+<body class="toggle-sidebar">
     @include('admin.layouts.header')
-    @include('admin.layouts.sidebar')
+   {{--  @include('admin.layouts.sidebar') --}}
     <main id="main" class="main">
 
         @yield('content')

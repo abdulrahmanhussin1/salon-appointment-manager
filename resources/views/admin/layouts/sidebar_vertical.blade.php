@@ -44,42 +44,42 @@
 
 
 
-@if (App\Traits\AppHelper::perUser('sales_invoices.index') || App\Traits\AppHelper::perUser('sales_invoices.create'))
+        @if (App\Traits\AppHelper::perUser('sales_invoices.index') || App\Traits\AppHelper::perUser('sales_invoices.create'))
 
-<li class="nav-item">
-    <a class="nav-link collapsed" data-bs-target="#sales-nav" data-bs-toggle="collapse" href="#">
-       <i class="bi bi-person-fill-down"></i><span>{{ __('Sales Invoices') }}</span><i
-            class="bi bi-chevron-down ms-auto"></i>
-    </a>
-    @if (App\Traits\AppHelper::perUser('sales_invoices.index'))
-        <ul id="sales-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-            <li>
-                <a href="{{ route('sales_invoices.index') }}">
-                    <i class="bi bi-circle"></i><span>{{ __('Invoices') }}</span>
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#sales-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-person-fill-down"></i><span>{{ __('Sales Invoices') }}</span><i
+                        class="bi bi-chevron-down ms-auto"></i>
                 </a>
+                @if (App\Traits\AppHelper::perUser('sales_invoices.index'))
+                    <ul id="sales-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('sales_invoices.index') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('Invoices') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
+
+                @if (App\Traits\AppHelper::perUser('sales_invoices.create'))
+                    <ul id="sales-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a href="{{ route('sales_invoices.create') }}">
+                                <i class="bi bi-circle"></i><span>{{ __('New Invoices') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
             </li>
-        </ul>
-    @endif
 
-     @if (App\Traits\AppHelper::perUser('sales_invoices.create'))
-        <ul id="sales-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-            <li>
-                <a href="{{ route('sales_invoices.create') }}">
-                    <i class="bi bi-circle"></i><span>{{ __('New Invoices') }}</span>
-                </a>
-            </li>
-        </ul>
-    @endif
-</li>
-
-@endif
+        @endif
 
 
-@if (App\Traits\AppHelper::perUser('suppliers.index') || App\Traits\AppHelper::perUser('purchase_invoices.index'))
+        @if (App\Traits\AppHelper::perUser('suppliers.index') || App\Traits\AppHelper::perUser('purchase_invoices.index'))
 
             <li class="nav-item">
                 <a class="nav-link collapsed" data-bs-target="#suppier-nav" data-bs-toggle="collapse" href="#">
-                   <i class="bi bi-person-fill-down"></i><span>{{ __('Suppliers') }}</span><i
+                    <i class="bi bi-person-fill-down"></i><span>{{ __('Suppliers') }}</span><i
                         class="bi bi-chevron-down ms-auto"></i>
                 </a>
                 @if (App\Traits\AppHelper::perUser('suppliers.index'))
@@ -92,7 +92,7 @@
                     </ul>
                 @endif
 
-                 @if (App\Traits\AppHelper::perUser('purchase_invoices.index'))
+                @if (App\Traits\AppHelper::perUser('purchase_invoices.index'))
                     <ul id="suppier-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
                         <li>
                             <a href="{{ route('purchase_invoices.index') }}">
@@ -106,7 +106,7 @@
         @endif
 
 
- @if (App\Traits\AppHelper::perUser('service_categories.index') || App\Traits\AppHelper::perUser('services.index'))
+        @if (App\Traits\AppHelper::perUser('service_categories.index') || App\Traits\AppHelper::perUser('services.index'))
 
             <li class="nav-item">
                 <a class="nav-link collapsed" data-bs-target="#services-nav" data-bs-toggle="collapse" href="#">
@@ -137,7 +137,7 @@
 
 
 
-         @if (App\Traits\AppHelper::perUser('expense_types.index') || App\Traits\AppHelper::perUser('expenses.index'))
+        @if (App\Traits\AppHelper::perUser('expense_types.index') || App\Traits\AppHelper::perUser('expenses.index'))
             <li class="nav-item">
                 <a class="nav-link collapsed" data-bs-target="#expense-nav" data-bs-toggle="collapse" href="#">
                     <i class="bi bi-cash-stack"></i><span>{{ __('Expenses') }}</span><i
@@ -168,8 +168,6 @@
 
 
         @if (App\Traits\AppHelper::perUser('product_categories.index') || App\Traits\AppHelper::perUser('products.index'))
-
-
             <li class="nav-item">
                 <a class="nav-link collapsed" data-bs-target="#products-nav" data-bs-toggle="collapse" href="#">
                     <i class="bi bi-tags-fill"></i><span>{{ __('Products') }}</span><i
@@ -199,7 +197,8 @@
 
         @if (App\Traits\AppHelper::perUser('employees.index') || App\Traits\AppHelper::perUser('employee_levels.index'))
             <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#employees-nav" data-bs-toggle="collapse" href="#">
+                <a class="nav-link collapsed" data-bs-target="#employees-nav" data-bs-toggle="collapse"
+                    href="#">
                     <i class="bi bi-people-fill"></i><span>{{ __('Employees') }}</span><i
                         class="bi bi-chevron-down ms-auto"></i>
                 </a>
@@ -235,12 +234,12 @@
                 App\Traits\AppHelper::perUser('tools.index') ||
                 App\Traits\AppHelper::perUser('admin_panel_settings.index') ||
                 App\Traits\AppHelper::perUser('branches.index') ||
-                App\Traits\AppHelper::perUser('payment_methods.index')
-                )
+                App\Traits\AppHelper::perUser('payment_methods.index'))
 
 
             <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#settings-nav" data-bs-toggle="collapse" href="#">
+                <a class="nav-link collapsed" data-bs-target="#settings-nav" data-bs-toggle="collapse"
+                    href="#">
                     <i class="bi bi-gear-wide-connected"></i><span>{{ __('Settings') }}</span><i
                         class="bi bi-chevron-down ms-auto"></i>
                 </a>
