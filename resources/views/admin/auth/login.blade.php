@@ -20,8 +20,8 @@
 
                             <div class="d-flex justify-content-center py-4">
                                 <a href="#" class="logo d-flex align-items-center w-auto">
-                                    <img src="{{asset('admin-assets')}}/assets/img/logo.png" alt="">
-                                    <span class="d-none d-lg-block">{{ env('APP_NAME') }}</span>
+                                    <img  style="max-height: 50px" src="{{ !empty($adminPanelSetting->system_logo) ? (Storage::exists($adminPanelSetting->system_logo) ? Storage::url($adminPanelSetting->system_logo) : asset('admin-assets/assets/img/avatar.jpg')) : '' }}" alt="">
+                                    <span class="d-none d-lg-block">{{ $adminPanelSetting->system_name }}</span>
                                 </a>
                             </div><!-- End Logo -->
 

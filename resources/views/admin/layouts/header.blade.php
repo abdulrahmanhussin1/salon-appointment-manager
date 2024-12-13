@@ -3,14 +3,14 @@
 
     <div class="d-flex align-items-center justify-content-between">
         <a href="{{ route('home.index') }}" class="logo d-flex align-items-center">
-            <img style="width: 50px"
+            <img style="max-height:50px"
                 src="{{ !empty($adminPanelSetting->system_logo) ? (Storage::exists($adminPanelSetting->system_logo) ? Storage::url($adminPanelSetting->system_logo) : asset('admin-assets/assets/img/avatar.jpg')) : '' }}"
                 alt="">
             <span class="d-none d-lg-block">{{ $adminPanelSetting->system_name }}</span>
         </a>
         {{-- <i class="bi bi-list toggle-sidebar-btn"></i> --}}
     </div><!-- End Logo -->
-    
+
 
     {{-- <div class="search-bar">
         <form class="search-form d-flex align-items-center" method="POST" action="#">
