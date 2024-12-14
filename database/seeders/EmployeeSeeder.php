@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\EmployeeWage;
@@ -24,5 +25,16 @@ class EmployeeSeeder extends Seeder
         $branch['manager_id'] = rand(1, 3); // Assuming you have 10 employees
         $branch->save();
     }
+
+        $users = User::whereIn('id', [1, 2])->get();
+
+        foreach ($users as $user) {
+            $user->update([
+                'employee_id' => $user->id, // Assign employee_id equal to the user ID
+            ]);
+        }
+
+
+
     }
 }

@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 @section('title')
-{{ _('Sales Invoice') }}
+    {{ _('Sales Invoice') }}
 @endsection
 @section('css')
     <style>
@@ -71,10 +71,8 @@
                             <div class="row">
                                 <div class="col-6 ">
                                     <x-form-select name="branch_id" id="branch_id" label='Branch' required>
-                                        <option value="">{{ __('Select one Branch') }}</option>
                                         @foreach ($branches as $branch)
-                                            <option @if (isset($product) && ($product->branch_id == $branch->id || old('branch_id') == $branch->id)) selected="selected" @endif
-                                                @if (!isset($invoice) && Auth::user()->employee?->branch_id == $branch->id) selected="selected" @endif
+                                            <option @if (old('branch_id') == $branch->id) selected="selected" @endif
                                                 value="{{ $branch->id }}">
                                                 {{ $branch->name }}
                                             </option>
@@ -309,7 +307,7 @@
                         </x-form-select>
                     </div>
                     <div class="col-12">
-                        <x-form-select name='added_from' id="added_from" label="added_from">
+                        <x-form-select name='added_from' id="added_from" label="added from">
                             <option @if (old('added_from') == 'direct') selected @endif value="direct">
                                 {{ __('Direct') }}</option>
                             <option @if (old('added_from') == 'online') selected @endif value="online">
@@ -356,6 +354,7 @@
 
                 // Collect data for submission
                 const customerId = $("#customer_id").val();
+                const deposit = parseFloat($("#deposit-input").val());
                 const paymentMethodId = $("#payment_method_id").val();
                 const invoiceDate = $("#invoice_date").val();
                 const branchId = $("#branch_id").val();
@@ -379,6 +378,7 @@
                 // Prepare the data payload
                 const data = {
                     customer_id: customerId,
+                    deposit: deposit,
                     payment_method_id: paymentMethodId,
                     branch_id: branchId,
                     invoice_date: invoiceDate,
@@ -396,8 +396,42 @@
                     contentType: "application/json",
                     data: JSON.stringify(data),
                     success: function(response) {
-                        window.location.href = "{{ route('sales_invoices.index') }}";
+                        window.location.href = "{{ route('sales_invoices.create') }}";
                     },
+                    error: function(xhr, status, error) {
+                        console.error("Error:", error);
+
+                        // Check if there are validation errors
+                        if (xhr.status ===
+                            422) { // 422 is the HTTP status for unprocessable entity, often used for validation errors
+                            const validationErrors = xhr.responseJSON.errors;
+                            let errorMessages = '';
+
+                            // Loop through the validation errors and construct a message
+                            for (const field in validationErrors) {
+                                if (validationErrors.hasOwnProperty(field)) {
+                                    errorMessages +=
+                                    `${validationErrors[field].join(', ')}\n`; // Concatenate error messages
+                                }
+                            }
+
+                            // Show SweetAlert with the validation errors
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validation Errors',
+                                text: errorMessages ||
+                                    'Please correct the errors and try again.',
+                            });
+                        } else {
+                            // For other types of errors (e.g., server issues)
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Something went wrong!',
+                                text: error ||
+                                    'An unexpected error occurred. Please try again.',
+                            });
+                        }
+                    }
                 });
             });
 
@@ -411,14 +445,14 @@
                     </select>
                 </td>
                 <td>
-                    <select name="item" id="item"  class="item-selector" required>
+                    <select name="item" id="item" class="item-selector" required>
                         <option value="" selected disabled>Item</option>
                     </select>
                 </td>
                 <td><input type="text" name="code" class="form-control form-control-sm item-code" placeholder="Code" readonly></td>
-                <td><select name="provider" class="form-select form-select-sm provider-selector"><option value="" selected disabled>Provider</option></select></td>
+                <td><select name="provider" class="form-select form-select-sm provider-selector" required><option value="" selected disabled>Provider</option></select></td>
                 <td><input type="number" name="quantity" class="form-control form-control-sm item-qty" value="1" min="1"></td>
-                <td><input type="number" name="price" class="form-control form-control-sm item-price" value="0" min="0" step="0.01"></td>
+                <td><input type="number" name="price" class="form-control form-control-sm item-price" value="0" min="0" step="0.01" readonly></td>
                 <td><input type="number" name="discount" class="form-control form-control-sm item-discount" value="0" min="0" max="100" step="0.01"></td>
                 <td><input type="number" name="tax" class="form-control form-control-sm item-tax" value="0" min="0" max="100" step="0.01"></td>
                 <td class="item-due">$0.00</td>
@@ -466,12 +500,24 @@
                 const selectedItem = itemList.find((item) => item.id == itemId);
 
                 if (selectedItem) {
+                    console.log(selectedItem);
+
+                    // Set the item code
                     $itemCode.val(selectedItem.code || selectedItem.id);
-                    $itemPrice.val(selectedItem.price || 0).prop("readonly", true);
+
+                    // Validate and set the price based on the price_can_change flag
+                    $itemPrice.val(selectedItem.price || 0);
+
+                    if (selectedItem.price_can_change) {
+                        $itemPrice.prop("readonly",
+                        false); // Make the price input editable if price_can_change is true
+                    } else {
+                        $itemPrice.prop("readonly",
+                        true); // Keep the price input readonly if price_can_change is false
+                    }
                 }
 
                 // Populate providers for services if applicable
-
                 $.ajax({
                     url: "{{ route('sales_invoices.getRelatedEmployees') }}",
                     method: "GET",
@@ -490,116 +536,160 @@
                     },
                 });
 
-
                 updateInvoice();
             }
 
+function updateInvoice() {
+    const $rows = $("#invoice-items tbody tr");
+    let servicesTotal = 0,
+        productsTotal = 0,
+        discountTotal = 0,
+        taxTotal = 0;
 
-            function updateInvoice() {
-                const $rows = $("#invoice-items tbody tr");
-                let servicesTotal = 0,
-                    productsTotal = 0,
-                    discountTotal = 0,
-                    taxTotal = 0;
+    $rows.each(function() {
+        const $row = $(this);
+        const type = $row.find(".item-type").val();
+        const qty = parseFloat($row.find(".item-qty").val()) || 0;
+        let price = parseFloat($row.find(".item-price").val()) || 0;
+        const discountPercent = parseFloat($row.find(".item-discount").val()) || 0;
+        const taxPercent = parseFloat($row.find(".item-tax").val()) || 0;
 
-                $rows.each(function() {
-                    const $row = $(this);
-                    const type = $row.find(".item-type").val();
-                    const qty = parseFloat($row.find(".item-qty").val()) || 0;
-                    const price = parseFloat($row.find(".item-price").val()) || 0;
-                    const discountPercent = parseFloat($row.find(".item-discount").val()) || 0;
-                    const taxPercent = parseFloat($row.find(".item-tax").val()) || 0;
+        // Get the original price from the selected item
+        const selectedItemId = $row.find(".item-selector").val();
+        const itemList = type === "product" ? products : services;
+        const selectedItem = itemList.find((item) => item.id == selectedItemId);
 
-                    const grossTotal = qty * price;
-                    const discount = (grossTotal * discountPercent) / 100;
-                    const tax = ((grossTotal - discount) * taxPercent) / 100;
-                    const due = grossTotal - discount + tax;
+        if (selectedItem) {
+            // Ensure original price is a valid number
+            const originalPrice = parseFloat(selectedItem.price) || 0;
 
-                    $row.find(".item-due").text(`$${due.toFixed(2)}`);
+            // Set the item code
+            $row.find(".item-code").val(selectedItem.code || selectedItem.id);
 
-                    if (type === "service") servicesTotal += grossTotal;
-                    if (type === "product") productsTotal += grossTotal;
-                    discountTotal += discount;
-                    taxTotal += tax;
-                });
+            // Validate the price when the user leaves the input (focusout)
+            $row.find(".item-price").on("blur", function() {
+                price = parseFloat($row.find(".item-price").val()) || 0;
 
-                const deposit = parseFloat($("#deposit-input").val()) || 0;
-                const grandTotal = servicesTotal + productsTotal - discountTotal + taxTotal;
-                const netTotal = grandTotal - deposit;
+                if (price < originalPrice) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Price',
+                        text: `The price cannot be less than the original price of $${originalPrice.toFixed(2)}.`,
+                    });
+                    $row.find(".item-price").val(originalPrice);  // Reset the price to the original value
+                }
 
-                $("#services-total").text(`$${servicesTotal.toFixed(2)}`);
-                $("#products-total").text(`$${productsTotal.toFixed(2)}`);
-                $("#discount-total").text(`- $${discountTotal.toFixed(2)}`);
-                $("#tax-total").text(`$${taxTotal.toFixed(2)}`);
-                $("#grand-total").text(`$${grandTotal.toFixed(2)}`);
-                $("#net-total").text(`$${netTotal.toFixed(2)}`);
-            }
-
-            // Remove item row
-            $("#invoice-items").on("click", ".remove-item", function() {
-                $(this).closest("tr").remove();
-                updateInvoice();
+                updateInvoice();  // Recalculate totals after price change
             });
+
+            // Set the initial price if price_can_change is true
+            if (selectedItem.price_can_change) {
+                $row.find(".item-price").prop("readonly", false);  // Allow editing the price
+            } else {
+                $row.find(".item-price").prop("readonly", true);   // Prevent editing the price
+            }
+
+            // Calculate the total for this row
+            const grossTotal = qty * price;
+            const discount = (grossTotal * discountPercent) / 100;
+            const tax = ((grossTotal - discount) * taxPercent) / 100;
+            const due = grossTotal - discount + tax;
+
+            $row.find(".item-due").text(`$${due.toFixed(2)}`);
+
+            // Calculate totals
+            if (type === "service") servicesTotal += grossTotal;
+            if (type === "product") productsTotal += grossTotal;
+            discountTotal += discount;
+            taxTotal += tax;
+        }
+    });
+
+    const deposit = parseFloat($("#deposit-input").val()) || 0;
+    const grandTotal = servicesTotal + productsTotal - discountTotal + taxTotal;
+    const netTotal = grandTotal - deposit;
+
+    $("#services-total").text(`$${servicesTotal.toFixed(2)}`);
+    $("#products-total").text(`$${productsTotal.toFixed(2)}`);
+    $("#discount-total").text(`- $${discountTotal.toFixed(2)}`);
+    $("#tax-total").text(`$${taxTotal.toFixed(2)}`);
+    $("#grand-total").text(`$${grandTotal.toFixed(2)}`);
+    $("#net-total").text(`$${netTotal.toFixed(2)}`);
+}
+
+
+
         });
     </script>
 
-<script>
-$(document).ready(function () {
-        $('#customerForm').submit(function(e) {
-    e.preventDefault();
 
-    var form = $(this);
-    var url = form.attr('action');
-    var method = form.attr('method');
 
-    $.ajax({
-        url: url,
-        type: method,
-        data: form.serialize(),
-        success: function(response) {
-            if (response.success) {
-                // Handle successful creation or update
-                if (method === 'POST') {
-                    // Create a new option for the newly created customer
-                    var newCustomerOption = $('<option>')
-                        .val(response.customer_id)
-                        .text(response.customer_name + ' - ' + response.customer_phone);
-                    $('#customer_id').append(newCustomerOption);
+    <script>
+        $(document).ready(function() {
+            $("#salutation,#gender,#added_from").select2({
+                dropdownParent: $("#customerForm")
+            });
 
-                    // Select the newly created customer
-                    $('#customer_id').val(response.customer_id);
-                } else {
-                    // Update the existing customer option
-                    $('#customer_id option[value="' + response.customer_id + '"]').text(response.customer_name + ' - ' + response.customer_phone);
-                }
 
-                // Close the modal
-                $('#customerModal').modal('hide');
 
-                // Display a success message or perform other actions
-    Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Customer saved successfully!'
-    });
-        $('#customerForm')[0].reset();
+            $('#customerForm').submit(function(e) {
+                e.preventDefault();
 
-} else {
-    Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Error saving customer: ' + response.message
-    });
-}
-        },
-        error: function() {
-            // Handle AJAX request errors
-            alert('An error occurred while saving the customer.');
-        }
-    });
-});
-});
-</script>
+                var form = $(this);
+                var url = form.attr('action');
+                var method = form.attr('method');
+
+                $.ajax({
+                    url: url,
+                    type: method,
+                    data: form.serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            // Handle successful creation or update
+                            if (method === 'POST') {
+                                // Create a new option for the newly created customer
+                                var newCustomerOption = $('<option>')
+                                    .val(response.customer_id)
+                                    .text(response.customer_name + ' - ' + response
+                                        .customer_phone);
+                                $('#customer_id').append(newCustomerOption);
+
+                                // Select the newly created customer
+                                $('#customer_id').val(response.customer_id);
+                            } else {
+                                // Update the existing customer option
+                                $('#customer_id option[value="' + response.customer_id + '"]')
+                                    .text(response.customer_name + ' - ' + response
+                                        .customer_phone);
+                            }
+
+                            // Close the modal
+                            $('#customerModal').modal('hide');
+
+                            // Display a success message or perform other actions
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: 'Customer saved successfully!'
+                            });
+                            $('#customerForm')[0].reset();
+
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Error saving customer: ' + response.message
+                            });
+                        }
+                    },
+                    error: function() {
+                        // Handle AJAX request errors
+                        alert('An error occurred while saving the customer.');
+                    }
+                });
+            });
+        });
+    </script>
 
     <script>
         $(document).ready(function() {

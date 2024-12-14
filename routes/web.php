@@ -5,7 +5,6 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ToolController;
 use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\ProductController;
@@ -13,6 +12,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\HomePageController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\ExpenseTypeController;
@@ -44,7 +44,7 @@ Route::get('/', function () {
 
 Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(function () {
 
-    Route::get('/', [AdminController::class, 'index'])->name('home.index');
+    Route::get('/', [HomePageController::class, 'index'])->name('home.index');
 
     Route::get('/dashboard', function () {
         return view('dashboard');

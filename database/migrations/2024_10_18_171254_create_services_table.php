@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('outside_price', 10, 2)->default(0);
             $table->string('image')->nullable();
             $table->boolean('is_target')->default(false);
+            $table->boolean('price_can_change')->default(false);
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->foreignId('branch_id')->constrained('branches')->default(1)->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('service_category_id')->nullable()->constrained('service_categories')->cascadeOnUpdate()->cascadeOnDelete();

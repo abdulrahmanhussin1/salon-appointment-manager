@@ -1,10 +1,12 @@
 <?php
 
 namespace Database\Seeders;
+
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class RolesAndPermissionsSeeder extends Seeder
@@ -200,6 +202,35 @@ class RolesAndPermissionsSeeder extends Seeder
                 $user->syncPermissions($role->permissions);
             }
         }
+
+        // ==================================================================================
+
+        // create a new Role for Cashier
+        Role::create([
+            'name' => 'cashier',
+            'guard_name' => $gardName,
+            'created_at' => now(),
+            'created_by' => 1
+        ]);
+
+        //assign all permissions to cashier role
+        $cashierRole = Role::where('name', 'cashier')->first();
+        $cashierPermissions = Permission::all();
+        $cashierPermissions->each(function ($permission) use ($cashierRole) {
+            $cashierRole->givePermissionTo($permission);
+        });
+
+
+        //create a new user with cashier role
+        User::create([
+            'name' => 'Cashier',
+            'email' => 'cashier@gmail.com',
+            'password' => bcrypt('123456789'),
+            'created_at' => now(),
+            'created_by' => 1,
+        ])->assignRole('cashier');
+
+        // ==================================================================================
+
     }
 }
-

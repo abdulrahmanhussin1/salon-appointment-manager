@@ -64,7 +64,7 @@
                     </div>
 
                     <div class="col-6">
-                                        <x-input type='date' value="{{ old('paid_at') ?? now() }}" label="paid_at" name='paid_at'
+                                        <x-input type='date' value="{{ old('paid_at') ?? date('Y-m-d') }}" label="paid_at" name='paid_at'
                     placeholder="paid_at" />
                     </div>
                     <div class="col-6">
@@ -99,7 +99,7 @@
 
     <script>
         $(document).ready(function() {
-            $("#status,#branch_id,#expense_type_id,#payment_method").select2({
+            $("#status,#branch_id,#expense_type_id,#payment_method_id").select2({
                 dropdownParent: $("#expensesForm")
             });
             $(document).on('click', '.delete-this-expense', function(e) {

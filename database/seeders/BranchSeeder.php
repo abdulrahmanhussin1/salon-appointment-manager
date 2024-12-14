@@ -14,6 +14,7 @@ class BranchSeeder extends Seeder
      */
     public function run(): void
     {
+        // Create the master branch
         $branch = Branch::create([
             'name' => 'master branch',
             'address' => '123 Main St',
@@ -23,11 +24,24 @@ class BranchSeeder extends Seeder
             'created_by' => 1,
         ]);
 
-
+        // Create the master branch's inventory (single inventory)
         Inventory::create([
-            'name'=>'master Inventory',
+            'name' => 'master Inventory',
             'branch_id' => $branch->id,
             'created_by' => 1,
         ]);
+
+        // Create 10 additional branches and assign them 10 inventories each
+        Branch::factory(10)->create()->each(function ($branch) {
+            // Create 10 inventories for each branch
+            foreach (range(1, 10) as $index) {
+                Inventory::create([
+                    'name' => $branch->name . ' Inventory ' . $index,
+                    'branch_id' => $branch->id,
+                    'created_by' => 1,
+                ]);
+            }
+        });
     }
+
 }

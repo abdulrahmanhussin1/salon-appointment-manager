@@ -14,6 +14,7 @@ use App\Models\PaymentMethod;
 use App\Models\SupplierPrice;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\DataTables\SalesInvoiceDataTable;
 
@@ -32,30 +33,34 @@ class SalesInvoiceController extends Controller
      */
     public function create()
     {
-        $customers = Customer::select('id', 'name', 'phone','dob', 'last_service', 'created_at', 'is_vip')->where('status', 'active')->get();
+
+        $customers = Customer::select('id', 'name', 'phone', 'dob', 'last_service', 'created_at', 'is_vip')->where('status', 'active')->get();
         $paymentMethods = PaymentMethod::select('id', 'name')->where('status', 'active')->get();
-        $products = Product::select('id', 'name', 'code')
-        ->with(['supplierPrices:id,product_id,quantity,customer_price,created_at'])
-        ->where('status', 'active')
-        ->get()
-        ->map(function ($product) {
-            // Find the first price where quantity > 0
-            $firstPriceWithQuantity = $product->supplierPrices
-                ->sortBy('created_at') // Sort by created_at
-                ->first(fn($price) => $price->quantity > 0);
+        $products = Product::select('id', 'name', 'code','price_can_change')
+            ->with(['supplierPrices:id,product_id,quantity,customer_price,created_at'])
+            ->where('status', 'active')
+            ->get()
+            ->map(function ($product) {
+                // Find the first price where quantity > 0
+                $firstPriceWithQuantity = $product->supplierPrices
+                    ->sortBy('created_at') // Sort by created_at
+                    ->first(fn($price) => $price->quantity > 0);
 
-            // Set the price to the first valid customer price
-            $product->price = $firstPriceWithQuantity ? $firstPriceWithQuantity->customer_price : null;
+                // Set the price to the first valid customer price
+                $product->price = $firstPriceWithQuantity ? $firstPriceWithQuantity->customer_price : null;
 
-            // Optionally, unset supplierPrices if not needed
-            unset($product->supplierPrices);
+                // Optionally, unset supplierPrices if not needed
+                unset($product->supplierPrices);
 
-            return $product;
-        });
+                return $product;
+            });
 
-        $services = Service::select('id', 'name', 'price')->where('status', 'active')->get();
+        $services = Service::select('id', 'name', 'price', 'price_can_change')->where('status', 'active')->get();
         $employees = Employee::select('id', 'name')->where('status', 'active')->get();
-        $branches = Branch::select('id', 'name')->where('status', 'active')->get();
+        $branches = Auth::user()->hasRole('cashier')
+            ? Branch::where('id', Auth::user()->employee?->branch_id)->get(['id', 'name'])
+            : Branch::where('status', 'active')->get(['id', 'name']);
+
         return view('admin.pages.Sales.invoices.create', compact('customers', 'employees', 'products', 'services', 'paymentMethods', 'branches'));
     }
 
@@ -71,15 +76,15 @@ class SalesInvoiceController extends Controller
             'items.*.item_id' => 'required|integer',
             'items.*.code' => 'required|string',
             'items.*.price' => 'required|numeric|min:0',
-            'items.*.provider' => 'nullable|integer|exists:employees,id',
+            'items.*.provider_id' => 'required|integer|exists:employees,id',
             'items.*.quantity' => 'required|numeric|min:1',
             'items.*.discount' => 'nullable|numeric|min:0|max:100',
             'items.*.tax' => 'nullable|numeric|min:0|max:100',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'deposit' => 'nullable|numeric|min:0',
-            'invoice_date'=> 'required|date' ,
+            'invoice_date' => 'required|date',
             'branch_id' => 'required|exists:branches,id',
-            'status'=>'required|string|in:active,inactive,draft',
+            'status' => 'required|string|in:active,inactive,draft',
         ]);
         // Fetch customer and validate status
         $customer = Customer::findOrFail($validatedData['customer_id']);
@@ -178,10 +183,10 @@ class SalesInvoiceController extends Controller
             }
 
             // Calculate totals
-            $grandTotal = $servicesTotal + $productsTotal - $totalDiscount + $totalTax;
+            $grandTotal = $servicesTotal + $productsTotal;
             $deposit = $validatedData['deposit'] ?? 0;
-            $netTotal = $grandTotal - $deposit;
-
+            $netTotal = $grandTotal - $totalDiscount + $totalTax;
+            //dd($netTotal, $grandTotal, $deposit, $totalTax, $totalDiscount);
             DB::beginTransaction();
             // Create invoice
             $invoice = SalesInvoice::create([
@@ -192,6 +197,7 @@ class SalesInvoiceController extends Controller
                 'total_amount' => $grandTotal,
                 'invoice_discount' => $totalDiscount,
                 'invoice_tax' => $totalTax,
+                'net_total' => $netTotal,
                 'invoice_deposit' => $deposit,
                 'balance_due' => $netTotal - $deposit,
                 'status' => $validatedData['status'],
@@ -203,11 +209,10 @@ class SalesInvoiceController extends Controller
                 $invoice->salesInvoiceDetails()->create($item);
             }
             DB::commit();
-            Alert::success('success','invoice created successfully');
+            Alert::success('success', 'invoice created successfully');
         } catch (\Exception $e) {
-            dd($e->getMessage());
             DB::rollBack();
-            Alert::error('error','invoice failed to create');
+            Alert::error('error', 'invoice failed to create');
             return redirect()->back();
         }
     }
