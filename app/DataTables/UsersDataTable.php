@@ -93,14 +93,21 @@ class UsersDataTable extends DataTable
             ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
             ->orderBy(0,'desc')
             ->selectStyleSingle()
-            ->buttons([
-                Button::make('excel'),
-                Button::make('csv'),
-                Button::make('pdf'),
-                Button::make('print'),
-                // Button::make('reset'),
-                // Button::make('reload')
-            ]);
+->buttons([
+    Button::make('excel')->exportOptions([
+        'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
+    ]),
+    Button::make('csv')->exportOptions([
+        'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
+    ]),
+    Button::make('pdf')->exportOptions([
+        'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
+    ]),
+    Button::make('print')->exportOptions([
+        'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
+    ]),
+]);
+
     }
 
     /**

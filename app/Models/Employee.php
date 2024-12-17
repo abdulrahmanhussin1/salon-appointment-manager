@@ -33,5 +33,16 @@ class Employee extends Model
         return $this->hasOne(User::class,'employee_id');
     }
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($employee) {
+            EmployeeWage::create([
+                'employee_id' => $employee->id, // This will now have a valid ID
+            ]);
+        });
+    }
+
 
 }

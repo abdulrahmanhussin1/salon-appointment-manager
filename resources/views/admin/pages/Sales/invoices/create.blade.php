@@ -226,6 +226,8 @@
                 </div>
                 <div class="card-footer text-end">
                     <button class="btn btn-sm btn-success" id="checkout">Checkout</button>
+                    <button onclick="window.print()" class="btn btn-primary ms-3">Print Only</button>
+
                 </div>
                 </form>
             </div>

@@ -94,14 +94,20 @@ class InventoryDataTable extends DataTable
             ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
             ->orderBy(0, 'desc')
             ->selectStyleSingle()
-            ->buttons([
-                Button::make('excel'),
-                Button::make('csv'),
-                Button::make('pdf'),
-                Button::make('print'),
-                // Button::make('reset'),
-                // Button::make('reload')
-                    ]);
+ ->buttons([
+            Button::make('excel')->exportOptions([
+                'columns' => ':not(:last-child)', // Exclude the last column (action)
+            ]),
+            Button::make('csv')->exportOptions([
+                'columns' => ':not(:last-child)', // Exclude the last column (action)
+            ]),
+            Button::make('pdf')->exportOptions([
+                'columns' => ':not(:last-child)', // Exclude the last column (action)
+            ]),
+            Button::make('print')->exportOptions([
+                'columns' => ':not(:last-child)', // Exclude the last column (action)
+            ]),
+        ]);
     }
 
     /**

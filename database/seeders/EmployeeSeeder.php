@@ -17,7 +17,7 @@ class EmployeeSeeder extends Seeder
     public function run(): void
     {
         Employee::factory()->count(5)->create();
-        EmployeeWage::factory()->count(5)->create();
+        //EmployeeWage::factory()->count(5)->create();
 
     $branches = Branch::all();
 

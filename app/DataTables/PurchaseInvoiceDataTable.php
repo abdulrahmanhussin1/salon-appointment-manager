@@ -41,10 +41,13 @@ class PurchaseInvoiceDataTable extends DataTable
 
             ->editColumn('status', function ($model) {
                 if ($model->status == 'active') {
-                    return '<i class="bi bi-check-circle-fill text-success" style="font-size:large"></i>';
+                    return '<i class="bi bi-check-circle-fill text-success" style="font-size:large">Active</i>';
                 } elseif ($model->status == 'inactive') {
-                    return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large"></i>';
-                }
+                    return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large">Inactive</i>';
+            } elseif ($model->status == 'draft') {
+
+                return '<i class="bi  bi-dash-circle-fill text-warning" style="font-size:large">Draft</i>';
+            }
             })
 
             ->editColumn('supplier_id', function ($model) {
@@ -53,14 +56,17 @@ class PurchaseInvoiceDataTable extends DataTable
             ->editColumn('invoice_date', function ($model) {
                 return $model->invoice_date? $model->invoice_date : null;
             })
-            ->editColumn('net_amount', function ($model) {
+            ->addColumn('net_amount', function ($model) {
                 return '$'. $model->total_amount - $model->invoice_discount;
             })
             ->editColumn('branch_id', function ($model) {
                 return $model->branch_id ? $model->branch->name : '';
             })
             ->rawColumns(['action', 'status'])->setRowId('id');
-
+        // Remove 'action' column during export/print
+        if (request()->has('export') || request()->has('print')) {
+            $datatable->removeColumn('action');
+        }
     }
 
     /**
@@ -83,14 +89,20 @@ class PurchaseInvoiceDataTable extends DataTable
             ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
             ->orderBy(0, 'desc')
             ->selectStyleSingle()
-            ->buttons([
-                Button::make('excel'),
-                Button::make('csv'),
-                Button::make('pdf'),
-                Button::make('print'),
-                // Button::make('reset'),
-                // Button::make('reload')
-            ]);
+ ->buttons([
+            Button::make('excel')->exportOptions([
+                'columns' => ':not(:last-child)', // Exclude the last column (action)
+            ]),
+            Button::make('csv')->exportOptions([
+                'columns' => ':not(:last-child)', // Exclude the last column (action)
+            ]),
+            Button::make('pdf')->exportOptions([
+                'columns' => ':not(:last-child)', // Exclude the last column (action)
+            ]),
+            Button::make('print')->exportOptions([
+                'columns' => ':not(:last-child)', // Exclude the last column (action)
+            ]),
+        ]);
     }
 
     /**

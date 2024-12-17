@@ -23,45 +23,45 @@ class BranchDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-        ->addColumn('action', function ($model) {
-            $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
+            ->addColumn('action', function ($model) {
+                $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
         <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2"
         type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
            <i class="bi bi-three-dots-vertical"></i>
         </button>
         <div class="dropdown-menu dropdown-menu-end py-2">';
-            if (AppHelper::perUser('branches.edit')) {
-                $html .= '<a href="' . route('branches.edit', ['branch' => $model]) . '" class="dropdown-item">Edit</a>';
-            }
-            if (AppHelper::perUser('branches.destroy')) {
-                $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-branch" data-id="' . $model->id . '" data-url="' . route('branches.destroy', ['branch' => $model]) . '">Delete</a></div></div>';
-            }
-            return $html;
-        })
+                if (AppHelper::perUser('branches.edit')) {
+                    $html .= '<a href="' . route('branches.edit', ['branch' => $model]) . '" class="dropdown-item">Edit</a>';
+                }
+                if (AppHelper::perUser('branches.destroy')) {
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-branch" data-id="' . $model->id . '" data-url="' . route('branches.destroy', ['branch' => $model]) . '">Delete</a></div></div>';
+                }
+                return $html;
+            })
 
-        ->editColumn('status', function ($model) {
-            if ($model->status == 'active') {
-                return '<i class="bi bi-check-circle-fill text-success" style="font-size:large"></i>';
-            } elseif ($model->status == 'inactive') {
-                return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large"></i>';
-            }
-        })
-        ->editColumn('created_at', function ($model) {
-            return $model->created_at ? $model->created_at->format('Y-m-d H:i:s') : null;
-        })
-        ->editColumn('updated_at', function ($model) {
-            return $model->updated_at ? $model->created_at->format('Y-m-d H:i:s') : null;
-        })
+            ->editColumn('status', function ($model) {
+                if ($model->status == 'active') {
+                    return '<i class="bi bi-check-circle-fill text-success" style="font-size:large"></i>';
+                } elseif ($model->status == 'inactive') {
+                    return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large"></i>';
+                }
+            })
+            ->editColumn('created_at', function ($model) {
+                return $model->created_at ? $model->created_at->format('Y-m-d H:i:s') : null;
+            })
+            ->editColumn('updated_at', function ($model) {
+                return $model->updated_at ? $model->created_at->format('Y-m-d H:i:s') : null;
+            })
 
-        ->editColumn('manager_id', function ($model) {
-            return $model->manager ? $model->manager->name : null;
-        })
+            ->editColumn('manager_id', function ($model) {
+                return $model->manager ? $model->manager->name : null;
+            })
 
-        ->addColumn('created_by', function ($model) {
-            return $model->createdBy ? $model->createdBy->name : null;
-        })
+            ->addColumn('created_by', function ($model) {
+                return $model->createdBy ? $model->createdBy->name : null;
+            })
 
-        ->rawColumns(['action', 'status'])
+            ->rawColumns(['action', 'status'])
             ->setRowId('id');
     }
 
@@ -79,20 +79,26 @@ class BranchDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('branch-table')
-                    ->columns($this->getColumns())
-                    ->minifiedAjax()
-                    ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
-                    ->orderBy(0,'desc')
-                    ->selectStyleSingle()
-                    ->buttons([
-                        Button::make('excel'),
-                        Button::make('csv'),
-                        Button::make('pdf'),
-                        Button::make('print'),
-                        //Button::make('reset'),
-                        //Button::make('reload')
-                    ]);
+            ->setTableId('branch-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
+            ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
+            ->orderBy(0, 'desc')
+            ->selectStyleSingle()
+            ->buttons([
+                Button::make('excel')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('csv')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('pdf')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('print')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+            ]);
     }
 
     /**
