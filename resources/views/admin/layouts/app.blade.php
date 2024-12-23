@@ -2,7 +2,7 @@
 <html lang="en">
 @include('admin.layouts.head')
 
-<body class="toggle-sidebar">
+<body class="toggle-sidebar" style="overflow-x: auto;">
     @include('admin.layouts.header')
    {{--  @include('admin.layouts.sidebar') --}}
     <main id="main" class="main">

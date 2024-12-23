@@ -27,6 +27,12 @@ class PurchaseInvoice extends Model
         return $this->belongsTo(Supplier::class,'supplier_id');
     }
 
+
+    public function supplierPrices()
+    {
+        return $this->hasManyThrough(SupplierPrice::class, PurchaseInvoice::class, 'id', 'supplier_price_id', 'id', 'supplier_price_id');
+    }
+
     public function branch()
     {
         return $this->belongsTo(Branch::class,'branch_id');

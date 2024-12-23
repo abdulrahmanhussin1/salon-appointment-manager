@@ -117,14 +117,34 @@ class PurchaseInvoiceController extends Controller
      */
     public function edit(String $id)
     {
-        $invoice = PurchaseInvoice::with(['details'])->findOrFail($id);
+        // Fetch the invoice with all related details
+        $invoice = PurchaseInvoice::with([
+            'details' => function ($query) {
+                $query->with(['product']);
+            },
+            'supplier'
+        ])->findOrFail($id);
 
+        // Attach the supplier and customer prices for each detail
+        foreach ($invoice->details as $detail) {
+            // Fetch supplier prices specific to this invoice and product
+            $supplierPrice = SupplierPrice::where('supplier_id', $invoice->supplier_id)
+                ->where('product_id', $detail->product_id)
+                ->where('purchase_invoice_id', $invoice->id) // Based on invoice ID
+                ->first();
+
+            // Attach the prices to the detail
+            $detail->supplier_price = $supplierPrice?->supplier_price ?? 0;
+            $detail->customer_price = $supplierPrice?->customer_price ?? 0;
+        }
+
+        // Fetch suppliers, products, and branches for the dropdowns
         $suppliers = Supplier::where('status', 'active')->select('id', 'name')->get();
         $products = Product::where('status', 'active')->select('id', 'name')->get();
         $branches = Branch::where('status', 'active')->select('id', 'name')->get();
 
+        // Fetch the latest invoice number
         $latestInvoiceNumber = null;
-
         $user = auth()->user();
         if (!empty($user->employee_id) && $user->employee && $user->employee->branch) {
             $latestInvoiceNumber = $user->employee->branch->purchaseInvoices()->max('invoice_number');
@@ -132,6 +152,7 @@ class PurchaseInvoiceController extends Controller
             Log::warning('Employee or branch is missing for user ID: ' . $user->id);
         }
 
+        // Return the view
         return view('admin.pages.suppliers.purchase_invoices.edit', [
             'invoice' => $invoice,
             'suppliers' => $suppliers,
@@ -140,8 +161,6 @@ class PurchaseInvoiceController extends Controller
             'latestInvoiceNumber' => $latestInvoiceNumber,
         ]);
     }
-
-
 
     /**
      * Update the specified resource in storage.
@@ -183,7 +202,7 @@ class PurchaseInvoiceController extends Controller
             $invoice->details()->delete();
 
             // Save the new details (with the invoice ID included)
-            $invoice->saveDetails($details);
+            $invoice->saveDetails($details, $request);
 
             // Update or create the supplier transaction
             SupplierTransaction::where('reference_id', $invoice->id)

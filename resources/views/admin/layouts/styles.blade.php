@@ -83,5 +83,4 @@ display: none;
     padding: 0px
 }
     </style>
-
 @yield('css')

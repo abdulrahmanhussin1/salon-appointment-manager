@@ -107,49 +107,27 @@
                     </ul>
                 </li>
             @endif
-@php
-    // Define an array of required permissions
-    $requiredPermissions = [
-        'reports.inventory',
-        'reports.sales',
-        'reports.purchase',
-        'reports.expense',
-        'reports.employee',
-        'reports.customer',
-        'reports.branch',
-        'reports.service'
-    ];
-
-    // Check if the user has any of the required permissions
-    $hasPermission = false;
-    foreach ($requiredPermissions as $permission) {
-        if (auth()->user()->hasPermissionTo($permission)) {
-            $hasPermission = true;
-            break;
-        }
-    }
-@endphp
 
 
-@if ($hasPermission)
+
+            @if (App\Traits\AppHelper::perUser('reports.index'))
                 <li class="nav-item dropdown mx-3">
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#"
                         data-bs-toggle="dropdown">
-<i class="bi bi-file-text"></i>
+                        <i class="bi bi-file-text"></i>
 
-                    <span
-                            class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(_('reports')) }}</span>
+                        <span class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(_('reports')) }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow inventories">
-                        @if (App\Traits\AppHelper::perUser('reports.sales'))
+                        @if (App\Traits\AppHelper::perUser('reports.index'))
                             <li class="">
-                                <a class="dropdown-item d-flex align-items-center"
-                                    href="#">
-                                   <i class="bi bi-safe2-fill"></i>
-                                    <span>{{ Str::ucfirst(__('Sales')) }}</span>
+                                <a class="dropdown-item d-flex align-items-center" href="{{ route('report.daily_revenues') }}">
+                                    <i class="bi bi-safe2-fill"></i>
+                                    <span>{{ Str::ucfirst(__('Daily Cash Revenues')) }}</span>
                                 </a>
                             </li>
                         @endif
+
                     </ul>
                 </li>
             @endif

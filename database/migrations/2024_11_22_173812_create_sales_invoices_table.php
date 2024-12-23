@@ -21,6 +21,7 @@ return new class extends Migration
             $table->unsignedDecimal('invoice_tax', 15, 2)->default(0);
             $table->unsignedDecimal('net_total', 15, 2)->default(0);
             $table->unsignedDecimal('balance_due', 15, 2);
+            $table->unsignedDecimal('paid_amount_cash', 15, 2)->default(0);
             $table->text('invoice_notes')->nullable();
             $table->foreignId('customer_id')->constrained('customers')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('branch_id')->default(1)->constrained('branches')->cascadeOnUpdate()->restrictOnDelete();

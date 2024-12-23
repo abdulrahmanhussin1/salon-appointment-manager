@@ -13,6 +13,22 @@ class SupplierPrice extends Model
 
    protected $table = 'supplier_prices';
 
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    public function purchaseInvoice()
+    {
+        return $this->belongsTo(PurchaseInvoice::class);
+    }
+
+
 }
 
 

@@ -166,15 +166,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'inventory_transactions.transferOutView',
 
                 /* Reports */
-                'reports.inventory',
-                'reports.sales',
-                'reports.purchase',
-                'reports.expense',
-                'reports.employee',
-                'reports.customer',
-                'reports.branch',
-                'reports.service',
-
+                'reports.index',
 
             ],
         ];
