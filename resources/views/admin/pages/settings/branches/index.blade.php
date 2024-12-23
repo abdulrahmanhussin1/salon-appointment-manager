@@ -16,9 +16,50 @@
         <div class="d-flex justify-content-end">
             @if (App\Traits\AppHelper::perUSer('branches.create'))
                 <x-modal-button title="branch" target="branchModal"><i class="bi bi-plus-lg me-2"></i></x-modal-button>
+
+ <!-- start filters -->
+<div class="tools dropdown d-flex justify-content-end">
+    <div class="dropdown">
+        <button class="btn btn-primary btn-sm mx-1 dropdown-toggle " type="button" id="dropdownMenuLink"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-filter"></i> Filters
+        </button>
+        <div class="dropdown-menu" onclick="event.stopPropagation();" aria-labelledby="dropdownMenuLink" style="width: 300px; height:auto">
+            <h3 class="col-12">Filters</h3>
+
+            <!-- start businessCategory filter -->
+            <div class="col-12 form-group dropdown-item d-flex flex-column mb-0" style="min-width: 100px;">
+                <label for="status">Status</label><br>
+                <select name="status" data-placeholder="Select" class="js-example-basic-single fs-xs text-muted form-select-sm"
+                    id="status">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+            <!-- end businessCategory filter -->
+
+            <!-- start insuranceCompanies filter -->
+            <div class="col-12 form-group dropdown-item d-flex flex-column mb-0" style="min-width: 100px;">
+                <label for="insuranceCompanies_id">Lead Insurance Companies</label><br>
+                <select name="created_by[]" data-placeholder="Select" multiple class="form-select form-select-sm   js-example-basic-multiple"
+                    id="created_by">
+                    @foreach ($users as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <!-- end insuranceCompanies filter -->
+        </div>
+    </div>
+</div>
+<!-- end filters -->
+                </div>
+            </div>
+            <!-- end filters -->
             @endif
         </div>
         @include('admin.layouts.alerts')
+
         <div>
             {{ $dataTable->table(['class' => ' responsive table fs--1 mb-0 bg-white my-3 rounded-2 shadow', 'width' => '100%']) }}
         </div>
@@ -61,7 +102,6 @@
     </x-modal>
 @endsection
 @section('js')
-    {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
 
     <script>
         $(document).ready(function() {
@@ -110,4 +150,91 @@
             });
         });
     </script>
+
+<script>
+$(document).ready(function() {
+    let table; // Declare the variable to hold the DataTable instance
+
+    function initializeBranchTable() {
+        // Check if DataTable is already initialized and destroy it
+        if ($.fn.DataTable.isDataTable('#branch-table')) {
+            $('#branch-table').DataTable().clear().destroy();
+        }
+
+        // Reinitialize DataTable and assign it to the `table` variable
+        table = $('#branch-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{ route('branches.index') }}",
+                data: function(d) {
+                    d.created_by = $('#created_by').val();
+                    d.status = $('#status').val();
+                }
+            },
+            dom: '<B><"d-flex w-100 py-2  align-items-center justify-content-between"lf>rtip', // Define layout for buttons, filters, and table
+            buttons: [
+                {
+                    extend: 'excel',
+                    exportOptions: {
+                        columns: ':not(:nth-last-child(-n+3))' // Exclude the last 3 columns
+                    }
+                },
+                {
+                    extend: 'csv',
+                    exportOptions: {
+                        columns: ':not(:nth-last-child(-n+3))' // Exclude the last 3 columns
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    exportOptions: {
+                        columns: ':not(:nth-last-child(-n+3))' // Exclude the last 3 columns
+                    }
+                },
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':not(:nth-last-child(-n+3))' // Exclude the last 3 columns
+                    }
+                }
+            ],
+            columns: [
+                { data: 'id' },
+                { data: 'name' },
+                { data: 'manager_id' },
+                { data: 'phone' },
+                { data: 'email' },
+                { data: 'address' },
+                { data: 'status' },
+                { data: 'created_by' },
+                { data: 'created_at' },
+                { data: 'updated_at' },
+                { data: 'action' },
+            ],
+            columnDefs: [
+                {
+                    targets: [0, 7, 9], // Disable sorting and searching on columns 0, 7, 9
+                    orderable: false,
+                    searchable: false,
+                }
+            ],
+            order: [[0, 'desc']], // Default ordering
+        });
+    }
+
+    // Initialize the DataTable
+    initializeBranchTable();
+
+    // Reload table data when filters change
+    $('#created_by, #status').on('change', function() {
+        if (table) {
+            table.ajax.reload(null, false); // Reload table data without resetting pagination
+        }
+    });
+});
+</script>
+
+
+
 @endsection

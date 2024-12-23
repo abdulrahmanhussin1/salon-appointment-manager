@@ -34,7 +34,7 @@ class SalesInvoiceController extends Controller
     public function create()
     {
 
-        $customers = Customer::select('id', 'name', 'phone', 'dob', 'last_service', 'created_at', 'is_vip')->where('status', 'active')->get();
+        $customers = Customer::select('id', 'name', 'phone', 'dob', 'last_service', 'created_at', 'is_vip','deposit')->where('status', 'active')->get();
         $paymentMethods = PaymentMethod::select('id', 'name')->where('status', 'active')->get();
         $products = Product::select('id', 'name', 'code','price_can_change')
             ->with(['supplierPrices:id,product_id,quantity,customer_price,created_at'])
@@ -262,4 +262,16 @@ class SalesInvoiceController extends Controller
 
         return response()->json([]);
     }
+
+    public function showReceipt()
+    {
+        $items = [
+            ['name' => 'Item 1', 'quantity' => 2, 'price' => 50],
+            ['name' => 'Item 2', 'quantity' => 1, 'price' => 100],
+        ];
+        $total = collect($items)->sum(fn($item) => $item['quantity'] * $item['price']);
+
+        return view('admin.pages.Sales.invoices.reciept',   compact('items', 'total'));
+    }
+
 }

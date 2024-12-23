@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\User;
 use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\Inventory;
@@ -19,7 +20,8 @@ class BranchController extends Controller
     public function index(BranchDataTable $dataTable)
     {
         $managers = Employee::select('id','name')->where('status','active')->get();
-        return $dataTable->render('admin.pages.settings.branches.index',compact('managers'));
+        $users = User::select('id', 'name')->where('status', 'active')->get();
+        return $dataTable->render('admin.pages.settings.branches.index',compact('managers','users'));
     }
 
     /**

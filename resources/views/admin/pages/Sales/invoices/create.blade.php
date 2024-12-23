@@ -203,8 +203,9 @@
                         <tr>
                             <th>Deposit</th>
                             <td>
-                                <input type="number" id="deposit-input" class="form-control form-control-sm text-end"
-                                    value="0" min="0" step="0.01">
+                                <input type="text" id="deposit-input" class="form-control form-control-sm text-end"
+                                    readonly value="0.00"
+                                    oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')">
                             </td>
                         </tr>
                         <tr>
@@ -212,21 +213,40 @@
                             <td id="net-total" class="text-end">$0.00</td>
                         </tr>
                         <tr>
-                            <th>Payment Method</th>
-                            <td id="" class="text-end">
-                                <select id="payment_method_id" name="payment_method_id" class="form-select">
-                                    @foreach ($paymentMethods as $paymentMethod)
-                                        <option value="{{ $paymentMethod->id }}">{{ $paymentMethod->name }}</option>
-                                    @endforeach
-                                </select>
-                            </td>
+    <th style="width: 10%; text-align: left;">Payment Method</th>
+    <td style="width: 80%;" class="text-end align-middle">
+        <div class="d-flex gap-1">
+            <select id="payment_method_id" name="payment_method_id" class="form-select form-select-sm w-100">
+                @foreach ($paymentMethods as $paymentMethod)
+                    <option value="{{ $paymentMethod->id }}">{{ $paymentMethod->name }}</option>
+                @endforeach
+            </select>
+            <input type="text" id="payment-method-value" class="form-control form-control-sm text-end w-100"
+                value="0.00"
+                oninput="this.value = this.value.replace(/[^0-9.+-]/g, '')">
+        </div>
+    </td>
+</tr>
+
+
+                        <tr>
+                            <th>Cash</th>
+                            <td  class="text-end">
+                                <input type="text" id="cash-value" class="form-control form-control-sm text-end"
+                                     value="0.00"
+                                    oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')">
+
                             </td>
                         </tr>
+                        {{-- <tr>
+                            <th>Balance</th>
+                            <td id="balance-value">$0.00</td>
+                        </tr> --}}
                     </table>
                 </div>
                 <div class="card-footer text-end">
                     <button class="btn btn-sm btn-success" id="checkout">Checkout</button>
-                    <button onclick="window.print()" class="btn btn-primary ms-3">Print Only</button>
+                    {{-- <button onclick="window.print()" class="btn btn-primary ms-3">Print Only</button> --}}
 
                 </div>
                 </form>
@@ -292,14 +312,12 @@
                     placeholder='Customer Address' />
                 <x-form-description value="{{ old('notes') }}" label="notes" name='notes' placeholder='Notes' />
                 <div class="row">
-                    {{-- <div class="col-6">
-                        <x-form-select name='status' id="customer-status" label="status" required>
-                            <option @if (old('status') == 'active') selected @endif value="active">
-                                {{ __('Active') }}</option>
-                            <option @if (old('status') == 'inactive') selected @endif value="inactive">
-                                {{ __('Inactive') }}</option>
-                        </x-form-select>
-                    </div> --}}
+                    <div class="col-6">
+                        <label class="form-label" for="customer-deposit">{{ __('Deposit') }}</label>
+                        <input type="text" id="customer-deposit" name="deposit"
+                            class="form-control form-control-sm text-end" value="{{ $customer->deposit ?? 0 }}"
+                            oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')">
+                    </div>
                     <div class="col-6">
                         <x-form-select name='gender' id="gender" label="gender" required>
                             <option @if (old('gender') == 'male') selected @endif value="male">
@@ -333,24 +351,41 @@
 
 @section('js')
     <script>
-        $(document).ready(function() {
-            // Store products, services, and employees data
-            const products = @json($products);
-            const services = @json($services);
-            const employees = @json($employees);
+$(document).ready(function() {
+    // Store products, services, and employees data
+    const products = @json($products);
+    const services = @json($services);
+    const employees = @json($employees);
 
-            // Add a new item row on click
-            $("#add-item").on("click", addItemRow);
+    // Add a new item row on click
+    $("#add-item").on("click", addItemRow);
 
-            // Delegate events for dynamically created elements
-            $("#invoice-items")
-                .on("change", ".item-type", handleTypeChange)
-                .on("change", ".item-selector", handleItemChange)
-                .on("input", ".item-qty, .item-price, .item-discount, .item-tax", updateInvoice);
+    // Handle item deletion
+    $("#invoice-items").on("click", ".remove-item", function() {
+        $(this).closest("tr").remove();
+        updateInvoice();
+    });
 
-            $("#deposit-input").on("input", updateInvoice);
+    // Delegate events for dynamically created elements
+    $("#invoice-items")
+        .on("change", ".item-type", handleTypeChange)
+        .on("change", ".item-selector", handleItemChange)
+        .on("input", ".item-qty, .item-price, .item-discount, .item-tax", updateInvoice);
 
-            // Send data to the server using AJAX on checkout button click
+    // Handle changes in deposit, payment method, and cash values
+    $("#deposit-input, #payment-method-value, #cash-value").on("input", updateInvoice);
+
+    // Handle customer selection change
+    $("#customer_id").on("change", function() {
+        const selectedCustomer = $(this).find(":selected");
+        const depositValue = selectedCustomer.data("deposit") || 0;
+        $("#deposit-input").val(depositValue.toFixed(2));
+        updateInvoice();
+    });
+
+    // Rest of your existing functions (addItemRow, handleTypeChange, loadItemsForType, handleItemChange) remain the same...
+
+      // Send data to the server using AJAX on checkout button click
             $("#checkout").on("click", function(e) {
                 e.preventDefault();
 
@@ -541,87 +576,75 @@
                 updateInvoice();
             }
 
-function updateInvoice() {
-    const $rows = $("#invoice-items tbody tr");
-    let servicesTotal = 0,
-        productsTotal = 0,
-        discountTotal = 0,
-        taxTotal = 0;
+    function updateInvoice() {
+        const $rows = $("#invoice-items tbody tr");
+        let servicesTotal = 0,
+            productsTotal = 0,
+            discountTotal = 0,
+            taxTotal = 0;
 
-    $rows.each(function() {
-        const $row = $(this);
-        const type = $row.find(".item-type").val();
-        const qty = parseFloat($row.find(".item-qty").val()) || 0;
-        let price = parseFloat($row.find(".item-price").val()) || 0;
-        const discountPercent = parseFloat($row.find(".item-discount").val()) || 0;
-        const taxPercent = parseFloat($row.find(".item-tax").val()) || 0;
+        $rows.each(function() {
+            const $row = $(this);
+            const type = $row.find(".item-type").val();
+            const qty = parseFloat($row.find(".item-qty").val()) || 0;
+            let price = parseFloat($row.find(".item-price").val()) || 0;
+            const discountPercent = parseFloat($row.find(".item-discount").val()) || 0;
+            const taxPercent = parseFloat($row.find(".item-tax").val()) || 0;
 
-        // Get the original price from the selected item
-        const selectedItemId = $row.find(".item-selector").val();
-        const itemList = type === "product" ? products : services;
-        const selectedItem = itemList.find((item) => item.id == selectedItemId);
+            const selectedItemId = $row.find(".item-selector").val();
+            const itemList = type === "product" ? products : services;
+            const selectedItem = itemList.find((item) => item.id == selectedItemId);
 
-        if (selectedItem) {
-            // Ensure original price is a valid number
-            const originalPrice = parseFloat(selectedItem.price) || 0;
+            if (selectedItem) {
+                const originalPrice = parseFloat(selectedItem.price) || 0;
 
-            // Set the item code
-            $row.find(".item-code").val(selectedItem.code || selectedItem.id);
+                // Calculate the total for this row
+                const grossTotal = qty * price;
+                const discount = (grossTotal * discountPercent) / 100;
+                const tax = ((grossTotal - discount) * taxPercent) / 100;
+                const due = grossTotal - discount + tax;
 
-            // Validate the price when the user leaves the input (focusout)
-            $row.find(".item-price").on("blur", function() {
-                price = parseFloat($row.find(".item-price").val()) || 0;
+                $row.find(".item-due").text(`$${due.toFixed(2)}`);
 
-                if (price < originalPrice) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Invalid Price',
-                        text: `The price cannot be less than the original price of $${originalPrice.toFixed(2)}.`,
-                    });
-                    $row.find(".item-price").val(originalPrice);  // Reset the price to the original value
-                }
-
-                updateInvoice();  // Recalculate totals after price change
-            });
-
-            // Set the initial price if price_can_change is true
-            if (selectedItem.price_can_change) {
-                $row.find(".item-price").prop("readonly", false);  // Allow editing the price
-            } else {
-                $row.find(".item-price").prop("readonly", true);   // Prevent editing the price
+                // Calculate totals
+                if (type === "service") servicesTotal += grossTotal;
+                if (type === "product") productsTotal += grossTotal;
+                discountTotal += discount;
+                taxTotal += tax;
             }
-
-            // Calculate the total for this row
-            const grossTotal = qty * price;
-            const discount = (grossTotal * discountPercent) / 100;
-            const tax = ((grossTotal - discount) * taxPercent) / 100;
-            const due = grossTotal - discount + tax;
-
-            $row.find(".item-due").text(`$${due.toFixed(2)}`);
-
-            // Calculate totals
-            if (type === "service") servicesTotal += grossTotal;
-            if (type === "product") productsTotal += grossTotal;
-            discountTotal += discount;
-            taxTotal += tax;
-        }
-    });
-
-    const deposit = parseFloat($("#deposit-input").val()) || 0;
-    const grandTotal = servicesTotal + productsTotal - discountTotal + taxTotal;
-    const netTotal = grandTotal - deposit;
-
-    $("#services-total").text(`$${servicesTotal.toFixed(2)}`);
-    $("#products-total").text(`$${productsTotal.toFixed(2)}`);
-    $("#discount-total").text(`- $${discountTotal.toFixed(2)}`);
-    $("#tax-total").text(`$${taxTotal.toFixed(2)}`);
-    $("#grand-total").text(`$${grandTotal.toFixed(2)}`);
-    $("#net-total").text(`$${netTotal.toFixed(2)}`);
-}
-
-
-
         });
+
+        const deposit = parseFloat($("#deposit-input").val()) || 0;
+        const paymentMethodValue = parseFloat($("#payment-method-value").val()) || 0;
+        const cashValue = parseFloat($("#cash-value").val()) || 0;
+
+        const grandTotal = servicesTotal + productsTotal - discountTotal + taxTotal;
+        const netTotal = grandTotal - deposit;
+        const balance = netTotal - paymentMethodValue - cashValue;
+
+        // Update all totals
+        $("#services-total").text(`$${servicesTotal.toFixed(2)}`);
+        $("#products-total").text(`$${productsTotal.toFixed(2)}`);
+        $("#discount-total").text(`- $${discountTotal.toFixed(2)}`);
+        $("#tax-total").text(`$${taxTotal.toFixed(2)}`);
+        $("#grand-total").text(`$${grandTotal.toFixed(2)}`);
+        $("#net-total").text(`$${netTotal.toFixed(2)}`);
+
+        // Add balance row if it doesn't exist
+        if ($("#balance-row").length === 0) {
+            const balanceRow = `
+                <tr id="balance-row">
+                    <th>Balance</th>
+                    <td id="balance-total" class="text-end">$${balance.toFixed(2)}</td>
+                </tr>`;
+            $("#cash-value").closest("tr").after(balanceRow);
+        } else {
+            $("#balance-total").text(`$${balance.toFixed(2)}`);
+        }
+    }
+
+    // Rest of your existing code (checkout button handler) remains the same...
+});
     </script>
 
 
@@ -718,7 +741,11 @@ function updateInvoice() {
                         '<i class="bi bi-star-fill" style="color:#D38E29;font-size: x-large;"></i> Yes' :
                         '<i class="bi bi-star-fill" style="color:#D9DCE1;font-size: x-large;"></i> No'
                     );
-                }
+                    $('#deposit-input').val(parseFloat(selectedCustomer.deposit).toFixed(2));
+            } else {
+                // Clear the input field if no customer is selected
+                $('#deposit-input').val('0.00');
+            }
             });
         });
     </script>

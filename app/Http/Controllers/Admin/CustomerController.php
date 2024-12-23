@@ -32,13 +32,12 @@ class CustomerController extends Controller
      */
     public function store(CustomerRequest $request)
     {
-
-
         $customer = Customer::create([
             'name' => $request->name,
             'salutation' => $request->salutation,
             'status' => $request->status ?? 'active',
             'gender' => $request->gender,
+            'deposit' => $request->deposit ?? 0,
             'added_from' => $request->added_from,
             'dob' => $request->dob,
             'notes' => $request->notes,
@@ -55,7 +54,8 @@ class CustomerController extends Controller
                 'success' => true,
                 'customer_id' => $customer->id,
                 'customer_name' => $customer->name,
-                'customer_phone' => $customer->phone
+                'customer_phone' => $customer->phone,
+                'customer_deposit' => $customer->deposit,
         ],201);
         }
         Alert::success(__('Success'), __('Created Successfully'));
@@ -90,6 +90,7 @@ class CustomerController extends Controller
             'gender' => $request->gender,
             'added_from' => $request->added_from,
             'dob' => $request->dob,
+            'deposit' => $request->deposit ?? 0,
             'notes' => $request->notes,
             'is_vip' => $request->is_vip,
             'email' => $request->email,

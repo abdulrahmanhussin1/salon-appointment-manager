@@ -22,6 +22,18 @@ class BranchDataTable extends DataTable
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
+        if (!empty(request()->query('status'))) {
+            $statuses = is_array(request()->query('status')) ? request()->query('status') : explode(',', request()->query('status'));
+            $query = $query->whereIn('status', $statuses);
+        }
+
+        if (!empty(request()->query('created_by'))) {
+            $createdBy = is_array(request()->query('created_by')) ? request()->query('created_by') : explode(',', request()->query('created_by'));
+            $query = $query->whereIn('created_by', $createdBy);
+        }
+
+
+
         return (new EloquentDataTable($query))
             ->addColumn('action', function ($model) {
                 $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
@@ -41,9 +53,9 @@ class BranchDataTable extends DataTable
 
             ->editColumn('status', function ($model) {
                 if ($model->status == 'active') {
-                    return '<i class="bi bi-check-circle-fill text-success" style="font-size:large"></i>';
+                    return '<i class="bi bi-check-circle-fill text-success" style="font-size:large">Active</i>';
                 } elseif ($model->status == 'inactive') {
-                    return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large"></i>';
+                    return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large">Inactive</i>';
                 }
             })
             ->editColumn('created_at', function ($model) {
@@ -85,20 +97,20 @@ class BranchDataTable extends DataTable
             ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
             ->orderBy(0, 'desc')
             ->selectStyleSingle()
-            ->buttons([
-                Button::make('excel')->exportOptions([
-                    'columns' => ':not(:last-child)', // Exclude the last column (action)
-                ]),
-                Button::make('csv')->exportOptions([
-                    'columns' => ':not(:last-child)', // Exclude the last column (action)
-                ]),
-                Button::make('pdf')->exportOptions([
-                    'columns' => ':not(:last-child)', // Exclude the last column (action)
-                ]),
-                Button::make('print')->exportOptions([
-                    'columns' => ':not(:last-child)', // Exclude the last column (action)
-                ]),
-            ]);
+        ->buttons([
+            Button::make('excel')->exportOptions([
+                'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
+            ]),
+            Button::make('csv')->exportOptions([
+                'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
+            ]),
+            Button::make('pdf')->exportOptions([
+                'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
+            ]),
+            Button::make('print')->exportOptions([
+                'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
+            ]),
+        ]);
     }
 
     /**

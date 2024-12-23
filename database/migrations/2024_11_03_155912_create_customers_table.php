@@ -24,6 +24,7 @@ return new class extends Migration
             $table->boolean('is_vip')->default(false);
             $table->enum('gender',['male', 'female'])->default('male');
             $table->date('last_service')->nullable();
+            $table->unsignedDecimal('deposit',10,2)->default(0);
             $table->enum('added_from', ['online', 'referral', 'walk_in', 'advertisement', 'direct'])->default('direct');
             $table->foreignId('created_by')->constrained('users', 'id')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users', 'id')->cascadeOnUpdate()->nullOnDelete();
