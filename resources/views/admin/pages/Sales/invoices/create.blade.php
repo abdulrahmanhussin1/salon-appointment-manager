@@ -204,8 +204,7 @@
                             <th>Deposit</th>
                             <td>
                                 <input type="text" id="deposit-input" class="form-control form-control-sm text-end"
-                                    readonly value="0.00"
-                                    oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')">
+                                    readonly value="0.00" oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')">
                             </td>
                         </tr>
                         <tr>
@@ -213,28 +212,28 @@
                             <td id="net-total" class="text-end">$0.00</td>
                         </tr>
                         <tr>
-    <th style="width: 10%; text-align: left;">Payment Method</th>
-    <td style="width: 80%;" class="text-end align-middle">
-        <div class="d-flex gap-1">
-            <select id="payment_method_id" name="payment_method_id" class="form-select form-select-sm w-100">
-                @foreach ($paymentMethods as $paymentMethod)
-                    <option value="{{ $paymentMethod->id }}">{{ $paymentMethod->name }}</option>
-                @endforeach
-            </select>
-            <input type="text" id="payment-method-value" class="form-control form-control-sm text-end w-100"
-                value="0.00"
-                oninput="this.value = this.value.replace(/[^0-9.+-]/g, '')">
-        </div>
-    </td>
-</tr>
+                            <th style="width: 10%; text-align: left;">Payment Method</th>
+                            <td style="width: 80%;" class="text-end align-middle">
+                                <div class="d-flex gap-1">
+                                    <select id="payment_method_id" name="payment_method_id"
+                                        class="form-select form-select-sm w-100">
+                                        @foreach ($paymentMethods as $paymentMethod)
+                                            <option value="{{ $paymentMethod->id }}">{{ $paymentMethod->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <input type="text" id="payment-method-value"
+                                        class="form-control form-control-sm text-end w-100" value="0.00"
+                                        oninput="this.value = this.value.replace(/[^0-9.+-]/g, '')">
+                                </div>
+                            </td>
+                        </tr>
 
 
                         <tr>
                             <th>Cash</th>
-                            <td  class="text-end">
+                            <td class="text-end">
                                 <input type="text" id="cash-value" class="form-control form-control-sm text-end"
-                                     value="0.00"
-                                    oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')">
+                                    value="0.00" oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')">
 
                             </td>
                         </tr>
@@ -351,41 +350,41 @@
 
 @section('js')
     <script>
-$(document).ready(function() {
-    // Store products, services, and employees data
-    const products = @json($products);
-    const services = @json($services);
-    const employees = @json($employees);
+        $(document).ready(function() {
+            // Store products, services, and employees data
+            const products = @json($products);
+            const services = @json($services);
+            const employees = @json($employees);
 
-    // Add a new item row on click
-    $("#add-item").on("click", addItemRow);
+            // Add a new item row on click
+            $("#add-item").on("click", addItemRow);
 
-    // Handle item deletion
-    $("#invoice-items").on("click", ".remove-item", function() {
-        $(this).closest("tr").remove();
-        updateInvoice();
-    });
+            // Handle item deletion
+            $("#invoice-items").on("click", ".remove-item", function() {
+                $(this).closest("tr").remove();
+                updateInvoice();
+            });
 
-    // Delegate events for dynamically created elements
-    $("#invoice-items")
-        .on("change", ".item-type", handleTypeChange)
-        .on("change", ".item-selector", handleItemChange)
-        .on("input", ".item-qty, .item-price, .item-discount, .item-tax", updateInvoice);
+            // Delegate events for dynamically created elements
+            $("#invoice-items")
+                .on("change", ".item-type", handleTypeChange)
+                .on("change", ".item-selector", handleItemChange)
+                .on("input", ".item-qty, .item-price, .item-discount, .item-tax", updateInvoice);
 
-    // Handle changes in deposit, payment method, and cash values
-    $("#deposit-input, #payment-method-value, #cash-value").on("input", updateInvoice);
+            // Handle changes in deposit, payment method, and cash values
+            $("#deposit-input, #payment-method-value, #cash-value").on("input", updateInvoice);
 
-    // Handle customer selection change
-    $("#customer_id").on("change", function() {
-        const selectedCustomer = $(this).find(":selected");
-        const depositValue = selectedCustomer.data("deposit") || 0;
-        $("#deposit-input").val(depositValue.toFixed(2));
-        updateInvoice();
-    });
+            // Handle customer selection change
+            $("#customer_id").on("change", function() {
+                const selectedCustomer = $(this).find(":selected");
+                const depositValue = selectedCustomer.data("deposit") || 0;
+                $("#deposit-input").val(depositValue.toFixed(2));
+                updateInvoice();
+            });
 
-    // Rest of your existing functions (addItemRow, handleTypeChange, loadItemsForType, handleItemChange) remain the same...
+            // Rest of your existing functions (addItemRow, handleTypeChange, loadItemsForType, handleItemChange) remain the same...
 
-      // Send data to the server using AJAX on checkout button click
+            // Send data to the server using AJAX on checkout button click
             $("#checkout").on("click", function(e) {
                 e.preventDefault();
 
@@ -393,6 +392,8 @@ $(document).ready(function() {
                 const customerId = $("#customer_id").val();
                 const deposit = parseFloat($("#deposit-input").val());
                 const paymentMethodId = $("#payment_method_id").val();
+                const paymentMethodValue = parseFloat($("#payment-method-value").val()) || 0;
+                const cashPayment = parseFloat($("#cash-value").val());
                 const invoiceDate = $("#invoice_date").val();
                 const branchId = $("#branch_id").val();
                 const status = $("#status").val();
@@ -417,10 +418,12 @@ $(document).ready(function() {
                     customer_id: customerId,
                     deposit: deposit,
                     payment_method_id: paymentMethodId,
+                    payment_method_value: paymentMethodValue,
                     branch_id: branchId,
                     invoice_date: invoiceDate,
                     items: items,
-                    status: status
+                    status: status,
+                    cash_payment: cashPayment,
                 };
 
                 // Send the data using AJAX
@@ -440,7 +443,8 @@ $(document).ready(function() {
 
                         // Check if there are validation errors
                         if (xhr.status ===
-                            422) { // 422 is the HTTP status for unprocessable entity, often used for validation errors
+                            422
+                            ) { // 422 is the HTTP status for unprocessable entity, often used for validation errors
                             const validationErrors = xhr.responseJSON.errors;
                             let errorMessages = '';
 
@@ -448,7 +452,7 @@ $(document).ready(function() {
                             for (const field in validationErrors) {
                                 if (validationErrors.hasOwnProperty(field)) {
                                     errorMessages +=
-                                    `${validationErrors[field].join(', ')}\n`; // Concatenate error messages
+                                        `${validationErrors[field].join(', ')}\n`; // Concatenate error messages
                                 }
                             }
 
@@ -547,10 +551,10 @@ $(document).ready(function() {
 
                     if (selectedItem.price_can_change) {
                         $itemPrice.prop("readonly",
-                        false); // Make the price input editable if price_can_change is true
+                            false); // Make the price input editable if price_can_change is true
                     } else {
                         $itemPrice.prop("readonly",
-                        true); // Keep the price input readonly if price_can_change is false
+                            true); // Keep the price input readonly if price_can_change is false
                     }
                 }
 
@@ -576,75 +580,75 @@ $(document).ready(function() {
                 updateInvoice();
             }
 
-    function updateInvoice() {
-        const $rows = $("#invoice-items tbody tr");
-        let servicesTotal = 0,
-            productsTotal = 0,
-            discountTotal = 0,
-            taxTotal = 0;
+            function updateInvoice() {
+                const $rows = $("#invoice-items tbody tr");
+                let servicesTotal = 0,
+                    productsTotal = 0,
+                    discountTotal = 0,
+                    taxTotal = 0;
 
-        $rows.each(function() {
-            const $row = $(this);
-            const type = $row.find(".item-type").val();
-            const qty = parseFloat($row.find(".item-qty").val()) || 0;
-            let price = parseFloat($row.find(".item-price").val()) || 0;
-            const discountPercent = parseFloat($row.find(".item-discount").val()) || 0;
-            const taxPercent = parseFloat($row.find(".item-tax").val()) || 0;
+                $rows.each(function() {
+                    const $row = $(this);
+                    const type = $row.find(".item-type").val();
+                    const qty = parseFloat($row.find(".item-qty").val()) || 0;
+                    let price = parseFloat($row.find(".item-price").val()) || 0;
+                    const discountPercent = parseFloat($row.find(".item-discount").val()) || 0;
+                    const taxPercent = parseFloat($row.find(".item-tax").val()) || 0;
 
-            const selectedItemId = $row.find(".item-selector").val();
-            const itemList = type === "product" ? products : services;
-            const selectedItem = itemList.find((item) => item.id == selectedItemId);
+                    const selectedItemId = $row.find(".item-selector").val();
+                    const itemList = type === "product" ? products : services;
+                    const selectedItem = itemList.find((item) => item.id == selectedItemId);
 
-            if (selectedItem) {
-                const originalPrice = parseFloat(selectedItem.price) || 0;
+                    if (selectedItem) {
+                        const originalPrice = parseFloat(selectedItem.price) || 0;
 
-                // Calculate the total for this row
-                const grossTotal = qty * price;
-                const discount = (grossTotal * discountPercent) / 100;
-                const tax = ((grossTotal - discount) * taxPercent) / 100;
-                const due = grossTotal - discount + tax;
+                        // Calculate the total for this row
+                        const grossTotal = qty * price;
+                        const discount = (grossTotal * discountPercent) / 100;
+                        const tax = ((grossTotal - discount) * taxPercent) / 100;
+                        const due = grossTotal - discount + tax;
 
-                $row.find(".item-due").text(`$${due.toFixed(2)}`);
+                        $row.find(".item-due").text(`$${due.toFixed(2)}`);
 
-                // Calculate totals
-                if (type === "service") servicesTotal += grossTotal;
-                if (type === "product") productsTotal += grossTotal;
-                discountTotal += discount;
-                taxTotal += tax;
-            }
-        });
+                        // Calculate totals
+                        if (type === "service") servicesTotal += grossTotal;
+                        if (type === "product") productsTotal += grossTotal;
+                        discountTotal += discount;
+                        taxTotal += tax;
+                    }
+                });
 
-        const deposit = parseFloat($("#deposit-input").val()) || 0;
-        const paymentMethodValue = parseFloat($("#payment-method-value").val()) || 0;
-        const cashValue = parseFloat($("#cash-value").val()) || 0;
+                const deposit = parseFloat($("#deposit-input").val()) || 0;
+                const paymentMethodValue = parseFloat($("#payment-method-value").val()) || 0;
+                const cashValue = parseFloat($("#cash-value").val()) || 0;
 
-        const grandTotal = servicesTotal + productsTotal - discountTotal + taxTotal;
-        const netTotal = grandTotal - deposit;
-        const balance = netTotal - paymentMethodValue - cashValue;
+                const grandTotal = servicesTotal + productsTotal - discountTotal + taxTotal;
+                const netTotal = grandTotal - deposit;
+                const balance = netTotal - paymentMethodValue - cashValue;
 
-        // Update all totals
-        $("#services-total").text(`$${servicesTotal.toFixed(2)}`);
-        $("#products-total").text(`$${productsTotal.toFixed(2)}`);
-        $("#discount-total").text(`- $${discountTotal.toFixed(2)}`);
-        $("#tax-total").text(`$${taxTotal.toFixed(2)}`);
-        $("#grand-total").text(`$${grandTotal.toFixed(2)}`);
-        $("#net-total").text(`$${netTotal.toFixed(2)}`);
+                // Update all totals
+                $("#services-total").text(`$${servicesTotal.toFixed(2)}`);
+                $("#products-total").text(`$${productsTotal.toFixed(2)}`);
+                $("#discount-total").text(`- $${discountTotal.toFixed(2)}`);
+                $("#tax-total").text(`$${taxTotal.toFixed(2)}`);
+                $("#grand-total").text(`$${grandTotal.toFixed(2)}`);
+                $("#net-total").text(`$${netTotal.toFixed(2)}`);
 
-        // Add balance row if it doesn't exist
-        if ($("#balance-row").length === 0) {
-            const balanceRow = `
+                // Add balance row if it doesn't exist
+                if ($("#balance-row").length === 0) {
+                    const balanceRow = `
                 <tr id="balance-row">
                     <th>Balance</th>
                     <td id="balance-total" class="text-end">$${balance.toFixed(2)}</td>
                 </tr>`;
-            $("#cash-value").closest("tr").after(balanceRow);
-        } else {
-            $("#balance-total").text(`$${balance.toFixed(2)}`);
-        }
-    }
+                    $("#cash-value").closest("tr").after(balanceRow);
+                } else {
+                    $("#balance-total").text(`$${balance.toFixed(2)}`);
+                }
+            }
 
-    // Rest of your existing code (checkout button handler) remains the same...
-});
+            // Rest of your existing code (checkout button handler) remains the same...
+        });
     </script>
 
 
@@ -742,10 +746,10 @@ $(document).ready(function() {
                         '<i class="bi bi-star-fill" style="color:#D9DCE1;font-size: x-large;"></i> No'
                     );
                     $('#deposit-input').val(parseFloat(selectedCustomer.deposit).toFixed(2));
-            } else {
-                // Clear the input field if no customer is selected
-                $('#deposit-input').val('0.00');
-            }
+                } else {
+                    // Clear the input field if no customer is selected
+                    $('#deposit-input').val('0.00');
+                }
             });
         });
     </script>

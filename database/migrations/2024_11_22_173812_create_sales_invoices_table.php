@@ -20,12 +20,13 @@ return new class extends Migration
             $table->unsignedDecimal('invoice_deposit', 15, 2)->default(0);
             $table->unsignedDecimal('invoice_tax', 15, 2)->default(0);
             $table->unsignedDecimal('net_total', 15, 2)->default(0);
-            $table->unsignedDecimal('balance_due', 15, 2);
             $table->unsignedDecimal('paid_amount_cash', 15, 2)->default(0);
+            $table->foreignId('payment_method_id')->constrained('payment_methods', 'id')->cascadeOnUpdate()->restrictOnDelete();
+            $table->unsignedDecimal('payment_method_value', 15, 2)->default(0);
+            $table->unsignedDecimal('balance_due', 15, 2);
             $table->text('invoice_notes')->nullable();
             $table->foreignId('customer_id')->constrained('customers')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('branch_id')->default(1)->constrained('branches')->cascadeOnUpdate()->restrictOnDelete();
-            $table->foreignId('payment_method_id')->constrained('payment_methods','id')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('created_by')->constrained('users', 'id')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users', 'id')->cascadeOnUpdate()->nullOnDelete();
             $table->timestamps();
