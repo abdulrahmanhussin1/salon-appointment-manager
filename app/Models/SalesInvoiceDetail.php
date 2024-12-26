@@ -27,7 +27,18 @@ class SalesInvoiceDetail extends Model
     {
         return $this->belongsTo(Product::class);
     }
-    
+
+
+    public function name()
+    {
+        if (!empty($this->service_id)) {
+            return $this->service?->name;
+        }
+
+        return $this->product?->name;
+    }
+
+
 
 
 }

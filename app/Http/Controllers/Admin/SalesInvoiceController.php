@@ -69,6 +69,7 @@ class SalesInvoiceController extends Controller
      */
     public function store(Request $request)
     {
+
         $validatedData = $this->validateInvoiceData($request);
 
         $customer = $this->validateCustomer($validatedData['customer_id']);
@@ -84,7 +85,7 @@ class SalesInvoiceController extends Controller
             'servicesTotal' => 0,
         ];
 
-        try {
+        //try {
             foreach ($validatedData['items'] as $item) {
                 if ($item['type'] === 'product') {
                     $productData = $this->processProduct($item);
@@ -97,14 +98,18 @@ class SalesInvoiceController extends Controller
                 }
             }
 
-            $this->createInvoiceTransaction($validatedData, $invoiceItems, $totals);
-            Alert::success('success', 'Invoice created successfully');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Invoice Creation Error: ' . $e->getMessage());
-            Alert::error('error', 'Invoice creation failed');
-            return back();
-        }
+          $invoice = $this->createInvoiceTransaction($validatedData, $invoiceItems, $totals);
+         // Alert::success('success', 'Invoice created successfully');
+          return response()->json([
+            'invoice_id' => $invoice->id,
+          ], 200 ) ;
+
+        // } catch (\Exception $e) {
+        //     DB::rollBack();
+        //     \Log::error('Invoice Creation Error: ' . $e->getMessage());
+        //     Alert::error('error', 'Invoice creation failed');
+        //     return back();
+        // }
     }
 
     private function validateInvoiceData(Request $request)
@@ -198,7 +203,6 @@ class SalesInvoiceController extends Controller
         $allocatedPrices = [];
         foreach ($product->supplierPrices->sortBy('created_at') as $price) {
             if ($requestedQuantity <= 0) break;
-
             $allocatedQuantity = min($requestedQuantity, $price->quantity);
             $allocatedPrices[] = [
                 'price' => $price->customer_price,
@@ -255,10 +259,12 @@ class SalesInvoiceController extends Controller
 
         $invoice->salesInvoiceDetails()->createMany($invoiceItems);
 
-        Customer::where('id',$validatedData['custom_id'])->first()->update([
+        Customer::where('id',$validatedData['customer_id'])->first()->update([
             'deposit' => ($netTotal - $deposit - ($validatedData['payment_method_value'] ?? 0) - ($validatedData['cash_payment'] ?? 0)) ?? 0,
         ]);
         DB::commit();
+
+        return $invoice ;
     }
 
 
@@ -308,15 +314,10 @@ class SalesInvoiceController extends Controller
         return response()->json([]);
     }
 
-    public function showReceipt()
+    public function showReceipt($id)
     {
-        $items = [
-            ['name' => 'Item 1', 'quantity' => 2, 'price' => 50],
-            ['name' => 'Item 2', 'quantity' => 1, 'price' => 100],
-        ];
-        $total = collect($items)->sum(fn($item) => $item['quantity'] * $item['price']);
-
-        return view('admin.pages.Sales.invoices.reciept',   compact('items', 'total'));
+        $invoice = SalesInvoice::findOrFail($id);
+        return view('admin.pages.Sales.invoices.reciept',   compact( 'invoice'));
     }
 
 }

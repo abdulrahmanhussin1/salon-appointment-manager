@@ -436,7 +436,32 @@
                     contentType: "application/json",
                     data: JSON.stringify(data),
                     success: function(response) {
-                        window.location.href = "{{ route('sales_invoices.create') }}";
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Created Successfully',
+                            text: 'Your invoice has been created.',
+                            showCancelButton: true,
+                            confirmButtonText: 'Print Invoice', // Label for the primary action button
+                            cancelButtonText: 'Create Another Invoice', // Label for the secondary action button
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // console.log('invoice_id=' + response.invoice_id , response );
+                                // If the user clicks "Print Invoice"
+
+                                // window.location.href =
+
+                                window.open(`invoice/${response.invoice_id}`,
+                                    '_blank'); // Replace with your print URL
+                            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                // If the user clicks "Add Another Invoice"
+                                window.location.href =
+                                    "{{ route('sales_invoices.create') }}";
+                            }else{
+                                window.location.href =
+                                    "{{ route('sales_invoices.create') }}";
+                            }
+                        });
                     },
                     error: function(xhr, status, error) {
                         console.error("Error:", error);
@@ -444,7 +469,7 @@
                         // Check if there are validation errors
                         if (xhr.status ===
                             422
-                            ) { // 422 is the HTTP status for unprocessable entity, often used for validation errors
+                        ) { // 422 is the HTTP status for unprocessable entity, often used for validation errors
                             const validationErrors = xhr.responseJSON.errors;
                             let errorMessages = '';
 
