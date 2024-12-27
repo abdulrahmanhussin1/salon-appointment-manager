@@ -101,6 +101,9 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::get('reports/daily_revenues', [ReportController::class, 'dailyRevenues'])->name('report.daily_revenues');
     Route::get('reports/total_daily_revenues_page', [ReportController::class, 'TotalDailyRevenuesPage'])->name('report.TotalDailyRevenuesPage');
     Route::post('reports/total_daily_revenues', [ReportController::class, 'TotalDailyRevenues'])->name('report.TotalDailyRevenues');
+    Route::get('reports/daily_summary_page', [ReportController::class,'dailySummaryPage'])->name('report.dailySummaryPage');
+    Route::post('reports/daily_summary', [ReportController::class,'dailySummary'])->name('report.dailySummary');
+
 
 
 });

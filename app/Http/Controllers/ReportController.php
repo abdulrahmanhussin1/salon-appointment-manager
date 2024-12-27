@@ -7,6 +7,7 @@ use App\Models\Expense;
 use App\Models\SalesInvoice;
 use Illuminate\Http\Request;
 use App\Models\PaymentMethod;
+use App\Models\PurchaseInvoice;
 use Yajra\DataTables\DataTables;
 use App\Models\SalesInvoiceDetail;
 use Illuminate\Support\Facades\DB;
@@ -130,4 +131,103 @@ class ReportController extends Controller
         return DataTables::of($data)->make(true);
     }
 
+
+    public function dailySummaryPage(Request $request)
+    {
+        return view('admin.pages.reports.daily_summary');
+    }
+    public function dailySummary(Request $request)
+    {
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $startDate = Carbon::parse($request->start_date);
+        $endDate = Carbon::parse($request->end_date);
+
+        // Get all dates in range
+        $dates = collect();
+        for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
+            $dates->push($date->format('Y-m-d'));
+        }
+
+        $data = $dates->map(function ($date) {
+            // Get daily sales data
+            $dailySales = SalesInvoice::whereDate('invoice_date', $date)
+            ->where('status', 'active')
+                ->get();
+
+            // Get daily purchases data
+            $dailyPurchases = PurchaseInvoice::whereDate('invoice_date', $date)
+            ->where('status', 'active')
+                ->get();
+
+            // Get invoice details for the day
+            $invoiceIds = $dailySales->pluck('id');
+            $dailyDetails = SalesInvoiceDetail::whereIn('sales_invoice_id', $invoiceIds)
+                ->with(['provider', 'service', 'product'])
+                ->get();
+
+            $expenses = Expense::whereDate('paid_at', $date)
+            ->where('status', 'active')
+                ->get();
+
+
+            // Separate service and product sales
+            $serviceSales = $dailyDetails->whereNotNull('service_id');
+            $productSales = $dailyDetails->whereNotNull('product_id');
+
+            // Calculate employee statistics (only for services)
+            $employeeStats = $serviceSales->groupBy('provider_id')
+            ->map(function ($items) {
+                return [
+                    'services_count' => $items->count(),
+                    'total_amount' => $items->sum('subtotal')
+                ];
+            });
+
+            // Calculate net sales (total - discount)
+            $totalSalesDiscount = $dailySales->sum('invoice_discount');
+            $grossSales = $dailyDetails->sum('subtotal');
+            $netSales = $grossSales - $totalSalesDiscount;
+
+            // Calculate net purchases (total - discount)
+            $totalPurchasesAmount = $dailyPurchases->sum('total_amount');
+            $totalPurchasesDiscount = $dailyPurchases->sum('invoice_discount');
+            $netPurchases = $totalPurchasesAmount - $totalPurchasesDiscount;
+
+            return [
+                'date' => $date,
+                'total_expenses' => $expenses->sum('paid_amount'),
+                'total_customers' => $dailySales->count(),
+                'total_employees' => $employeeStats->count(),
+                // Service related metrics
+                'services_count' => $serviceSales->count(),
+                'services_sales' => $serviceSales->sum('subtotal'),
+                'services_commissions' => $serviceSales->sum('subtotal'), // Adjust commission calculation as needed
+                // Product related metrics
+                'products_count' => $productSales->count(),
+                'products_sales' => $productSales->sum('subtotal'),
+                // Purchase metrics
+                'purchases_count' => $dailyPurchases->count(),
+                'purchases_amount' => $totalPurchasesAmount,
+                'purchases_discount' => $totalPurchasesDiscount,
+                'net_purchases' => $netPurchases,
+                // Sales metrics
+                'gross_sales' => $grossSales,
+                'sales_discount' => $totalSalesDiscount,
+                'net_sales' => $netSales,
+                // Overall metrics
+                'avg_customer_value' => $dailySales->count() > 0
+                    ? $netSales / $dailySales->count()
+                    : 0,
+                'avg_employee_productivity' => $employeeStats->count() > 0
+                    ? $serviceSales->count() / $employeeStats->count()
+                    : 0
+            ];
+        });
+
+        return DataTables::of($data)->make(true);
+    }
 }

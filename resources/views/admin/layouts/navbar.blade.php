@@ -38,8 +38,7 @@
                             <li class="">
                                 <a class="dropdown-item d-flex align-items-center"
                                     href="{{ route('customer_transactions.get_customer_payments') }}">
-                                    <i
-                                        class="bi bi-cash"></i><span>{{ Str::ucfirst(__('Payments')) }}</span>
+                                    <i class="bi bi-cash"></i><span>{{ Str::ucfirst(__('Payments')) }}</span>
                                 </a>
                             </li>
                         @endif
@@ -149,6 +148,16 @@
                                     href="{{ route('report.TotalDailyRevenuesPage') }}">
                                     <i class="bi bi-safe2-fill"></i>
                                     <span>{{ Str::ucfirst(__('TotalDaily Cash Revenues')) }}</span>
+                                </a>
+                            </li>
+                        @endif
+
+                        @if (App\Traits\AppHelper::perUser('reports.index'))
+                            <li class="">
+                                <a class="dropdown-item d-flex align-items-center"
+                                    href="{{ route('report.dailySummaryPage') }}">
+                                    <i class="bi bi-safe2-fill"></i>
+                                    <span>{{ Str::ucfirst(__('Daily Summary')) }}</span>
                                 </a>
                             </li>
                         @endif

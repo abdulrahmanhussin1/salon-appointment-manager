@@ -28,6 +28,17 @@ class SalesInvoiceDetail extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    public function provider()
+    {
+        return $this->belongsTo(Employee::class);
+    }
+
+
 
     public function name()
     {
