@@ -41,8 +41,8 @@ Route::get('/', function () {
     return redirect()->route('home.index');
 });
 
+Route::get('admin/sales_invoices/invoice/{id}', [SalesInvoiceController::class, 'showReceipt'])->name('sales_invoices.invoice');
 
-Route::get('/receipt', [SalesInvoiceController::class, 'showReceipt'])->name('receipt.show');
 
 Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(function () {
 
