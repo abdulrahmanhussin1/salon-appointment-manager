@@ -21,6 +21,15 @@
                             </li>
                         @endif
 
+                         @if (App\Traits\AppHelper::perUser('sales_invoices.create'))
+                            <li class="">
+                                <a class="dropdown-item d-flex align-items-center"
+                                    href="{{ route('sales_invoices.bookAppointment') }}">
+                                    <i class="bi bi-receipt"></i><span>{{ Str::ucfirst(__('Book Appointment')) }}</span>
+                                </a>
+                            </li>
+                        @endif
+
                         @if (App\Traits\AppHelper::perUser('sales_invoices.index'))
                             <li class="">
                                 <a class="dropdown-item d-flex align-items-center"

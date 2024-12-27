@@ -38,11 +38,13 @@ class CheckRole
                 || ($page === 'transferOut' && self::perUSer($type . '.transferOutView'))
                 || ($page === 'transfer' && self::perUSer($type . '.transferView'))
 
+
                 || ($page === 'daily_revenues' && self::perUSer('reports.index'))
                 || ($page === 'TotalDailyRevenuesPage' && self::perUSer('reports.index'))
                 || ($page === 'TotalDailyRevenues' && self::perUSer('reports.index'))
                 || ($page === 'dailySummaryPage' && self::perUSer('reports.index'))
                 || ($page === 'dailySummary' && self::perUSer('reports.index'))
+                || ($page === 'bookAppointment' && self::perUSer('sales_invoices.create'))
 
                 || self::perUSer($this->getRoute())
                 || in_array($this->getRoute(), ['dashboard', 'sales_invoices.getItem', 'sales_invoices.getRelatedEmployees'])

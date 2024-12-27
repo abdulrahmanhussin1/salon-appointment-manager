@@ -6,7 +6,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $adminPanelSetting->system_name }} | @yield('title')</title>
 
-
   <style>
     body {
       overflow-x: auto;

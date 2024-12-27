@@ -345,4 +345,9 @@ class SalesInvoiceController extends Controller
         return view('admin.pages.Sales.invoices.reciept',   compact( 'invoice'));
     }
 
+    public function bookAppointment()
+    {
+        return view('admin.pages.Sales.booking.index');
+    }
+
 }
