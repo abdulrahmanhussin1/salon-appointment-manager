@@ -165,6 +165,11 @@ class RolesAndPermissionsSeeder extends Seeder
                 'inventory_transactions.transferView',
                 'inventory_transactions.transferOutView',
 
+                /* daily_revenues */
+                'customer_transactions.get_customer_payments',
+                'customer_transactions.store_customer_payment',
+
+
                 /* Reports */
                 'reports.index',
 

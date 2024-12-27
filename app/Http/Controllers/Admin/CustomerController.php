@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\CustomerTransaction;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\DataTables\CustomerDataTable;
 use App\Http\Requests\CustomerRequest;
@@ -32,35 +35,76 @@ class CustomerController extends Controller
      */
     public function store(CustomerRequest $request)
     {
-        $customer = Customer::create([
-            'name' => $request->name,
-            'salutation' => $request->salutation,
-            'status' => $request->status ?? 'active',
-            'gender' => $request->gender,
-            'deposit' => $request->deposit ?? 0,
-            'added_from' => $request->added_from,
-            'dob' => $request->dob,
-            'notes' => $request->notes,
-            'is_vip' => $request->is_vip,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'created_by' => auth()->id()
-        ]);
+        try {
+            DB::beginTransaction();
 
-        if($request->ajax())
-        {
-            return response()->json([
-                'success' => true,
-                'customer_id' => $customer->id,
-                'customer_name' => $customer->name,
-                'customer_phone' => $customer->phone,
-                'customer_deposit' => $customer->deposit,
-        ],201);
+            // Create the customer record
+            $customer = Customer::create([
+                'name' => $request->name,
+                'salutation' => $request->salutation,
+                'status' => $request->status ?? 'active',
+                'gender' => $request->gender,
+                'added_from' => $request->added_from,
+                'dob' => $request->dob,
+                'notes' => $request->notes,
+                'is_vip' => $request->is_vip,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'created_by' => auth()->id(),
+            ]);
+
+            // Handle deposits if applicable
+            if ($request->ajax() && $request->deposit && $request->deposit > 0) {
+                CustomerTransaction::create([
+                    'customer_id' => $customer->id,
+                    'reference_type' => 'deposit',
+                    'reference_id' => 0, // Set a meaningful reference ID if applicable
+                    'amount' => $request->deposit,
+                    'notes' => 'Initial deposit created with customer',
+                    'created_by' => auth()->id(),
+                ]);
+            }
+
+            DB::commit();
+
+            // Return appropriate response for AJAX requests
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'customer_id' => $customer->id,
+                    'customer_name' => $customer->name,
+                    'customer_phone' => $customer->phone,
+                    'customer_deposit' => $customer->customerTransactions()
+                        ->where('reference_type', 'deposit')
+                        ->latest()
+                        ->first()
+                        ->amount ?? 0,
+                ], 201);
+            }
+
+            // Show success alert for non-AJAX requests
+            Alert::success(__('Success'), __('Customer created successfully'));
+            return redirect()->back();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            // Log error details for debugging
+            Log::error('Error creating customer: ' . $e->getMessage());
+
+            // Handle response for AJAX and non-AJAX requests
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to create customer. Please try again.',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return back()->with('error', __('Failed to create customer. Please try again.'));
         }
-        Alert::success(__('Success'), __('Created Successfully'));
-        return redirect()->back();
     }
+
 
     /**
      * Display the specified resource.
@@ -81,7 +125,7 @@ class CustomerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Customer $customer)
+    public function update(CustomerRequest $request, Customer $customer)
     {
         $customer->update([
             'name' => $request->name,
@@ -90,7 +134,7 @@ class CustomerController extends Controller
             'gender' => $request->gender,
             'added_from' => $request->added_from,
             'dob' => $request->dob,
-            'deposit' => $request->deposit ?? 0,
+            //'deposit' => $request->deposit ?? 0,
             'notes' => $request->notes,
             'is_vip' => $request->is_vip,
             'email' => $request->email,
@@ -98,6 +142,8 @@ class CustomerController extends Controller
             'address' => $request->address,
             'updated_by' => auth()->id()
         ]);
+
+
         Alert::success(__('Success'), __('Updated Successfully'));
         return redirect()->route('customers.index');
     }

@@ -39,7 +39,12 @@ class CheckRole
                 || ($page === 'transfer' && self::perUSer($type . '.transferView'))
 
 
+
+
                 || ($page === 'daily_revenues' && self::perUSer('reports.index'))
+                || ($page === 'TotalDailyRevenuesPage' && self::perUSer('reports.index'))
+                || ($page === 'TotalDailyRevenues' && self::perUSer('reports.index'))
+
 
                 || self::perUSer($this->getRoute())
                 || in_array($this->getRoute(), ['dashboard', 'sales_invoices.getItem', 'sales_invoices.getRelatedEmployees'])

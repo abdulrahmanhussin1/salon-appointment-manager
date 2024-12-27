@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\ProductCategoryController;
 use App\Http\Controllers\Admin\PurchaseInvoiceController;
 use App\Http\Controllers\Admin\ServiceCategoryController;
 use App\Http\Controllers\Admin\AdminPanelSettingController;
+use App\Http\Controllers\Admin\CustomerTransactionController;
 use App\Http\Controllers\Admin\InventoryTransactionController;
 
 /*
@@ -84,18 +85,23 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::post('inventory_transactions/transfer', [InventoryTransactionController::class,'transfer'])
     ->name('inventory_transactions.transfer');
 
-
-
-
     /* sales invoice  */
     Route::resource('sales_invoices', SalesInvoiceController::class);
     Route::get('/get-items', [SalesInvoiceController::class, 'getItem'])->name('sales_invoices.getItem');
     Route::get('/get-related-employees', [EmployeeController::class, 'getRelatedEmployees'])->name('sales_invoices.getRelatedEmployees');
 
 
+    /* Customers */
+
+    Route::get('customer_transactions/get_payments', [CustomerTransactionController::class, 'getCustomerPayments'])->name('customer_transactions.get_customer_payments');
+    Route::post('customer_transactions/store_payment', [CustomerTransactionController::class, 'storeCustomerPayment'])->name('customer_transactions.store_customer_payment');
+
 /* Reports */
 
     Route::get('reports/daily_revenues', [ReportController::class, 'dailyRevenues'])->name('report.daily_revenues');
+    Route::get('reports/total_daily_revenues_page', [ReportController::class, 'TotalDailyRevenuesPage'])->name('report.TotalDailyRevenuesPage');
+    Route::post('reports/total_daily_revenues', [ReportController::class, 'TotalDailyRevenues'])->name('report.TotalDailyRevenues');
+
 
 });
 require __DIR__ . '/auth.php';

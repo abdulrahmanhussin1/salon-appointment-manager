@@ -17,4 +17,9 @@ class Customer extends Model
     {
         return $this->morphMany(InventoryTransaction::class, 'reference');
     }
+
+    public function customerTransactions()
+    {
+        return $this->hasMany(CustomerTransaction::class);
+    }
 }

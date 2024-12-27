@@ -12,14 +12,6 @@
                         <span class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(_('Sales')) }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow sales">
-                        @if (App\Traits\AppHelper::perUser('sales_invoices.index'))
-                            <li class="">
-                                <a class="dropdown-item d-flex align-items-center"
-                                    href="{{ route('sales_invoices.index') }}">
-                                    <i class=" ri-folder-open-fill"></i><span>{{ Str::ucfirst(__('invoices')) }}</span>
-                                </a>
-                            </li>
-                        @endif
                         @if (App\Traits\AppHelper::perUser('sales_invoices.create'))
                             <li class="">
                                 <a class="dropdown-item d-flex align-items-center"
@@ -29,9 +21,29 @@
                             </li>
                         @endif
 
+                        @if (App\Traits\AppHelper::perUser('sales_invoices.index'))
+                            <li class="">
+                                <a class="dropdown-item d-flex align-items-center"
+                                    href="{{ route('sales_invoices.index') }}">
+                                    <i class=" ri-folder-open-fill"></i><span>{{ Str::ucfirst(__('invoices')) }}</span>
+                                </a>
+                            </li>
+                        @endif
+
+
                         <li>
                             <hr class="dropdown-divider">
                         </li>
+                        @if (App\Traits\AppHelper::perUser('customer_transactions.get_customer_payments'))
+                            <li class="">
+                                <a class="dropdown-item d-flex align-items-center"
+                                    href="{{ route('customer_transactions.get_customer_payments') }}">
+                                    <i
+                                        class="bi bi-cash"></i><span>{{ Str::ucfirst(__('Payments')) }}</span>
+                                </a>
+                            </li>
+                        @endif
+
 
                         @if (App\Traits\AppHelper::perUser('customers.index'))
                             <li class="">
@@ -42,6 +54,8 @@
                                 </a>
                             </li>
                         @endif
+
+
                     </ul>
                 </li>
             @endif
@@ -121,9 +135,20 @@
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow inventories">
                         @if (App\Traits\AppHelper::perUser('reports.index'))
                             <li class="">
-                                <a class="dropdown-item d-flex align-items-center" href="{{ route('report.daily_revenues') }}">
+                                <a class="dropdown-item d-flex align-items-center"
+                                    href="{{ route('report.daily_revenues') }}">
                                     <i class="bi bi-safe2-fill"></i>
                                     <span>{{ Str::ucfirst(__('Daily Cash Revenues')) }}</span>
+                                </a>
+                            </li>
+                        @endif
+
+                        @if (App\Traits\AppHelper::perUser('reports.index'))
+                            <li class="">
+                                <a class="dropdown-item d-flex align-items-center"
+                                    href="{{ route('report.TotalDailyRevenuesPage') }}">
+                                    <i class="bi bi-safe2-fill"></i>
+                                    <span>{{ Str::ucfirst(__('TotalDaily Cash Revenues')) }}</span>
                                 </a>
                             </li>
                         @endif

@@ -19,5 +19,12 @@ class PaymentMethodSeeder extends Seeder
             'status' => 'active',
             'created_by' => 1
         ]);
+
+        PaymentMethod::create([
+            'name' => 'cash',
+            'description' => 'Payment by Cash',
+            'status' => 'active',
+            'created_by' => 1
+        ]);
     }
 }

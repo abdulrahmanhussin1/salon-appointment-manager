@@ -15,8 +15,10 @@ use App\Models\SupplierPrice;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Query\Builder;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\DataTables\SalesInvoiceDataTable;
+use App\Models\CustomerTransaction;
 
 class SalesInvoiceController extends Controller
 {
@@ -34,8 +36,21 @@ class SalesInvoiceController extends Controller
     public function create()
     {
 
-        $customers = Customer::select('id', 'name', 'phone', 'dob', 'last_service', 'created_at', 'is_vip','deposit')->where('status', 'active')->get();
-        $paymentMethods = PaymentMethod::select('id', 'name')->where('status', 'active')->get();
+        // $customers = Customer::select('id', 'name', 'phone', 'dob', 'last_service', 'created_at', 'is_vip','deposit')->where('status', 'active')->get();
+        $customers = Customer::select('id', 'name', 'phone', 'dob', 'last_service', 'created_at', 'is_vip')
+        ->selectSub(function (Builder $query) {
+            $query->from('customer_transactions')
+            ->whereColumn('customer_transactions.customer_id', 'customers.id')
+            ->where('customer_transactions.reference_type', 'deposit')
+            ->orderBy('customer_transactions.created_at', 'desc')
+            ->select('customer_transactions.amount')
+            ->limit(1); // Latest deposit
+        }, 'deposit')
+        ->where('status', 'active')
+        ->get();
+
+
+        $paymentMethods = PaymentMethod::select('id', 'name')->where('status', 'active')->where('name','!=','cash')->get();
         $products = Product::select('id', 'name', 'code','price_can_change')
             ->with(['supplierPrices:id,product_id,quantity,customer_price,created_at'])
             ->where('status', 'active')
@@ -99,6 +114,16 @@ class SalesInvoiceController extends Controller
             }
 
           $invoice = $this->createInvoiceTransaction($validatedData, $invoiceItems, $totals);
+
+
+        CustomerTransaction::create([
+            'customer_id' => $validatedData['customer_id'],
+            'reference_type' => 'invoice',
+            'reference_id' => $invoice->id,
+            'amount' => $invoice->net_total,
+            'notes' => 'invoice',
+            'created_by' => Auth::id(),
+        ]);
          // Alert::success('success', 'Invoice created successfully');
           return response()->json([
             'invoice_id' => $invoice->id,
@@ -239,7 +264,6 @@ class SalesInvoiceController extends Controller
         $grandTotal = $totals['productsTotal'] + $totals['servicesTotal'];
         $netTotal = $grandTotal - $totals['discount'] + $totals['tax'];
         $deposit = $validatedData['deposit'] ?? 0;
-
         $invoice = SalesInvoice::create([
             'customer_id' => $validatedData['customer_id'],
             'payment_method_id' => $validatedData['payment_method_id'],
@@ -251,7 +275,7 @@ class SalesInvoiceController extends Controller
             'invoice_tax' => $totals['tax'],
             'net_total' => $netTotal,
             'invoice_deposit' => $deposit,
-            'balance_due' => $netTotal - $deposit - ($validatedData['payment_method_value'] ?? 0) - ($validatedData['cash_payment'] ?? 0),
+            'balance_due' => round($netTotal - $deposit - ($validatedData['payment_method_value'] ?? 0) - ($validatedData['cash_payment'] ?? 0), 2) ,
             'status' => $validatedData['status'],
             'paid_amount_cash' => $validatedData['cash_payment'] ?? 0,
             'created_by' => auth()->id(),
@@ -262,6 +286,7 @@ class SalesInvoiceController extends Controller
         Customer::where('id',$validatedData['customer_id'])->first()->update([
             'deposit' => ($netTotal - $deposit - ($validatedData['payment_method_value'] ?? 0) - ($validatedData['cash_payment'] ?? 0)) ?? 0,
         ]);
+
         DB::commit();
 
         return $invoice ;

@@ -35,18 +35,17 @@ class CustomerRequest extends FormRequest
             'address' => 'nullable|string|max:255',
         ];
 
-        if ($this->isMethod('post')) {
-            $rules['email'] = 'nullable|email|unique:customers,email'; // Email must be unique when creating a new user
-            $rules['phone'] = 'nullable|unique:customers,phone'; // Phone must be unique when creating a new user
-        } elseif ($this->isMethod('put')) {
+        $rules['email'] = 'nullable|email|unique:customers,email'; // Email must be unique when creating a new user
+        $rules['phone'] = 'nullable|unique:customers,phone'; // Phone must be unique when creating a new user
+        if ($this->routeIs('customers.update')) {
             $rules['email'] = [
                 'nullable',
                 'email',
-                Rule::unique('customers', 'email')->ignore($this->route('user')) // Ignore the current user's email
+                Rule::unique('customers', 'email')->ignore($this->route('customer')) // Ignore the current user's email
             ];
             $rules['phone'] = [
                 'nullable',
-                Rule::unique('customers', 'phone')->ignore($this->route('user')) // Ignore the current user's phone number
+                Rule::unique('customers', 'phone')->ignore($this->route('customer')) // Ignore the current user's phone number
             ];
         }
 
