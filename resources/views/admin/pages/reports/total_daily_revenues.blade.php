@@ -3,51 +3,51 @@
     {{ __('Daily Cash Revenues Report') }}
 @endsection
 @section('content')
+    <div class="card">
+        <div class="card-header">
+            <h4 class="text-dark">Daily Financial Report</h4>
+        </div>
 
-        <div class="card">
-            <div class="card-header">
-                <h4 class="text-dark">Daily Financial Report</h4>
-            </div>
-
-            <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            <span class="input-group-text">Date Range</span>
-                            <input type="date" id="start_date" class="form-control">
-                            <input type="date" id="end_date" class="form-control">
-                            <button id="filter" class="btn btn-primary">Filter</button>
-                        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text">Date Range</span>
+                        <input type="date" id="start_date" class="form-control">
+                        <input type="date" id="end_date" class="form-control">
+                        <button id="filter" class="btn btn-primary">Filter</button>
                     </div>
                 </div>
-
-                <table class="table table-bordered table-striped" id="report-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Total</th>
-                            <th>Cash</th>
-                            <th>Other payment Methods</th>
-                            <th>Expenses</th>
-                            <th>Other</th>
-                            <th>Net Total</th>
-                        </tr>
-                    </thead>
-                    <tfoot>
-                        <tr>
-                            <th>Total:</th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                        </tr>
-                    </tfoot>
-                </table>
             </div>
 
+            <table class="table table-bordered table-striped" id="report-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Cash</th>
+                        <th>Deposits</th>
+
+                        <th>Other payment Methods</th>
+                        <th>Expenses</th>
+                        <th>Net Total</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Total:</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>
         </div>
+
+    </div>
 @endsection
 @section('js')
     <script>
@@ -76,8 +76,10 @@
                 },
                 // Defer the loading of data
                 deferLoading: 0,
-                columns: [
-                    {data: 'date', name: 'date'},
+                columns: [{
+                        data: 'date',
+                        name: 'date'
+                    },
                     {
                         data: 'total',
                         name: 'total',
@@ -88,6 +90,13 @@
                     {
                         data: 'cash',
                         name: 'cash',
+                        render: function(data) {
+                            return parseFloat(data).toFixed(2);
+                        }
+                    },
+                    {
+                        data: 'deposits',
+                        name: 'deposits',
                         render: function(data) {
                             return parseFloat(data).toFixed(2);
                         }
@@ -106,13 +115,7 @@
                             return parseFloat(data).toFixed(2);
                         }
                     },
-                    {
-                        data: 'deposits',
-                        name: 'deposits',
-                        render: function(data) {
-                            return parseFloat(data).toFixed(2);
-                        }
-                    },
+
                     {
                         data: 'net_total',
                         name: 'net_total',

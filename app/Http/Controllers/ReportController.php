@@ -123,7 +123,7 @@ class ReportController extends Controller
                 'other_payment_methods' => $sales->sum('payment_method_value'),
                 'total_expenses' => $expenses->sum('paid_amount'),
                 'net_total' => $sales->sum('total_amount') - $expenses->sum('paid_amount'),
-                'deposits' => $transactions->where('reference_type', 'deposit')->sum('amount') * -1
+                'deposits' => $transactions->where('reference_type', 'deposit')->sum('amount')
             ];
         });
 
