@@ -24,7 +24,6 @@
                 <div>
                     <button class="btn btn-sm btn-dark" id="printButton">Print</button>
                     <button type="submit" class="btn btn-sm btn-primary ">Refresh</button>
-
                 </div>
             </div>
             <div class="card-body">
@@ -47,11 +46,9 @@
                 <div id="printableArea">
                     <div class="card-title text-center">
                         <h5>Daily Cash Revenue Analysis</h5>
-
                     </div>
                     <!-- Selected Date Range Section -->
                     <div id="selectedDateRange" class="mb-4"></div>
-
 
                     <!-- Report Table -->
                     <table class="table table-bordered">
@@ -63,37 +60,38 @@
                         </thead>
                         <tbody id="reportTableBody">
                             <tr>
-                                <td>Total Services Revenue</td>
-                                <td class="text-success" id="total-services">0.00</td>
-                            </tr>
-                            <tr>
-                                <td>Total Products Revenue</td>
-                                <td class="text-success" id="total-products">0.00</td>
-                            </tr>
-                            <tr>
-                                <td>Total Direct Sales </td>
-                                <td class="text-success" id="total-sales">0.00</td>
-                            </tr>
-                            <tr>
-                                <td>Total Tax Sales </td>
-                                <td class="text-success" id="total-tax-sales">0.00</td>
-                            </tr>
-                            <tr class="table-primary">
-                                <td><strong>Total Daily Revenue</strong></td>
-                                <td><strong class="text-primary" id="total-revenue">0.00</strong></td>
-                            </tr>
-                            <tr>
-                                <td>Cash Payments on Customers</td>
-                                <td id="total-cash-payments">0.00</td>
-                            </tr>
-                            <tr class="table-success">
-                                <td><strong>Total Assumed Cash Income</strong></td>
-                                <td><strong class="text-success" id="total-cash">0.00</strong></td>
-                            </tr>
-                            <tr class="table-danger">
-                                <td>Total Other Expenses</td>
-                                <td><strong class="text-danger" id="total-expenses">0.00</strong></td>
-                            </tr>
+    <td>Total Services Revenue</td>
+    <td class="text-success" id="total-services">0.00</td>
+</tr>
+<tr>
+    <td>Total Products Revenue</td>
+    <td class="text-success" id="total-products">0.00</td>
+</tr>
+<tr>
+    <td>Total Direct Sales </td>
+    <td class="text-success" id="total-sales">0.00</td>
+</tr>
+<tr>
+    <td>Total Tax Sales </td>
+    <td class="text-success" id="total-tax-sales">0.00</td>
+</tr>
+<tr class="table-primary">
+    <td><strong>Total Daily Revenue</strong></td>
+    <td><strong class="text-primary" id="total-revenue">0.00</strong></td>
+</tr>
+<tr>
+    <td>Cash Payments on Customers</td>
+    <td id="total-cash-payments">0.00</td>
+</tr>
+<tr class="table-success">
+    <td><strong>Total Assumed Cash Income</strong></td>
+    <td><strong class="text-success" id="total-cash">0.00</strong></td>
+</tr>
+<tr class="table-danger">
+    <td>Total Other Expenses</td>
+    <td><strong class="text-danger" id="total-expenses">0.00</strong></td>
+</tr>
+
                         </tbody>
                     </table>
 
@@ -103,25 +101,25 @@
                             <div class="col-3">
                                 <div class="">
                                     <strong>Net Income:</strong>
-                                    <p>86,010.00</p>
+                                    <p id="net-income">0.00</p>
                                 </div>
                             </div>
                             <div class="col-3">
                                 <div class=" ">
                                     <strong>Cash Payments Deduction:</strong>
-                                    <p>LE 55,480</p>
+                                    <p id="cash-deduction">0.00</p>
                                 </div>
                             </div>
-                            <div class="col-3">
+                            {{-- <div class="col-3">
                                 <div class=" ">
                                     <strong>Credit Card Payments Deduction:</strong>
-                                    <p>LE 30,530</p>
+                                    <p id="credit-card-deduction">0.00</p>
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="col-3">
                                 <div class="">
                                     <strong>Other Company Receipt Deduction:</strong>
-                                    <p>LE 0</p>
+                                    <p id="other-deduction">0.00</p>
                                 </div>
                             </div>
                         </div>
@@ -189,66 +187,31 @@
                         to_date: toDate
                     },
                     success: function(response) {
-    if (response) {
-        // Update the selected date range above the table
-        $('#selectedDateRange').html(
-            `<div class="alert alert-info text-center">
-                <strong>Selected Date Range:</strong> ${fromDate} to ${toDate}
-            </div>`
-        );
 
-        // Check if the response contains the expected fields before using toFixed
-        if (response.total_services_revenue != undefined) {
-            $('#total-services').text(response.total_services_revenue.toFixed(2));
-        } else {
-            $('#total-services').text("0.00");
-        }
+                        if (response) {
+    // Update the selected date range above the table
+    $('#selectedDateRange').html(
+        `<div class="alert alert-info text-center">
+            <strong>Selected Date Range:</strong> ${fromDate} to ${toDate}
+        </div>`
+    );
 
-        if (response.total_products_revenue != undefined) {
-            $('#total-products').text(response.total_products_revenue.toFixed(2));
-        } else {
-            $('#total-products').text("0.00");
-        }
+    // Ensure response data exists and update the table cells
+    $('#total-services').text(parseFloat(response.total_services_revenue || 0).toFixed(2));
+    $('#total-products').text(parseFloat(response.total_products_revenue || 0).toFixed(2));
+    $('#total-sales').text(parseFloat(response.total_sales || 0).toFixed(2));
+    $('#total-tax-sales').text(parseFloat(response.total_taxes || 0).toFixed(2));
+    $('#total-revenue').text(parseFloat(response.total_sales_after_tax || 0).toFixed(2)); // Adjusted to show total sales as example
+    $('#total-cash-payments').text(parseFloat(response.total_customer_deposits || 0).toFixed(2));
+    $('#total-cash').text(parseFloat(response.total_sales || 0).toFixed(2)); // Adjusted to show total sales as example
+    $('#total-expenses').text(parseFloat(response.total_other_expenses || 0).toFixed(2));
+    $('#total-cash-payments').text(parseFloat(response.total_customer_deposits || 0).toFixed(2));
+} else {
+    alert('Failed to retrieve data. Please try again.');
+}
 
-        if (response.total_direct_sales != undefined) {
-            $('#total-sales').text(response.total_direct_sales.toFixed(2));
-        } else {
-            $('#total-sales').text("0.00");
-        }
 
-        if (response.total_taxes != undefined) {
-            $('#total-tax-sales').text(response.total_taxes.toFixed(2));
-        } else {
-            $('#total-tax-sales').text("0.00");
-        }
-
-        if (response.total_revenue != undefined) {
-            $('#total-revenue').text(response.total_revenue.toFixed(2));
-        } else {
-            $('#total-revenue').text("0.00");
-        }
-
-        if (response.total_cash_payments != undefined) {
-            $('#total-cash-payments').text(response.total_cash_payments.toFixed(2));
-        } else {
-            $('#total-cash-payments').text("0.00");
-        }
-
-        if (response.total_cash != undefined) {
-            $('#total-cash').text(response.total_cash.toFixed(2));
-        } else {
-            $('#total-cash').text("0.00");
-        }
-
-        if (response.total_other_expenses != undefined) {
-            $('#total-expenses').text(response.total_other_expenses.toFixed(2));
-        } else {
-            $('#total-expenses').text("0.00");
-        }
-    } else {
-        alert('Failed to retrieve data. Please try again.');
-    }
-},
+                    },
                 });
 
                 return false; // Prevent form submission
@@ -279,5 +242,4 @@
         });
     });
 </script>
-
 @endsection
