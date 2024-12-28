@@ -116,7 +116,7 @@ class ProductController extends Controller
             'unit_id' => $request->unit_id,
             'supplier_id' => $request->supplier_id,
             'category_id' => $request->category_id,
-            'initial_quantity' => $request->initial_quantity,
+            'initial_quantity' => $request->initial_quantity ?? 0,
             'is_target' => $request->is_target,
             'price_can_change' => $request->price_can_change,
 

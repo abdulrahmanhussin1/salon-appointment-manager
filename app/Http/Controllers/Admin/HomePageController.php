@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Admin;
+use App\Models\Customer;
 use App\Models\Expense;
+use App\Models\SalesInvoiceDetail;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\SalesInvoice;
@@ -35,7 +37,44 @@ class HomePageController extends Controller
         $creditCardSales = $creditCardSalesQuery->sum('net_total');
         $cashSales = $cashSalesQuery->sum('net_total');
 
-        return view('admin.home', compact('expenseAmount', 'creditCardSales', 'cashSales'));
+
+
+        $net_profit =  ($creditCardSales +  $cashSales) - $expenseAmount ;
+
+        $total_customers_today = Customer::whereDate('created_at', today())->count();
+        $total_customers = Customer::count();
+
+
+        $get_biggest_provider_that_have_orders_today = SalesInvoiceDetail::selectRaw('provider_id, COUNT(*) as order_count')
+        ->whereDate('created_at', today())
+        ->groupBy('provider_id')
+        ->orderBy('order_count', 'desc')
+        ->first();
+        $get_biggest_provider_that_have_orders_today_name = $get_biggest_provider_that_have_orders_today?->provider?->name ?? '' ;
+
+
+        $get_biggest_service_that_have_orders_today = SalesInvoiceDetail::selectRaw('service_id, COUNT(*) as order_count')
+        ->whereDate('created_at', today())
+        ->whereNotNull('service_id')
+        ->groupBy('service_id')
+        ->orderBy('order_count', 'desc')
+        ->first();
+        $get_biggest_service_that_have_orders_today_name = $get_biggest_service_that_have_orders_today?->service?->name ?? '' ;
+
+
+
+        return view('admin.home', compact(
+
+            'total_customers_today',
+            'total_customers',
+            'net_profit',
+            'get_biggest_provider_that_have_orders_today_name',
+            'get_biggest_service_that_have_orders_today_name',
+
+            'expenseAmount',
+            'creditCardSales',
+            'cashSales'
+        ));
     }
 
 

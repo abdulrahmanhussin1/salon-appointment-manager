@@ -125,6 +125,103 @@
             </div><!-- End Customers Card -->
 
 
+            <div class="col-xxl-4 col-md-6">
+                <div class="card info-card sales-cash-card">
+
+                  <div class="card-body">
+                    <h5 class="card-title"> Net Profit <span>| today</span></h5>
+
+                    <div class="d-flex align-items-center">
+                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center " style="background-color: #e0f8e9">
+                        <i class="bi bi-currency-dollar" style="color:#2eca6a"></i>
+                      </div>
+                      <div class="ps-3">
+                        <h6>L.E {{ $net_profit ?? 0 }}</h6>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+            </div>
+            <!-- End Revenue Card -->
+
+
+            <div class="col-xxl-4 col-md-6">
+                <div class="card info-card sales-cash-card">
+
+                  <div class="card-body">
+                    <h5 class="card-title"> Customers  <span>| today</span></h5>
+
+                    <div class="d-flex align-items-center">
+                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center " style="background-color: #e0f8e9">
+                        <i class="bi bi-cart" style="color: #4154f1"></i>
+                    </div>
+                      <div class="ps-3">
+                        <h6>L.E {{ $total_customers_today ?? 0 }}</h6>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+            </div>
+            <!-- End Revenue Card -->
+            <div class="col-xxl-4 col-md-6">
+                <div class="card info-card sales-cash-card">
+
+                  <div class="card-body">
+                    <h5 class="card-title"> Customers  <span></span></h5>
+
+                    <div class="d-flex align-items-center">
+                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center " style="background-color: #e0f8e9">
+                        <i class="bi bi-cart" style="color: #4154f1"></i>
+                    </div>
+                      <div class="ps-3">
+                        <h6>L.E {{ $total_customers ?? 0 }}</h6>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+            </div>
+
+            <div class="col-xxl-4 col-md-6">
+                <div class="card info-card sales-cash-card">
+
+                  <div class="card-body">
+                    <h5 class="card-title"> Provider  <span>| today</span></h5>
+
+                    <div class="d-flex align-items-center">
+                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center " style="background-color: #e0f8e9">
+                        <i class="bi bi-receipt" style="color:#DC3545"></i>
+                    </div>
+                      <div class="ps-3">
+                        <h6> {{ $get_biggest_provider_that_have_orders_today_name ?? '' }}</h6>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+            </div>
+
+            <div class="col-xxl-4 col-md-6">
+                <div class="card info-card sales-cash-card">
+
+                  <div class="card-body">
+                    <h5 class="card-title"> Service  <span>| today</span></h5>
+
+                    <div class="d-flex align-items-center">
+                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center " style="background-color: #e0f8e9">
+                        <i class="bi bi-receipt" style="color:#DC3545"></i>
+                    </div>
+                      <div class="ps-3">
+                        <h6> {{ $get_biggest_service_that_have_orders_today_name ?? '' }}</h6>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+            </div>
+
 
 <hr>
 

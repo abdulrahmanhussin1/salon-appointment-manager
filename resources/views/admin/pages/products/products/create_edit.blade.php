@@ -101,7 +101,7 @@
                         </div>
 
                         <div class="col-6">
-                            <x-input type="text" value="{{ $product->initial_quantity ?? old('initial_quantity') }}"
+                            <x-input type="text" required value="{{ $product->initial_quantity ?? old('initial_quantity') }}"
                                 label="initial quantity" id="initial_quantity" name='initial_quantity' placeholder="0"
                                 oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
                         </div>
