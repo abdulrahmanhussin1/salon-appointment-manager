@@ -33,13 +33,6 @@ class SalesInvoiceDetail extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function provider()
-    {
-        return $this->belongsTo(Employee::class);
-    }
-
-
-
     public function name()
     {
         if (!empty($this->service_id)) {

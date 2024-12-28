@@ -32,13 +32,13 @@
         $('.js-example-basic-multiple').select2();
     });
 </script>
-    <script src="{{ asset('admin-assets/assets/vendor/fullcalendar-scheduler-6.1.15/dist/index.global.min.js') }}"></script>
-    <script>
+    <script src="{{ asset('admin-assets/assets/vendor/fullcalendar-6.1.15/dist/index.global.min.js') }}"></script>
+ <script>
 
       document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'resourceTimelineWeek'
+          initialView: 'dayGridWeek'
         });
         calendar.render();
       });

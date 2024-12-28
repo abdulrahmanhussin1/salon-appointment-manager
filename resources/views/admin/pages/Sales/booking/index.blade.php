@@ -12,13 +12,5 @@
     </div>
 @endsection
 @section('js')
-<script>
 
-var calendar = new FullCalendar.Calendar(calendarEl, {
-  initialView: 'resourceDayGridDay',
-  resources: [
-    // your list of resources
-  ]
-});
-</script>
 @endsection
