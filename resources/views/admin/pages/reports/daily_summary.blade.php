@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 @section('title')
-    {{ __('Daily Cash Revenues Report') }}
+    {{ __('Daily Summary Report') }}
 @endsection
 @section('content')
     <div class="card">

@@ -171,6 +171,25 @@
                             </li>
                         @endif
 
+                         @if (App\Traits\AppHelper::perUser('reports.index'))
+                         <li class="">
+                            <a class="dropdown-item d-flex align-items-center"
+                                href="{{ route('report.monthlySummaryPage') }}">
+                                <i class="bi bi-safe2-fill"></i>
+                                <span>{{ Str::ucfirst(__('Monthly Summary')) }}</span>
+                            </a>
+                        </li>
+                        @endif
+
+                         @if (App\Traits\AppHelper::perUser('reports.index'))
+                         <li class="">
+                            <a class="dropdown-item d-flex align-items-center"
+                                href="{{ route('report.employee-services') }}">
+                                <i class="bi bi-safe2-fill"></i>
+                                <span>{{ Str::ucfirst(__('Employees Report')) }}</span>
+                            </a>
+                        </li>
+                        @endif
                     </ul>
                 </li>
             @endif

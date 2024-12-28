@@ -20,7 +20,14 @@ class Employee extends Model
 
     public function services()
     {
-        return $this->belongsToMany(Service::class,'service_employees', 'employee_id','service_id');
+        return $this->belongsToMany(Service::class,'service_employees', 'employee_id','service_id')
+            ->withPivot(['commission_type', 'commission_value', 'is_immediate_commission']);
+    }
+
+
+    public function salesInvoiceDetails()
+    {
+        return $this->hasMany(SalesInvoiceDetail::class,'provider_id');
     }
 
     public function branch()

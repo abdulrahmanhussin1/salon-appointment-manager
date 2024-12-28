@@ -45,6 +45,13 @@ class CheckRole
                 || ($page === 'dailySummaryPage' && self::perUSer('reports.index'))
                 || ($page === 'dailySummary' && self::perUSer('reports.index'))
                 || ($page === 'bookAppointment' && self::perUSer('sales_invoices.create'))
+                || ($page === 'monthlySummaryPage' && self::perUSer('reports.index'))
+                || ($page === 'monthlySummary' && self::perUSer('reports.index'))
+
+                || ($page === 'employee-services' && self::perUSer('reports.index'))
+                || ($page === 'employee-services.data' && self::perUSer('reports.index'))
+                || ($page === 'report.employee-services.stats' && self::perUSer('reports.index'))
+
 
                 || self::perUSer($this->getRoute())
                 || in_array($this->getRoute(), ['dashboard', 'sales_invoices.getItem', 'sales_invoices.getRelatedEmployees'])

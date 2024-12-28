@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use Carbon\Carbon;
 use App\Models\Expense;
+use App\Models\Customer;
 use App\Models\SalesInvoice;
 use Illuminate\Http\Request;
 use App\Models\PaymentMethod;
@@ -12,6 +13,7 @@ use Yajra\DataTables\DataTables;
 use App\Models\SalesInvoiceDetail;
 use Illuminate\Support\Facades\DB;
 use App\Models\CustomerTransaction;
+use App\Http\Controllers\Controller;
 
 class ReportController extends Controller
 {
@@ -229,5 +231,126 @@ class ReportController extends Controller
         });
 
         return DataTables::of($data)->make(true);
+    }
+
+    public function monthlySummaryPage()
+    {
+        return view('admin.pages.reports.monthly_summary');
+    }
+    public function monthlySummary(Request $request)
+    {
+        $year = $request->input('year', date('Y'));
+
+        // Get Services Revenue
+        $servicesRevenue = DB::table('sales_invoice_details')
+            ->join('sales_invoices', 'sales_invoice_details.sales_invoice_id', '=', 'sales_invoices.id')
+            ->whereNotNull('service_id')
+            ->whereYear('sales_invoices.invoice_date', $year)
+            ->where('sales_invoices.status', 'active')
+            ->select(
+                DB::raw('MONTH(sales_invoices.invoice_date) as month'),
+                DB::raw('SUM(sales_invoice_details.subtotal) as total')
+            )
+            ->groupBy('month')
+            ->get()
+            ->pluck('total', 'month')
+            ->toArray();
+
+        // Get Products Revenue
+        $productsRevenue = DB::table('sales_invoice_details')
+            ->join('sales_invoices', 'sales_invoice_details.sales_invoice_id', '=', 'sales_invoices.id')
+            ->whereNotNull('product_id')
+            ->whereYear('sales_invoices.invoice_date', $year)
+            ->where('sales_invoices.status', 'active')
+            ->select(
+                DB::raw('MONTH(sales_invoices.invoice_date) as month'),
+                DB::raw('SUM(sales_invoice_details.subtotal) as total')
+            )
+            ->groupBy('month')
+            ->get()
+            ->pluck('total', 'month')
+            ->toArray();
+
+        // Get Expenses
+        $expenses = Expense::select(
+            DB::raw('MONTH(paid_at) as month'),
+            DB::raw('SUM(paid_amount) as total')
+        )
+            ->whereYear('paid_at', $year)
+            ->where('status', 'active')
+            ->groupBy('month')
+            ->get()
+            ->pluck('total', 'month')
+            ->toArray();
+
+        // Get Purchases
+        $purchases = PurchaseInvoice::select(
+            DB::raw('MONTH(invoice_date) as month'),
+            DB::raw('SUM(total_amount) as total')
+        )
+            ->whereYear('invoice_date', $year)
+            ->where('status', 'active')
+            ->groupBy('month')
+            ->get()
+            ->pluck('total', 'month')
+            ->toArray();
+
+        // Get Provider Counts
+        $providerCounts = DB::table('sales_invoice_details')
+            ->join('sales_invoices', 'sales_invoice_details.sales_invoice_id', '=', 'sales_invoices.id')
+            ->whereYear('sales_invoices.invoice_date', $year)
+            ->where('sales_invoices.status', 'active')
+            ->select(
+                DB::raw('MONTH(sales_invoices.invoice_date) as month'),
+                DB::raw('COUNT(DISTINCT provider_id) as total')
+            )
+            ->groupBy('month')
+            ->get()
+            ->pluck('total', 'month')
+            ->toArray();
+
+        // Get New Customers
+        $newCustomers = Customer::select(
+            DB::raw('MONTH(created_at) as month'),
+            DB::raw('COUNT(*) as total')
+        )
+            ->whereYear('created_at', $year)
+            ->groupBy('month')
+            ->get()
+            ->pluck('total', 'month')
+            ->toArray();
+
+            //get total revenue of new customers only
+
+            
+
+
+
+
+
+        // Prepare data for DataTables
+        $data = [];
+        foreach (range(1, 12) as $month) {
+            $monthServices = $servicesRevenue[$month] ?? 0;
+            $monthProducts = $productsRevenue[$month] ?? 0;
+            $monthExpenses = $expenses[$month] ?? 0;
+            $netIncome = ($monthServices + $monthProducts) - $monthExpenses;
+
+            $data[] = [
+                'metric' => date('F', mktime(0, 0, 0, $month, 1)),
+                'services' => number_format($monthServices, 2),
+                'products' => number_format($monthProducts, 2),
+                'expenses' => number_format($monthExpenses, 2),
+                'net_income' => number_format($netIncome, 2),
+                'purchases' => number_format($purchases[$month] ?? 0, 2),
+                'provider_count' => $providerCounts[$month] ?? 0,
+                'new_customers' => $newCustomers[$month] ?? 0,
+            ];
+        }
+
+        return DataTables::of($data)
+            ->addIndexColumn()
+            ->rawColumns(['metric'])
+            ->make(true);
     }
 }

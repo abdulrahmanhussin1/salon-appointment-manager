@@ -1,12 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ToolController;
 use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BranchController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProfileController;
@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\ExpenseTypeController;
 use App\Http\Controllers\Admin\SalesInvoiceController;
 use App\Http\Controllers\Admin\EmployeeLevelController;
 use App\Http\Controllers\Admin\PaymentMethodController;
+use App\Http\Controllers\Admin\EmployeeReportController;
 use App\Http\Controllers\Admin\ProductCategoryController;
 use App\Http\Controllers\Admin\PurchaseInvoiceController;
 use App\Http\Controllers\Admin\ServiceCategoryController;
@@ -103,6 +104,13 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::post('reports/total_daily_revenues', [ReportController::class, 'TotalDailyRevenues'])->name('report.TotalDailyRevenues');
     Route::get('reports/daily_summary_page', [ReportController::class,'dailySummaryPage'])->name('report.dailySummaryPage');
     Route::post('reports/daily_summary', [ReportController::class,'dailySummary'])->name('report.dailySummary');
+    Route::get('reports/monthly_summary_page', [ReportController::class,'monthlySummaryPage'])->name('report.monthlySummaryPage');
+    Route::get('reports/monthly_summary', [ReportController::class,'monthlySummary'])->name('report.monthlySummary');
+
+
+    Route::get('reports/employee-services', [EmployeeReportController::class, 'index'])->name('report.employee-services');
+    Route::get('reports/employee-services/data', [EmployeeReportController::class, 'getData'])->name('report.employee-services.data');
+    Route::get('reports/employee-services/stats', [EmployeeReportController::class, 'getEmployeeStats'])->name('report.employee-services.stats');
 
 
 
