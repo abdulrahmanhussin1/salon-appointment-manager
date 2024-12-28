@@ -50,6 +50,10 @@ class SalesInvoiceDetail extends Model
     }
 
 
+    public function provider()
+    {
+        return $this->belongsTo(Employee::class , 'provider_id');
+    }
 
 
 }
