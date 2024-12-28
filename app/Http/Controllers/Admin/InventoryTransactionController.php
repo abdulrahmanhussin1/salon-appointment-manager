@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\InventoryTransaction;
 use App\Models\InventoryTransactionDetail;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class InventoryTransactionController extends Controller
 {
@@ -92,11 +93,16 @@ class InventoryTransactionController extends Controller
             });
 
             DB::commit();
+            Alert::success(__(key: 'Success'), __('Transfer transaction successfully stored.'));
+            return redirect()->back();
 
-            return response()->json(['message' => 'Transfer transaction successfully stored.'], 201);
+           // return response()->json(['message' => 'Transfer transaction successfully stored.'], 201);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Transfer transaction failed'], 500);
+            Alert::success(__(key: 'Error'), __('Try Again'));
+            return redirect()->back();
+
+           // return response()->json(['message' => 'Transfer transaction failed'], 500);
         }
     }
 }
