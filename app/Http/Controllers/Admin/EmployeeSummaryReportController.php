@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use App\Models\SalesInvoiceDetail;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -14,15 +15,25 @@ class EmployeeSummaryReportController extends Controller
     public function index()
     {
         $employees = Employee::where('status', 'active')->get();
-        return view('admin.pages.reports.summary_employee_report', compact('employees'));
+        return view('reports.employee-services-grouped', compact('employees'));
     }
 
     public function getData(Request $request)
     {
-        $query = SalesInvoiceDetail::with(['provider', 'salesInvoice', 'service'])
-        ->select('sales_invoice_details.*')
-        ->join('sales_invoices', 'sales_invoices.id', '=', 'sales_invoice_details.sales_invoice_id')
-        ->where('sales_invoices.status', 'active');
+        $query = DB::table('sales_invoice_details')
+            ->join('sales_invoices', 'sales_invoices.id', '=', 'sales_invoice_details.sales_invoice_id')
+            ->join('employees', 'employees.id', '=', 'sales_invoice_details.provider_id')
+            ->where('sales_invoices.status', 'active')
+            ->select([
+                'employees.id',
+                'employees.name as employee_name',
+                DB::raw('COUNT(DISTINCT CASE WHEN service_id IS NOT NULL THEN sales_invoice_details.id END) as services_count'),
+                DB::raw('COUNT(DISTINCT CASE WHEN product_id IS NOT NULL THEN sales_invoice_details.id END) as products_count'),
+                DB::raw('COUNT(sales_invoice_details.id) as total_movements'),
+                DB::raw('SUM(sales_invoice_details.subtotal) as total_amount'),
+                DB::raw('COUNT(DISTINCT sales_invoice_details.sales_invoice_id) as invoices_count')
+            ])
+            ->groupBy('employees.id', 'employees.name');
 
         // Apply date filter
         if ($request->filled('start_date') && $request->filled('end_date')) {
@@ -34,37 +45,34 @@ class EmployeeSummaryReportController extends Controller
 
         // Apply employee filter
         if ($request->filled('employee_id')) {
-            $query->where('provider_id', $request->employee_id);
+            $query->where('sales_invoice_details.provider_id', $request->employee_id);
         }
 
         return DataTables::of($query)
-            ->addColumn('employee_name', function ($row) {
-                return $row->provider->name;
+            ->addColumn('services_count', function ($row) {
+                return number_format($row->services_count);
             })
-            ->addColumn('service_name', function ($row) {
-                return $row->service ? $row->service->name : 'N/A';
+            ->addColumn('products_count', function ($row) {
+                return number_format($row->products_count);
             })
-            ->addColumn('invoice_date', function ($row) {
-                return $row->salesInvoice->invoice_date;
+            ->addColumn('total_movements', function ($row) {
+                return number_format($row->total_movements);
             })
             ->addColumn('total_amount', function ($row) {
-                return number_format($row->subtotal, 2);
+                return number_format($row->total_amount, 2);
+            })
+            ->addColumn('invoices_count', function ($row) {
+                return number_format($row->invoices_count);
             })
             ->rawColumns(['action'])
             ->make(true);
     }
 
-    public function getEmployeeStats(Request $request)
+    public function getStats(Request $request)
     {
-        $query = SalesInvoiceDetail::with(['provider'])
-        ->join('sales_invoices', 'sales_invoices.id', '=', 'sales_invoice_details.sales_invoice_id')
-        ->where('sales_invoices.status', 'active')
-        ->groupBy('provider_id')
-        ->select(
-            'provider_id',
-            \DB::raw('COUNT(*) as total_services'),
-            \DB::raw('SUM(subtotal) as total_amount')
-        );
+        $query = DB::table('sales_invoice_details')
+            ->join('sales_invoices', 'sales_invoices.id', '=', 'sales_invoice_details.sales_invoice_id')
+            ->where('sales_invoices.status', 'active');
 
         // Apply date filter
         if ($request->filled('start_date') && $request->filled('end_date')) {
@@ -74,6 +82,26 @@ class EmployeeSummaryReportController extends Controller
             ]);
         }
 
-        return $query->get();
+        // Apply employee filter
+        if ($request->filled('employee_id')) {
+            $query->where('sales_invoice_details.provider_id', $request->employee_id);
+        }
+
+        $stats = $query->select([
+            DB::raw('COUNT(DISTINCT provider_id) as total_employees'),
+            DB::raw('SUM(subtotal) as total_amount'),
+            DB::raw('COUNT(*) as total_movements'),
+            DB::raw('COUNT(DISTINCT sales_invoice_id) as total_invoices')
+        ])->first();
+
+        // Convert null values to 0
+        $stats = [
+            'total_employees' => $stats->total_employees ?? 0,
+            'total_amount' => $stats->total_amount ?? 0,
+            'total_movements' => $stats->total_movements ?? 0,
+            'total_invoices' => $stats->total_invoices ?? 0
+        ];
+
+        return response()->json($stats);
     }
 }

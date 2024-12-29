@@ -47,7 +47,7 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label>&nbsp;</label>
-                            <button class="btn btn-primary btn-block mt-4 btn-sm" id="filter_button"> Filters</button>
+                            <button class="btn btn-primary btn-block" id="filter_button">Apply Filters</button>
                         </div>
                     </div>
                 </div>
@@ -150,11 +150,14 @@
                 order: [
                     [5, 'desc']
                 ], // Sort by total amount by default
-                dom: 'Bflrtip',
+                dom: 'Bfrtip',
                 buttons: [
                     'excel', 'pdf', 'print'
                 ]
             });
+
+            // Initial load of stats and table
+            updateStats();
 
             $('#filter_button').click(function() {
                 table.draw();
@@ -171,18 +174,15 @@
                     },
                     success: function(data) {
                         $('#total_employees').text(data.total_employees.toLocaleString());
-                        $('#total_amount').text(data.total_amount.toLocaleString('en-US', {
-                            style: 'currency',
-                            currency: 'USD'
+                        $('#total_amount').text(Number(data.total_amount).toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
                         }));
                         $('#total_movements').text(data.total_movements.toLocaleString());
                         $('#total_invoices').text(data.total_invoices.toLocaleString());
                     }
                 });
             }
-
-            // Initial stats load
-            updateStats();
         });
     </script>
 @endsection

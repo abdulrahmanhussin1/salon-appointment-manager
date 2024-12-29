@@ -121,7 +121,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::prefix('reports')->name('report.')->group(function () {
         Route::get('/employee-summary-services', [EmployeeSummaryReportController::class, 'index'])->name('employee-summary-services');
         Route::get('/employee-summary-services/data', [EmployeeSummaryReportController::class, 'getData'])->name('employee-summary-services.data');
-        Route::get('/employee-summary-services/stats', [EmployeeSummaryReportController::class, 'getEmployeeStats'])->name('employee-summary-services.stats');
+        Route::get('/employee-summary-services/stats', [EmployeeSummaryReportController::class, 'getStats'])->name('employee-summary-services.stats');
     });
 
     Route::get('reports/employee-services', [EmployeeReportController::class, 'index'])->name('report.employee-services');
