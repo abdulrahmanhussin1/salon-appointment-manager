@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AppointmentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Admin\RoleController;
@@ -41,12 +42,21 @@ Route::get('/', function () {
     return redirect()->route('home.index');
 });
 
+Route::get('admin/calender', function(){
+    return view('admin.calender');
+})->name('home.calender');
+
+Route::resource('appointments', AppointmentController::class);
+
+
+
 Route::get('admin/sales_invoices/invoice/{id}', [SalesInvoiceController::class, 'showReceipt'])->name('sales_invoices.invoice');
 
 
 Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(function () {
 
     Route::get('/', [HomePageController::class, 'index'])->name('home.index');
+
 
     Route::get('/dashboard', function () {
         return view('dashboard');

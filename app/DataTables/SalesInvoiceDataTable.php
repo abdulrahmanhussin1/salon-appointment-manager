@@ -4,6 +4,7 @@ namespace App\DataTables;
 
 use App\Traits\AppHelper;
 use App\Models\SalesInvoice;
+use Carbon\Carbon;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\EloquentDataTable;
@@ -22,7 +23,16 @@ class SalesInvoiceDataTable extends DataTable
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
-        return (new EloquentDataTable($query))
+        return (new EloquentDataTable($query
+        ->when(request('start_date'), function($q) {
+            $startDate = Carbon::parse(request('start_date'))->startOfDay()->format('Y-m-d H:i:s'); // e.g., 2024-12-29 00:00:00
+            $q->where('created_at', '>=', $startDate);
+        })
+        ->when(request('end_date'), function($q) {
+            $endDate = Carbon::parse(request('end_date'))->endOfDay()->format('Y-m-d H:i:s'); // e.g., 2024-12-29 23:59:59
+            $q->where('created_at', '<=', $endDate);
+        })
+        ))
         ->addColumn('action', function ($model) {
             $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
                     <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2"
