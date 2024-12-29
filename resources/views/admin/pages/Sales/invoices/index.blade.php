@@ -18,6 +18,34 @@
                 <x-create-button title="New Invoice" route="sales_invoices.create" />
             @endif
         </div>
+        <form method="get" id="expenseForm" class="my-3 bg-white my-3 rounded-2 shadow px-5 py-2 pt-4" action="{{ route('sales_invoices.index') }}">
+            <div class="">
+                <div class="row">
+
+                    <div class="col-3">
+                        <input type="date" @if ( request('start_date') ) value="{{request('start_date') }}" @endif  name="start_date" class="form-control me-2" placeholder="Start Date">
+                    </div>
+                    <div class="col-3">
+                        <input type="date" @if ( request('end_date') ) value="{{request('end_date') }}" @endif  name="end_date" class="form-control me-2" placeholder="End Date">
+                    </div>
+                    {{-- <div class="col-3">
+                        <x-form-select name="expense_type_id"   class=" me-2" >
+                            <option value="">{{ __('Select one Expense Type') }}</option>
+                            @foreach (App\Models\ExpenseType::all() as $expenseType)
+                                <option @if ( !empty( request('expense_type_id') ) && request('expense_type_id') == $expenseType->id  ) selected="selected" @endif value="{{ $expenseType->id }}">
+                                    {{ $expenseType->name }}
+                                </option>
+                            @endforeach
+                        </x-form-select>
+                    </div> --}}
+                    <div class="col-3">
+                        <button type="submit" id="filter" class="btn btn-primary">Filter</button>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+
         @include('admin.layouts.alerts')
         <div>
             {{ $dataTable->table(['class' => ' responsive table fs--1 mb-0 bg-white my-3 rounded-2 shadow', 'width' => '100%']) }}

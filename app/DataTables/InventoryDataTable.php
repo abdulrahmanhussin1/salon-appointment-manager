@@ -35,7 +35,7 @@ class InventoryDataTable extends DataTable
             }
 
             if (AppHelper::perUser('inventories.show')) {
-                $html .= '<a href="' . route('inventories.show', ['inventory' => $model]) . '" class="dropdown-item">inventory Details</a>';
+                $html .= '<a href="' . route('products.index' ). '?branch_id='.$model->branch_id . '" class="dropdown-item">inventory Details</a>';
             }
 
             if (AppHelper::perUser('inventories.destroy')) {

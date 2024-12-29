@@ -12,12 +12,47 @@
     </x-breadcrumb>
     {{-- End breadcrumbs --}}
 
+
+
     <section class="section">
         <div class="d-flex justify-content-end">
             @if (App\Traits\AppHelper::perUSer('expenses.create'))
                 <x-modal-button title="Expense" target="ExpensesModal"><i class="bi bi-plus-lg me-2"></i></x-modal-button>
             @endif
         </div>
+
+        <form method="get" id="expenseForm" class="my-3 bg-white my-3 rounded-2 shadow px-5 py-2 pt-4" action="{{ route('expenses.index') }}">
+            <div class="">
+                <div class="row">
+
+                    <div class="col-3">
+                        <input type="date" @if ( request('start_date') ) value="{{request('start_date') }}" @endif  name="start_date" class="form-control me-2" placeholder="Start Date">
+                    </div>
+                    <div class="col-3">
+                        <input type="date" @if ( request('end_date') ) value="{{request('end_date') }}" @endif  name="end_date" class="form-control me-2" placeholder="End Date">
+                    </div>
+                    <div class="col-3">
+                        <x-form-select name="expense_type_id"   class=" me-2" >
+                            <option value="">{{ __('Select one Expense Type') }}</option>
+                            @foreach (App\Models\ExpenseType::all() as $expenseType)
+                                <option @if ( !empty( request('expense_type_id') ) && request('expense_type_id') == $expenseType->id  ) selected="selected" @endif value="{{ $expenseType->id }}">
+                                    {{ $expenseType->name }}
+                                </option>
+                            @endforeach
+                        </x-form-select>
+                    </div>
+                    <div class="col-3">
+                        <button type="submit" id="filter" class="btn btn-primary">Filter</button>
+                    </div>
+
+                </div>
+
+
+
+            </div>
+        </form>
+
+
         @include('admin.layouts.alerts')
         <div>
             {{ $dataTable->table(['class' => ' responsive table fs--1 mb-0 bg-white my-3 rounded-2 shadow', 'width' => '100%']) }}
@@ -44,7 +79,8 @@
                 <x-form-select name="expense_type_id" id="expense_type_id" label='expense Type' required>
                     <option value="">{{ __('Select one Expense Type') }}</option>
                     @foreach ($expenseTypes as $expenseType)
-                        <option @if (isset($expense) && ($expense->expense_type_id == $expenseType->id || old('expense_type_id') == $expenseType->id)) selected="selected" @endif value="{{ $expenseType->id }}">
+                        <option @if (isset($expense) && ($expense->expense_type_id == $expenseType->id || old('expense_type_id') == $expenseType->id)) selected="selected" @endif
+                            value="{{ $expenseType->id }}">
                             {{ $expenseType->name }}
                         </option>
                     @endforeach
@@ -55,28 +91,29 @@
 
                 <div class="row">
                     <div class="col-6">
-                        <x-input type='text' value="{{ old('amount')  }}" label="Amount" name='amount'
+                        <x-input type='text' value="{{ old('amount') }}" label="Amount" name='amount'
                             placeholder='Amount' oninput="this.value = this.value.replace(/[^0-9+]/g, '')" />
                     </div>
                     <div class="col-6">
-                        <x-input type='text' value="{{ old('paid_amount')  }}" label="paid amount" name='paid_amount'
+                        <x-input type='text' value="{{ old('paid_amount') }}" label="paid amount" name='paid_amount'
                             placeholder='paid_amount' oninput="this.value = this.value.replace(/[^0-9+]/g, '')" required />
                     </div>
 
                     <div class="col-6">
-                                        <x-input type='date' value="{{ old('paid_at') ?? date('Y-m-d') }}" label="paid_at" name='paid_at'
-                    placeholder="paid_at" />
+                        <x-input type='date' value="{{ old('paid_at') ?? date('Y-m-d') }}" label="paid_at"
+                            name='paid_at' placeholder="paid_at" />
                     </div>
                     <div class="col-6">
-                        <x-input type='text' value="{{ old('invoice _number') }}" label="invoice number" name='invoice_number'
-                    placeholder="invoice _number" />
+                        <x-input type='text' value="{{ old('invoice _number') }}" label="invoice number"
+                            name='invoice_number' placeholder="invoice _number" />
                     </div>
                 </div>
 
                 <x-form-select name="payment_method_id" id="payment_method_id" label='Payment Method ' required>
                     <option value="">{{ __('Select one Payment Method ') }}</option>
                     @foreach ($paymentMethods as $paymentMethod)
-                        <option @if (isset($expense) && ($expense->payment_method == $paymentMethod->id || old('payment_method_id') == $paymentMethod->id)) selected="selected" @endif
+                        <option @if (isset($expense) &&
+                                ($expense->payment_method == $paymentMethod->id || old('payment_method_id') == $paymentMethod->id)) selected="selected" @endif
                             @if (!isset($expense) && Auth::user()->employee?->payment_method == $paymentMethod->id) selected="selected" @endif value="{{ $paymentMethod->id }}">
                             {{ $paymentMethod->name }}
                         </option>
