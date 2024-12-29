@@ -48,9 +48,16 @@ class CheckRole
                 || ($page === 'monthlySummaryPage' && self::perUSer('reports.index'))
                 || ($page === 'monthlySummary' && self::perUSer('reports.index'))
 
+
+
                 || ($page === 'employee-services' && self::perUSer('reports.index'))
                 || ($page === 'employee-services.data' && self::perUSer('reports.index'))
-                || ($page === 'report.employee-services.stats' && self::perUSer('reports.index'))
+                || ($page === 'employee-services.stats' && self::perUSer('reports.index'))
+
+
+                || ($page === 'employee-summary-services' && self::perUSer('reports.index'))
+                || ($page === 'employee-summary-services.data' && self::perUSer('reports.index'))
+                || ($page === 'employee-summary-services.stats' && self::perUSer('reports.index'))
 
 
                 || self::perUSer($this->getRoute())

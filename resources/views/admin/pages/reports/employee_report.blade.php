@@ -106,7 +106,7 @@
                 order: [
                     [2, 'desc']
                 ],
-                dom: 'Bfrtip',
+                dom: 'Bflrtip',
                 buttons: [
                     'excel', 'pdf', 'print'
                 ]

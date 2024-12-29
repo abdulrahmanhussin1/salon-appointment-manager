@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\AppointmentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ToolController;
@@ -17,6 +16,7 @@ use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\HomePageController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\AppointmentController;
 use App\Http\Controllers\Admin\ExpenseTypeController;
 use App\Http\Controllers\Admin\SalesInvoiceController;
 use App\Http\Controllers\Admin\EmployeeLevelController;
@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\ServiceCategoryController;
 use App\Http\Controllers\Admin\AdminPanelSettingController;
 use App\Http\Controllers\Admin\CustomerTransactionController;
 use App\Http\Controllers\Admin\InventoryTransactionController;
+use App\Http\Controllers\Admin\EmployeeSummaryReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -100,7 +101,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::resource('sales_invoices', SalesInvoiceController::class);
     Route::get('/get-items', [SalesInvoiceController::class, 'getItem'])->name('sales_invoices.getItem');
     Route::get('/get-related-employees', [EmployeeController::class, 'getRelatedEmployees'])->name('sales_invoices.getRelatedEmployees');
-    Route::get('/book_appointment', [SalesInvoiceController::class, 'bookAppointment'])->name('sales_invoices.bookAppointment');
+   // Route::get('/book_appointment', [SalesInvoiceController::class, 'bookAppointment'])->name('sales_invoices.bookAppointment');
 
     /* Customers */
 
@@ -117,6 +118,11 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::get('reports/monthly_summary_page', [ReportController::class,'monthlySummaryPage'])->name('report.monthlySummaryPage');
     Route::get('reports/monthly_summary', [ReportController::class,'monthlySummary'])->name('report.monthlySummary');
 
+    Route::prefix('reports')->name('report.')->group(function () {
+        Route::get('/employee-summary-services', [EmployeeSummaryReportController::class, 'index'])->name('employee-summary-services');
+        Route::get('/employee-summary-services/data', [EmployeeSummaryReportController::class, 'getData'])->name('employee-summary-services.data');
+        Route::get('/employee-summary-services/stats', [EmployeeSummaryReportController::class, 'getStats'])->name('employee-summary-services.stats');
+    });
 
     Route::get('reports/employee-services', [EmployeeReportController::class, 'index'])->name('report.employee-services');
     Route::get('reports/employee-services/data', [EmployeeReportController::class, 'getData'])->name('report.employee-services.data');

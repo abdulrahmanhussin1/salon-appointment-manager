@@ -24,7 +24,7 @@
                          @if (App\Traits\AppHelper::perUser('sales_invoices.create'))
                             <li class="">
                                 <a class="dropdown-item d-flex align-items-center"
-                                    href="{{ route('sales_invoices.bookAppointment') }}">
+                                    href="{{ route('home.calender') }}">
                                     <i class="bi bi-receipt"></i><span>{{ Str::ucfirst(__('Book Appointment')) }}</span>
                                 </a>
                             </li>
@@ -187,6 +187,16 @@
                                 href="{{ route('report.employee-services') }}">
                                 <i class="bi bi-safe2-fill"></i>
                                 <span>{{ Str::ucfirst(__('Employees Report')) }}</span>
+                            </a>
+                        </li>
+                        @endif
+
+                         @if (App\Traits\AppHelper::perUser('reports.index'))
+                         <li class="">
+                            <a class="dropdown-item d-flex align-items-center"
+                                href="{{ route('report.employee-summary-services') }}">
+                                <i class="bi bi-safe2-fill"></i>
+                                <span>{{ Str::ucfirst(__('Employees Summary Report')) }}</span>
                             </a>
                         </li>
                         @endif
