@@ -15,7 +15,7 @@ class EmployeeSummaryReportController extends Controller
     public function index()
     {
         $employees = Employee::where('status', 'active')->get();
-        return view('reports.employee-services-grouped', compact('employees'));
+        return view('admin.pages.reports.summary_employee_report', compact('employees'));
     }
 
     public function getData(Request $request)
