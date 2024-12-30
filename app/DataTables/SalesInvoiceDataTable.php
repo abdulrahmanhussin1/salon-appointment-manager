@@ -32,6 +32,12 @@ class SalesInvoiceDataTable extends DataTable
             $endDate = Carbon::parse(request('end_date'))->endOfDay()->format('Y-m-d H:i:s'); // e.g., 2024-12-29 23:59:59
             $q->where('created_at', '<=', $endDate);
         })
+        ->when(request('branch_id'), function($q) {
+            $q->where('branch_id', request('branch_id'));
+        })
+        ->when(request('created_by'), function($q) {
+            $q->where('created_by', request('created_by'));
+        })
         ))
         ->addColumn('action', function ($model) {
             $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
@@ -67,7 +73,7 @@ class SalesInvoiceDataTable extends DataTable
         ->editColumn('invoice_date', function ($model) {
             return $model->invoice_date? $model->invoice_date : null;
         })
-        ->editColumn('net_amount', function ($model) {
+        ->addColumn('net_amount', function ($model) {
             return '$'. $model->total_amount - $model->invoice_discount;
         })
         ->editColumn('branch_id', function ($model) {
