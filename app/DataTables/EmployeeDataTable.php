@@ -23,7 +23,11 @@ class EmployeeDataTable extends DataTable
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
-        return (new EloquentDataTable($query))
+        return (new EloquentDataTable($query
+        ->when(request('branch_id'), function($q){
+            $q->where('branch_id', request()->get('branch_id'));
+         })
+        ))
             ->addColumn('action', function ($model) {
                 $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
 <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2"
