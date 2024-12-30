@@ -35,6 +35,9 @@ class PurchaseInvoiceDataTable extends DataTable
         ->when(request('supplier_id'), function($q){
             $q->where('supplier_id', request()->get('supplier_id'));
         })
+        ->when(request('branch_id'), function($q){
+            $q->where('branch_id', request()->get('branch_id'));
+        })
 ))
             ->addColumn('action', function ($model) {
                 $html = '<div class="font-sans-serif btn-reveal-trigger position-static">

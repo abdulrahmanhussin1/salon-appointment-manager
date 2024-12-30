@@ -42,6 +42,10 @@ class ExpenseDataTable extends DataTable
         ->when(request('expense_type_id'), function($q){
             $q->where('expense_type_id', request()->get('expense_type_id'));
         })
+        ->when(request('branch_id'), function($q){
+            $q->where('branch_id', request()->get('branch_id'));
+        })
+
 
 
         ))

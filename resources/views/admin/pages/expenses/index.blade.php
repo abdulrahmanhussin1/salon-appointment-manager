@@ -42,6 +42,16 @@
                         </x-form-select>
                     </div>
                     <div class="col-3">
+                        <x-form-select name="branch_id"   class=" me-2" >
+                            <option value="">{{ __('Select one Branch') }}</option>
+                            @foreach (App\Models\Branch::all() as $expenseType)
+                                <option @if ( !empty( request('branch_id') ) && request('branch_id') == $expenseType->id  ) selected="selected" @endif value="{{ $expenseType->id }}">
+                                    {{ $expenseType->name }}
+                                </option>
+                            @endforeach
+                        </x-form-select>
+                    </div>
+                    <div class="col-3">
                         <button type="submit" id="filter" class="btn btn-primary">Filter</button>
                     </div>
 

@@ -28,16 +28,26 @@
                     <div class="col-3">
                         <input type="date" @if ( request('end_date') ) value="{{request('end_date') }}" @endif  name="end_date" class="form-control me-2" placeholder="End Date">
                     </div>
-                    {{-- <div class="col-3">
-                        <x-form-select name="expense_type_id"   class=" me-2" >
-                            <option value="">{{ __('Select one Expense Type') }}</option>
-                            @foreach (App\Models\ExpenseType::all() as $expenseType)
-                                <option @if ( !empty( request('expense_type_id') ) && request('expense_type_id') == $expenseType->id  ) selected="selected" @endif value="{{ $expenseType->id }}">
+                    <div class="col-3">
+                        <x-form-select name="branch_id"   class=" me-2" >
+                            <option value="">{{ __('Select one Branch') }}</option>
+                            @foreach (App\Models\Branch::all() as $expenseType)
+                                <option @if ( !empty( request('branch_id') ) && request('branch_id') == $expenseType->id  ) selected="selected" @endif value="{{ $expenseType->id }}">
                                     {{ $expenseType->name }}
                                 </option>
                             @endforeach
                         </x-form-select>
-                    </div> --}}
+                    </div>
+                    <div class="col-3">
+                        <x-form-select name="created_by"   class=" me-2" >
+                            <option value="">{{ __('Select one User') }}</option>
+                            @foreach (App\Models\User::all() as $expenseType)
+                                <option @if ( !empty( request('created_by') ) && request('created_by') == $expenseType->id  ) selected="selected" @endif value="{{ $expenseType->id }}">
+                                    {{ $expenseType->name }}
+                                </option>
+                            @endforeach
+                        </x-form-select>
+                    </div>
                     <div class="col-3">
                         <button type="submit" id="filter" class="btn btn-primary">Filter</button>
                     </div>
