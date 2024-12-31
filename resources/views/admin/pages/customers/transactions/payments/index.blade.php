@@ -20,9 +20,9 @@
             @endif
         </div>
         @include('admin.layouts.alerts')
-        {{-- <div>
+        <div>
             {{ $dataTable->table(['class' => 'responsive table fs--1 mb-0 bg-white my-3 rounded-2 shadow', 'width' => '100%']) }}
-        </div> --}}
+        </div>
     </section>
 
 
@@ -56,7 +56,7 @@
     </x-modal>
 @endsection
 @section('js')
-    {{-- {{ $dataTable->scripts(attributes: ['type' => 'module']) }} --}}
+    {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
 
     <script>
         $(document).ready(function() {

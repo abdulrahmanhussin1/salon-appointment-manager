@@ -8,13 +8,14 @@ use Illuminate\Validation\Rule;
 use App\Models\CustomerTransaction;
 use App\Http\Controllers\Controller;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\DataTables\CustomerTransactionDataTable;
 
 class CustomerTransactionController extends Controller
 {
-    public function getCustomerPayments()
+    public function getCustomerPayments(CustomerTransactionDataTable $dataTable)
     {
         $customers = Customer::where('status', 'active')->select('id', 'name')->get();
-        return view('admin.pages.customers.transactions.payments.index', compact('customers'));
+        return $dataTable->render('admin.pages.customers.transactions.payments.index', compact('customers'));
     }
 
     public function storeCustomerPayment(Request $request)
