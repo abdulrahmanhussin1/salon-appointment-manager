@@ -18,6 +18,10 @@
             background-color: #f8f9fa !important;
             font-weight: bold;
         }
+        .total-row {
+            background-color: #e9ecef !important;
+            font-weight: bold;
+        }
     </style>
 @endsection
 
@@ -51,6 +55,18 @@
                             <th>New Customers</th>
                         </tr>
                     </thead>
+                    <tfoot>
+                        <tr class="total-row">
+                            <th>Total</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
@@ -58,7 +74,6 @@
 @endsection
 
 @section('js')
-
     <script>
         $(document).ready(function() {
             let table = $('#monthly-report-table').DataTable({
@@ -106,7 +121,40 @@
                         className: 'btn btn-secondary btn-sm',
                         text: '<i class="fas fa-print"></i> Print'
                     }
-                ]
+                ],
+                footerCallback: function(row, data, start, end, display) {
+                    var api = this.api();
+
+                    // Calculate totals for each numeric column
+                    var columnsToSum = [1, 2, 3, 4, 5, 6, 7]; // Column indices (0-based) to sum
+                    columnsToSum.forEach(function(colIndex) {
+                        var total = api
+                            .column(colIndex)
+                            .data()
+                            .reduce(function(acc, curr) {
+                                // Convert string to number and handle non-numeric values
+                                var value = typeof curr === 'string' ?
+                                    parseFloat(curr.replace(/[^0-9.-]+/g, '')) : curr;
+                                return acc + (isNaN(value) ? 0 : value);
+                            }, 0);
+
+                        // Format the total based on the column type
+                        var formattedTotal;
+                        if (colIndex >= 1 && colIndex <= 5) {
+                            // Format as currency for financial columns
+                            formattedTotal = new Intl.NumberFormat('en-US', {
+                                style: 'currency',
+                                currency: 'USD'
+                            }).format(total);
+                        } else {
+                            // Format as number for count columns
+                            formattedTotal = new Intl.NumberFormat('en-US').format(total);
+                        }
+
+                        // Update footer
+                        $(api.column(colIndex).footer()).html(formattedTotal);
+                    });
+                }
             });
 
             $('#year-filter').change(function() {
