@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\AppointmentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ToolController;
@@ -19,6 +18,7 @@ use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\AppointmentController;
 use App\Http\Controllers\Admin\ExpenseTypeController;
+use App\Http\Controllers\Admin\StockReportController;
 use App\Http\Controllers\Admin\SalesInvoiceController;
 use App\Http\Controllers\Admin\EmployeeLevelController;
 use App\Http\Controllers\Admin\PaymentMethodController;
@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\ProductCategoryController;
 use App\Http\Controllers\Admin\PurchaseInvoiceController;
 use App\Http\Controllers\Admin\ServiceCategoryController;
 use App\Http\Controllers\Admin\AdminPanelSettingController;
+use App\Http\Controllers\Admin\StoreBalanceReportController;
 use App\Http\Controllers\Admin\CustomerTransactionController;
 use App\Http\Controllers\Admin\InventoryTransactionController;
 use App\Http\Controllers\Admin\EmployeeSummaryReportController;
@@ -128,8 +129,10 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::get('reports/employee-services', [EmployeeReportController::class, 'index'])->name('report.employee-services');
     Route::get('reports/employee-services/data', [EmployeeReportController::class, 'getData'])->name('report.employee-services.data');
     Route::get('reports/employee-services/stats', [EmployeeReportController::class, 'getEmployeeStats'])->name('report.employee-services.stats');
-
-
+    Route::get('reports/stock', [StockReportController::class, 'index'])->name('report.stock');
+    Route::get('reports/stock/data', [StockReportController::class, 'getData'])->name('report.stock_report');
+    Route::get('reports/store-balance', [StoreBalanceReportController::class, 'index'])->name('report.stock_balance');
+    Route::get('reports/store-balance/data', [StoreBalanceReportController::class, 'getData'])->name('report.stock_balance_transfer');
 
 });
 require __DIR__ . '/auth.php';

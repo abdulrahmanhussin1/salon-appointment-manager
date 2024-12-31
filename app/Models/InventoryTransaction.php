@@ -33,4 +33,13 @@ class InventoryTransaction extends Model
         return $this->belongsTo(Inventory::class,'destination_inventory_id');
     }
 
+    public function transactionDetails()
+    {
+        return $this->hasMany(InventoryTransactionDetail::class);
+    }
+    public function inventoryTransaction()
+    {
+        return $this->belongsTo(InventoryTransaction::class);
+    }
+
 }

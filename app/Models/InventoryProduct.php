@@ -14,6 +14,14 @@ class InventoryProduct extends Model
     protected $table = 'inventory_products';
 
 
-    
+    public function inventory()
+    {
+        return $this->belongsTo(Inventory::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 
 }

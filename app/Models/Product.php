@@ -33,6 +33,11 @@ class Product extends Model
         return $this->hasMany(SupplierPrice::class,'product_id');
     }
 
+    public function inventoryProducts()
+    {
+        return $this->hasMany(InventoryProduct::class);
+    }
+
     protected static function boot()
     {
         parent::boot();

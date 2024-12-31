@@ -21,10 +21,9 @@
                             </li>
                         @endif
 
-                         @if (App\Traits\AppHelper::perUser('sales_invoices.create'))
+                        @if (App\Traits\AppHelper::perUser('sales_invoices.create'))
                             <li class="">
-                                <a class="dropdown-item d-flex align-items-center"
-                                    href="{{ route('home.calender') }}">
+                                <a class="dropdown-item d-flex align-items-center" href="{{ route('home.calender') }}">
                                     <i class="bi bi-receipt"></i><span>{{ Str::ucfirst(__('Book Appointment')) }}</span>
                                 </a>
                             </li>
@@ -171,32 +170,52 @@
                             </li>
                         @endif
 
-                         @if (App\Traits\AppHelper::perUser('reports.index'))
-                         <li class="">
-                            <a class="dropdown-item d-flex align-items-center"
-                                href="{{ route('report.monthlySummaryPage') }}">
-                                <i class="bi bi-safe2-fill"></i>
-                                <span>{{ Str::ucfirst(__('Monthly Summary')) }}</span>
-                            </a>
-                        </li>
+                        @if (App\Traits\AppHelper::perUser('reports.index'))
+                            <li class="">
+                                <a class="dropdown-item d-flex align-items-center"
+                                    href="{{ route('report.monthlySummaryPage') }}">
+                                    <i class="bi bi-safe2-fill"></i>
+                                    <span>{{ Str::ucfirst(__('Monthly Summary')) }}</span>
+                                </a>
+                            </li>
                         @endif
 
-                         @if (App\Traits\AppHelper::perUser('reports.index'))
-                         <li class="">
-                            <a class="dropdown-item d-flex align-items-center"
-                                href="{{ route('report.employee-services') }}">
-                                <i class="bi bi-safe2-fill"></i>
-                                <span>{{ Str::ucfirst(__('Employees Report')) }}</span>
-                            </a>
-                        </li>
+                        @if (App\Traits\AppHelper::perUser('reports.index'))
+                            <li class="">
+                                <a class="dropdown-item d-flex align-items-center"
+                                    href="{{ route('report.employee-services') }}">
+                                    <i class="bi bi-safe2-fill"></i>
+                                    <span>{{ Str::ucfirst(__('Employees Report')) }}</span>
+                                </a>
+                            </li>
                         @endif
 
-                         @if (App\Traits\AppHelper::perUser('reports.index'))
-                         <li class="">
+                        @if (App\Traits\AppHelper::perUser('reports.index'))
+                            <li class="">
+                                <a class="dropdown-item d-flex align-items-center"
+                                    href="{{ route('report.employee-summary-services') }}">
+                                    <i class="bi bi-safe2-fill"></i>
+                                    <span>{{ Str::ucfirst(__('Employees Summary Report')) }}</span>
+                                </a>
+                            </li>
+                        @endif
+
+                        @if (App\Traits\AppHelper::perUser('reports.index'))
+                            <li class="">
+                                <a class="dropdown-item d-flex align-items-center" href="{{ route('report.stock') }}">
+                                    <i class="bi bi-safe2-fill"></i>
+                                    <span>{{ Str::ucfirst(__('Stock Report')) }}</span>
+                                </a>
+                            </li>
+                        @endif
+
+
+                        @if (App\Traits\AppHelper::perUser('reports.index'))
+                        <li class="">
                             <a class="dropdown-item d-flex align-items-center"
-                                href="{{ route('report.employee-summary-services') }}">
+                                href="{{ route('report.stock_balance') }}">
                                 <i class="bi bi-safe2-fill"></i>
-                                <span>{{ Str::ucfirst(__('Employees Summary Report')) }}</span>
+                                <span>{{ Str::ucfirst(__('Stock transfer Report')) }}</span>
                             </a>
                         </li>
                         @endif
