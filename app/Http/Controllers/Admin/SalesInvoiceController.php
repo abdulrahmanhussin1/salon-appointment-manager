@@ -12,13 +12,17 @@ use App\Models\SalesInvoice;
 use Illuminate\Http\Request;
 use App\Models\PaymentMethod;
 use App\Models\SupplierPrice;
+use App\Models\InventoryProduct;
 use Illuminate\Support\Facades\DB;
+use App\Models\CustomerTransaction;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\InventoryTransaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Query\Builder;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\DataTables\SalesInvoiceDataTable;
-use App\Models\CustomerTransaction;
+use App\Models\InventoryTransactionDetail;
 
 class SalesInvoiceController extends Controller
 {
@@ -82,9 +86,13 @@ class SalesInvoiceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
+
+
+
+    // Modify the store method to handle inventory exceptions
     public function store(Request $request)
     {
-
         $validatedData = $this->validateInvoiceData($request);
 
         $customer = $this->validateCustomer($validatedData['customer_id']);
@@ -100,7 +108,9 @@ class SalesInvoiceController extends Controller
             'servicesTotal' => 0,
         ];
 
-        //try {
+        try {
+            DB::beginTransaction();
+
             foreach ($validatedData['items'] as $item) {
                 if ($item['type'] === 'product') {
                     $productData = $this->processProduct($item);
@@ -113,28 +123,29 @@ class SalesInvoiceController extends Controller
                 }
             }
 
-          $invoice = $this->createInvoiceTransaction($validatedData, $invoiceItems, $totals);
+            $invoice = $this->createInvoiceTransaction($validatedData, $invoiceItems, $totals);
 
+            CustomerTransaction::create([
+                'customer_id' => $validatedData['customer_id'],
+                'reference_type' => 'invoice',
+                'reference_id' => $invoice->id,
+                'amount' => $invoice->net_total,
+                'notes' => 'invoice',
+                'created_by' => Auth::id(),
+            ]);
 
-        CustomerTransaction::create([
-            'customer_id' => $validatedData['customer_id'],
-            'reference_type' => 'invoice',
-            'reference_id' => $invoice->id,
-            'amount' => $invoice->net_total,
-            'notes' => 'invoice',
-            'created_by' => Auth::id(),
-        ]);
-         // Alert::success('success', 'Invoice created successfully');
-          return response()->json([
-            'invoice_id' => $invoice->id,
-          ], 200 ) ;
+            DB::commit();
 
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     \Log::error('Invoice Creation Error: ' . $e->getMessage());
-        //     Alert::error('error', 'Invoice creation failed');
-        //     return back();
-        // }
+            return response()->json([
+                'invoice_id' => $invoice->id,
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Invoice Creation Error: ' . $e->getMessage());
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 422);
+        }
     }
 
     private function validateInvoiceData(Request $request)
@@ -173,6 +184,11 @@ class SalesInvoiceController extends Controller
         ->where('status', 'active')
         ->firstOrFail();
 
+        // Check if there's enough inventory
+        $availableQuantity = $this->checkInventoryAvailability($product->id, $item['quantity']);
+        if (!$availableQuantity) {
+            throw new \Exception("Insufficient inventory for product {$product->name}");
+        }
 
         $allocatedPrices = $this->allocateProductPrices($product, $item['quantity']);
         $customerPrice = $allocatedPrices[0]['price'];
@@ -181,13 +197,16 @@ class SalesInvoiceController extends Controller
         $discount = ($grossTotal * ($item['discount'] ?? 0)) / 100;
         $tax = (($grossTotal - $discount) * ($item['tax'] ?? 0)) / 100;
 
+        // Deduct from inventory
+        $this->deductFromInventory($product->id, $item['quantity']);
+
         return [
             'grossTotal' => $grossTotal,
             'discount' => $discount,
             'tax' => $tax,
             'invoiceItem' => [
                 'product_id' => $product->id,
-                'provider_id' =>$item['provider_id'],
+                'provider_id' => $item['provider_id'],
                 'quantity' => $item['quantity'],
                 'customer_price' => $customerPrice,
                 'discount' => $item['discount'],
@@ -283,9 +302,14 @@ class SalesInvoiceController extends Controller
 
         $invoice->salesInvoiceDetails()->createMany($invoiceItems);
 
-        Customer::where('id',$validatedData['customer_id'])->first()->update([
-            'deposit' => ($netTotal - $deposit - ($validatedData['payment_method_value'] ?? 0) - ($validatedData['cash_payment'] ?? 0)) ?? 0,
-        ]);
+        // CustomerTransaction::where('customer_id',$validatedData['customer_id'])->first()->create([
+        //     'customer_id' => $validatedData['customer_id'],
+        //     'reference_type' => 'invoice',
+        //     'reference_id' => $invoice->id,
+        //     'notes' => 'invoice',
+        //     'created_by' => Auth::id(),
+        //     'amount' => ($netTotal - $deposit - ($validatedData['payment_method_value'] ?? 0) - ($validatedData['cash_payment'] ?? 0)) ?? 0,
+        // ]);
 
         DB::commit();
 
@@ -293,7 +317,65 @@ class SalesInvoiceController extends Controller
     }
 
 
+    private function checkInventoryAvailability($productId, $requestedQuantity)
+    {
+        $totalAvailable = InventoryProduct::where('product_id', $productId)
+            ->sum('quantity');
 
+        return $totalAvailable >= $requestedQuantity;
+    }
+
+    private function deductFromInventory($productId, $quantity)
+    {
+        // Get all inventory records for this product, ordered by oldest first
+        $inventoryProducts = InventoryProduct::where('product_id', $productId)
+            ->where('quantity', '>', 0)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $remainingQuantity = $quantity;
+        $transactions = [];
+
+        foreach ($inventoryProducts as $inventoryProduct) {
+            if ($remainingQuantity <= 0) break;
+
+            $deductQuantity = min($remainingQuantity, $inventoryProduct->quantity);
+
+            // Update inventory quantity
+            $inventoryProduct->quantity -= $deductQuantity;
+            $inventoryProduct->save();
+
+            // Create inventory transaction
+            $transactions[] = [
+                'inventory_id' => $inventoryProduct->inventory_id,
+                'product_id' => $productId,
+                'quantity' => $deductQuantity
+            ];
+
+            $remainingQuantity -= $deductQuantity;
+        }
+
+        // Create inventory transaction record
+        $transaction = DB::transaction(function () use ($transactions, $productId, $quantity) {
+            $inventoryTransaction = InventoryTransaction::create([
+                'transaction_type' => 'sales',
+                'source_inventory_id' => $transactions[0]['inventory_id'], // Using first inventory as source
+                'total_before_discount' => 0, // Set appropriate values based on your needs
+                'net_total' => 0, // Set appropriate values based on your needs
+            ]);
+
+            // Create transaction details
+            InventoryTransactionDetail::create([
+                'inventory_transaction_id' => $inventoryTransaction->id,
+                'product_id' => $productId,
+                'quantity' => $quantity
+            ]);
+
+            return $inventoryTransaction;
+        });
+
+        return $transaction;
+    }
 
     /**
      * Display the specified resource.

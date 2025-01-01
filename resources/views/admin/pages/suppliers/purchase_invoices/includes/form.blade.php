@@ -45,8 +45,8 @@
             <label for="status" class="form-label">Status</label>
             <select class="form-select select2" id="status" name="status" required>
                 <option value="active" @if(isset($invoice) && $invoice->status == 'active') selected @endif>Active</option>
-                <option value="inactive" @if(isset($invoice) && $invoice->status == 'inactive') selected @endif>Inactive</option>
-                <option value="draft" @if(isset($invoice) && $invoice->status == 'draft') selected @endif>Draft</option>
+                {{-- <option value="inactive" @if(isset($invoice) && $invoice->status == 'inactive') selected @endif>Inactive</option>
+                <option value="draft" @if(isset($invoice) && $invoice->status == 'draft') selected @endif>Draft</option> --}}
             </select>
         </div>
 
