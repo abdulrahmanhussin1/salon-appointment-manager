@@ -56,7 +56,7 @@
                 {{-- Customer Details --}}
                 <div class="card mb-3">
                     <div class="ms-2 row">
-                        <div class="card-title col-8">Customer Details</div>
+                        <div class="card-title col-8">  Customer Details</div>
                         <div class="col-4 text-end mt-3 pe-4">
                             @if (App\Traits\AppHelper::perUSer('customers.create'))
                                 <x-modal-button title="Customer" target="customerModal"><i

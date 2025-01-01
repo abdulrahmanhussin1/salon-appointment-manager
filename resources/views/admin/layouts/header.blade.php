@@ -48,9 +48,22 @@
                             <span>My Profile</span>
                         </a>
                     </li>
+              
                     <li>
                         <hr class="dropdown-divider">
+                        <a class="dropdown-item d-flex align-items-center" href="{{ url()->current() }}?lang=en">
+                            <i class="bi bi-gear"></i>
+                            <span>English</span>
+                        </a>
                     </li>
+                    <li>
+                        <hr class="dropdown-divider">
+                        <a class="dropdown-item d-flex align-items-center" href="{{ url()->current() }}?lang=ar">
+                            <i class="bi bi-gear"></i>
+                            <span>العربية</span>
+                        </a>
+                    </li>
+
 
                     {{--  <li>
                         <a class="dropdown-item d-flex align-items-center" href="users-profile.html">

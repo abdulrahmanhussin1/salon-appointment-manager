@@ -9,7 +9,7 @@
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#"
                         data-bs-toggle="dropdown">
                         <i class="bi bi-receipt"></i>
-                        <span class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(_('Sales')) }}</span>
+                        <span class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(__('Sales')) }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow sales">
                         @if (App\Traits\AppHelper::perUser('sales_invoices.create'))
@@ -20,7 +20,7 @@
                                 </a>
                             </li>
                         @endif
-
+                        {{--
                         @if (App\Traits\AppHelper::perUser('sales_invoices.create'))
                             <li class="">
                                 <a class="dropdown-item d-flex align-items-center" href="{{ route('home.calender') }}">
@@ -28,6 +28,7 @@
                                 </a>
                             </li>
                         @endif
+                        --}}
 
                         @if (App\Traits\AppHelper::perUser('sales_invoices.index'))
                             <li class="">
@@ -77,7 +78,7 @@
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#"
                         data-bs-toggle="dropdown">
                         <i class="bi bi-person-fill-down"></i>
-                        <span class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(_('Purchases')) }}</span>
+                        <span class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(__('Purchases')) }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow Purchases">
 
@@ -113,7 +114,7 @@
                         data-bs-toggle="dropdown">
                         <i class="bi bi-houses-fill"></i>
                         <span
-                            class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(_('Inventories')) }}</span>
+                            class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(__('Inventories')) }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow inventories">
                         @if (App\Traits\AppHelper::perUser('inventories.index'))
@@ -137,7 +138,7 @@
                         data-bs-toggle="dropdown">
                         <i class="bi bi-file-text"></i>
 
-                        <span class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(_('reports')) }}</span>
+                        <span class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(__('reports')) }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow inventories">
                         @if (App\Traits\AppHelper::perUser('reports.index'))
@@ -234,7 +235,7 @@
                         data-bs-toggle="dropdown">
                         <i class="bi bi-box-seam-fill"></i>
                         <span
-                            class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(_('Services & Products')) }}</span>
+                            class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(__('Services & Products')) }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow services">
                         @if (App\Traits\AppHelper::perUser('service_categories.index'))
@@ -286,7 +287,7 @@
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#"
                         data-bs-toggle="dropdown">
                         <i class="bi bi-cash-stack"></i>
-                        <span class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(_('Expenses')) }}</span>
+                        <span class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(__('Expenses')) }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow expenses">
 
@@ -318,7 +319,7 @@
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#"
                         data-bs-toggle="dropdown">
                         <i class="bi bi-people-fill"></i>
-                        <span class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(_('Employees')) }}</span>
+                        <span class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(__('Employees')) }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow employees">
 
@@ -352,7 +353,7 @@
                         data-bs-toggle="dropdown">
                         <i class="bi bi-people-fill"></i>
                         <span
-                            class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(_('Users & Roles')) }}</span>
+                            class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(__('Users & Roles')) }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow users">
 
@@ -385,7 +386,7 @@
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#"
                         data-bs-toggle="dropdown">
                         <i class="bi bi-gear-wide-connected"></i>
-                        <span class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(_('Settings')) }}</span>
+                        <span class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(__('Settings')) }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow settings">
 
@@ -427,8 +428,7 @@
                             <li class="">
                                 <a class="dropdown-item d-flex align-items-center"
                                     href="{{ route('payment_methods.index') }}">
-                                    <i
-                                        class="bi bi-credit-card-2-back-fill"></i><span>{{ Str::ucfirst(__('payment methods')) }}</span>
+                                    <i class="bi bi-credit-card-2-back-fill"></i><span>{{ Str::ucfirst(__('payment methods')) }}</span>
                                 </a>
                             </li>
                         @endif

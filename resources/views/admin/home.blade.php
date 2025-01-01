@@ -13,9 +13,8 @@
       <div class="row">
 
         <!-- Left side columns -->
-        <div class="col-lg-8">
+        <div class="col-lg-12">
           <div class="row">
-
 
             <!-- Sales credit Card -->
             <div class="col-xxl-4 col-md-6">
@@ -27,7 +26,7 @@
                     <li class="dropdown-header text-start">
                       <h6>Filter</h6>
                     </li>
-
+                    
                     <li><a class="dropdown-item" href="#">Today</a></li>
                     <li><a class="dropdown-item" href="#">This Month</a></li>
                     <li><a class="dropdown-item" href="#">This Year</a></li>
@@ -157,7 +156,7 @@
                         <i class="bi bi-cart" style="color: #4154f1"></i>
                     </div>
                       <div class="ps-3">
-                        <h6>L.E {{ $total_customers_today ?? 0 }}</h6>
+                        <h6>{{ $total_customers_today ?? 0 }}</h6>
                       </div>
                     </div>
                   </div>
@@ -223,7 +222,7 @@
             </div>
 
 
-<hr>
+{{-- <hr> --}}
 
 
 {{--
@@ -335,7 +334,7 @@
             </div><!-- End Customers Card --> --}}
 
             <!-- Reports -->
-            <div class="col-12">
+            {{-- <div class="col-12">
               <div class="card">
 
                 <div class="filter">
@@ -414,10 +413,10 @@
                 </div>
 
               </div>
-            </div><!-- End Reports -->
+            </div><!-- End Reports --> --}}
 
             <!-- Recent Sales -->
-            <div class="col-12">
+            {{-- <div class="col-12">
               <div class="card recent-sales overflow-auto">
 
                 <div class="filter">
@@ -488,7 +487,7 @@
                 </div>
 
               </div>
-            </div><!-- End Recent Sales -->
+            </div><!-- End Recent Sales --> --}}
 
 
 
@@ -499,7 +498,7 @@
         <div class="col-lg-4">
             <!-- Top Selling -->
             <div class="col-12">
-                <div class="card top-selling overflow-auto">
+                {{-- <div class="card top-selling overflow-auto">
 
                   <div class="filter">
                     <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
@@ -568,7 +567,7 @@
 
                   </div>
 
-                </div>
+                </div> --}}
               </div><!-- End Top Selling -->
           <!-- Recent Activity -->
         {{--   <div class="card">

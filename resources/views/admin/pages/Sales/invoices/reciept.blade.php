@@ -4,8 +4,6 @@
 @endsection
 @section('css')
     <style>
-
-
         * {
             box-sizing: border-box;
         }
@@ -175,6 +173,7 @@
             <tbody>
                 @php
                     $total = 0;
+                    $discount = 0;
                 @endphp
 
                 @foreach ($invoice->salesInvoiceDetails as $key => $item)
@@ -186,7 +185,12 @@
                         <td> {{ $item->subtotal }} </td>
                     </tr>
                     @php
+
                         $total += $item->quantity * $item->customer_price;
+                        if ($item->discount != 0 ) {
+                            $discount += $item->quantity * $item->customer_price *  ( $item->discount / 100) ;
+                        }
+
                     @endphp
                 @endforeach
 
@@ -231,22 +235,55 @@
 
     </section>
 
-    <div style="width: 450px; margin: auto" >
+    <div style="width: 450px; margin: auto">
         <button onclick="printInvoice()" class="btn btn-success btn-sm mt-3 w-100">Print</button>
     </div>
-
-
 @endsection
 
 @section('js')
-<script>
-    function printInvoice() {
-        const originalContents = document.body.innerHTML; // Store original content
-        const invoiceContent = document.getElementById('invoice').outerHTML; // Get invoice content
-        document.body.innerHTML = invoiceContent; // Replace body with invoice content
-        window.print(); // Trigger print
-        document.body.innerHTML = originalContents; // Restore original content
-        location.reload(); // Reload the page to restore event listeners
-    }
-</script>
+    <script>
+        // function printInvoice() {
+        //     const originalContents = document.body.innerHTML; // Store original content
+        //     const invoiceContent = document.getElementById('invoice').outerHTML; // Get invoice content
+        //     document.body.innerHTML = invoiceContent; // Replace body with invoice content
+        //     window.print(); // Trigger print
+        //     document.body.innerHTML = originalContents; // Restore original content
+        //     location.reload(); // Reload the page to restore event listeners
+        // }
+
+        function printInvoice() {
+            const originalContents = document.body.innerHTML; // Store original content
+            const invoiceContent = document.getElementById('invoice').outerHTML; // Get invoice content
+
+            // Create a style element for print-specific styles
+            const printStyles = `
+        <style>
+            @media print {
+                body {
+                    margin: 0;
+                    padding: 0;
+                    width: 800px;
+                }
+                #invoice {
+                    font-size: 12px; /* Adjust font size as needed */
+                    width: 800px; /* Ensure the width is set for the invoice */
+                    margin: auto; /* Center the content */
+                }
+            }
+        </style>
+    `;
+
+            // Set up the invoice content with styles for printing
+            document.body.innerHTML = printStyles + invoiceContent;
+
+            // Trigger print
+            window.print();
+
+            // Restore original content
+            document.body.innerHTML = originalContents;
+
+            // Reload the page to restore event listeners
+            location.reload();
+        }
+    </script>
 @endsection
