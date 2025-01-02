@@ -32,16 +32,16 @@ class BranchSeeder extends Seeder
         ]);
 
         // Create 10 additional branches and assign them 10 inventories each
-        Branch::factory(10)->create()->each(function ($branch) {
-            // Create 10 inventories for each branch
-            foreach (range(1, 10) as $index) {
-                Inventory::create([
-                    'name' => $branch->name . ' Inventory ' . $index,
-                    'branch_id' => $branch->id,
-                    'created_by' => 1,
-                ]);
-            }
-        });
+        // Branch::factory(10)->create()->each(function ($branch) {
+        //     // Create 10 inventories for each branch
+        //     foreach (range(1, 10) as $index) {
+        //         Inventory::create([
+        //             'name' => $branch->name . ' Inventory ' . $index,
+        //             'branch_id' => $branch->id,
+        //             'created_by' => 1,
+        //         ]);
+        //     }
+        // });
     }
 
 }

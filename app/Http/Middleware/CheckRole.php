@@ -63,6 +63,10 @@ class CheckRole
                 || ($page === 'stock_balance' && self::perUSer('reports.index'))
                 || ($page ==='stock_balance_transfer' && self::perUSer('reports.index'))
 
+                || ($page ==='getDetails' && self::perUSer('sales_invoices.create'))
+                || ($page === 'getByType' && self::perUSer('sales_invoices.create'))
+                || ($page === 'getByCategory' && self::perUSer('sales_invoices.create'))
+
 
                 || self::perUSer($this->getRoute())
                 || in_array($this->getRoute(), ['dashboard', 'sales_invoices.getItem', 'sales_invoices.getRelatedEmployees'])

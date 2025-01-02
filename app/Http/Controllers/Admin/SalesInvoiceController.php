@@ -12,6 +12,8 @@ use App\Models\SalesInvoice;
 use Illuminate\Http\Request;
 use App\Models\PaymentMethod;
 use App\Models\SupplierPrice;
+use App\Models\ProductCategory;
+use App\Models\ServiceCategory;
 use App\Models\InventoryProduct;
 use Illuminate\Support\Facades\DB;
 use App\Models\CustomerTransaction;
@@ -42,20 +44,20 @@ class SalesInvoiceController extends Controller
 
         // $customers = Customer::select('id', 'name', 'phone', 'dob', 'last_service', 'created_at', 'is_vip','deposit')->where('status', 'active')->get();
         $customers = Customer::select('id', 'name', 'phone', 'dob', 'last_service', 'created_at', 'is_vip')
-        ->selectSub(function (Builder $query) {
-            $query->from('customer_transactions')
-            ->whereColumn('customer_transactions.customer_id', 'customers.id')
-            ->where('customer_transactions.reference_type', 'deposit')
-            ->orderBy('customer_transactions.created_at', 'desc')
-            ->select('customer_transactions.amount')
-            ->limit(1); // Latest deposit
-        }, 'deposit')
-        ->where('status', 'active')
-        ->get();
+            ->selectSub(function (Builder $query) {
+                $query->from('customer_transactions')
+                    ->whereColumn('customer_transactions.customer_id', 'customers.id')
+                    ->where('customer_transactions.reference_type', 'deposit')
+                    ->orderBy('customer_transactions.created_at', 'desc')
+                    ->select('customer_transactions.amount')
+                    ->limit(1); // Latest deposit
+            }, 'deposit')
+            ->where('status', 'active')
+            ->get();
 
 
-        $paymentMethods = PaymentMethod::select('id', 'name')->where('status', 'active')->where('name','!=','cash')->get();
-        $products = Product::select('id', 'name', 'code','price_can_change')
+        $paymentMethods = PaymentMethod::select('id', 'name')->where('status', 'active')->where('name', '!=', 'cash')->get();
+        $products = Product::select('id', 'name', 'code', 'price_can_change')
             ->with(['supplierPrices:id,product_id,quantity,customer_price,created_at'])
             ->where('status', 'active')
             ->get()
@@ -79,18 +81,68 @@ class SalesInvoiceController extends Controller
         $branches = Auth::user()->hasRole('cashier')
             ? Branch::where('id', Auth::user()->employee?->branch_id)->get(['id', 'name'])
             : Branch::where('status', 'active')->get(['id', 'name']);
+        $categories = ProductCategory::where('status', 'active')->select('id','name')->get();
+        $serviceCategories = ServiceCategory::where('status', 'active')->select('id','name')->get();
 
-        return view('admin.pages.Sales.invoices.create', compact('customers', 'employees', 'products', 'services', 'paymentMethods', 'branches'));
+
+        return view('admin.pages.Sales.invoices.create',
+        compact('customers', 'employees', 'products', 'services', 'paymentMethods', 'branches','categories','serviceCategories'));
+    }
+
+    public function getByType(Request $request)
+    {
+        $type = $request->input('type');
+
+        if ($type === 'product') {
+            return ProductCategory::where('status', 'active')->get(['id', 'name']);
+        } else {
+            return ServiceCategory::where('status', 'active')->get(['id', 'name']);
+        }
+    }
+
+    // ItemController.php
+    public function getByCategory(Request $request)
+    {
+        $type = $request->input('type');
+        $categoryId = $request->input('category_id');
+
+        if ($type === 'product') {
+            return Product::where('category_id', $categoryId)
+                ->where('status', 'active')
+                ->get(['id', 'name', 'code']);
+        } else {
+            return Service::where('service_category_id', $categoryId)
+                ->where('status', 'active')
+                ->get(['id', 'name']);
+        }
+    }
+
+    public function getDetails(Request $request, $id)
+    {
+        $type = $request->input('type');
+
+        if ($type === 'product') {
+            $item = Product::with(['supplierPrices' => function ($query) {
+                $query->where('quantity', '>', 0)
+                ->orderBy('created_at', 'desc');
+            }])->findOrFail($id);
+
+            return [
+                'price' => $item->supplierPrices->first()?->customer_price ?? 0,
+                'price_can_change' => $item->price_can_change
+            ];
+        } else {
+            $service = Service::findOrFail($id);
+            return [
+                'price' => $service->price,
+                'price_can_change' => $service->price_can_change
+            ];
+        }
     }
 
     /**
      * Store a newly created resource in storage.
      */
-
-
-
-
-    // Modify the store method to handle inventory exceptions
     public function store(Request $request)
     {
         $validatedData = $this->validateInvoiceData($request);
@@ -180,9 +232,9 @@ class SalesInvoiceController extends Controller
     private function processProduct($item)
     {
         $product = Product::with('supplierPrices')
-        ->where('id', $item['item_id'])
-        ->where('status', 'active')
-        ->firstOrFail();
+            ->where('id', $item['item_id'])
+            ->where('status', 'active')
+            ->firstOrFail();
 
         // Check if there's enough inventory
         $availableQuantity = $this->checkInventoryAvailability($product->id, $item['quantity']);
@@ -219,8 +271,8 @@ class SalesInvoiceController extends Controller
     private function processService($item)
     {
         $service = Service::where('id', $item['item_id'])
-        ->where('status', 'active')
-        ->firstOrFail();
+            ->where('status', 'active')
+            ->firstOrFail();
 
         $grossTotal = $service->price * $item['quantity'];
         $discount = ($grossTotal * ($item['discount'] ?? 0)) / 100;
@@ -279,14 +331,18 @@ class SalesInvoiceController extends Controller
     private function createInvoiceTransaction($validatedData, $invoiceItems, $totals)
     {
         DB::beginTransaction();
-
         $grandTotal = $totals['productsTotal'] + $totals['servicesTotal'];
         $netTotal = $grandTotal - $totals['discount'] + $totals['tax'];
         $deposit = $validatedData['deposit'] ?? 0;
+
+       // dd(round($netTotal - $deposit - ($validatedData['payment_method_value'] ?? 0) - ($validatedData['cash_payment'] ?? 0), 2));
+
+
+
         $invoice = SalesInvoice::create([
             'customer_id' => $validatedData['customer_id'],
             'payment_method_id' => $validatedData['payment_method_id'],
-            'payment_method_value' => $validatedData['payment_method_value']?? 0,
+            'payment_method_value' => $validatedData['payment_method_value'] ?? 0,
             'branch_id' => $validatedData['branch_id'],
             'invoice_date' => $validatedData['invoice_date'],
             'total_amount' => $grandTotal,
@@ -294,7 +350,7 @@ class SalesInvoiceController extends Controller
             'invoice_tax' => $totals['tax'],
             'net_total' => $netTotal,
             'invoice_deposit' => $deposit,
-            'balance_due' => round($netTotal - $deposit - ($validatedData['payment_method_value'] ?? 0) - ($validatedData['cash_payment'] ?? 0), 2) ,
+            'balance_due' => round($netTotal - $deposit - ($validatedData['payment_method_value'] ?? 0) - ($validatedData['cash_payment'] ?? 0), 2),
             'status' => $validatedData['status'],
             'paid_amount_cash' => $validatedData['cash_payment'] ?? 0,
             'created_by' => auth()->id(),
@@ -313,7 +369,7 @@ class SalesInvoiceController extends Controller
 
         DB::commit();
 
-        return $invoice ;
+        return $invoice;
     }
 
 
@@ -424,12 +480,11 @@ class SalesInvoiceController extends Controller
     public function showReceipt($id)
     {
         $invoice = SalesInvoice::findOrFail($id);
-        return view('admin.pages.Sales.invoices.reciept',   compact( 'invoice'));
+        return view('admin.pages.Sales.invoices.reciept',   compact('invoice'));
     }
 
     public function bookAppointment()
     {
         return view('admin.pages.Sales.booking.index');
     }
-
 }

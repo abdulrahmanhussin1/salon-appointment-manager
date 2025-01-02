@@ -23,7 +23,7 @@ return new class extends Migration
             $table->unsignedDecimal('paid_amount_cash', 15, 2)->default(0);
             $table->foreignId('payment_method_id')->constrained('payment_methods', 'id')->cascadeOnUpdate()->restrictOnDelete();
             $table->unsignedDecimal('payment_method_value', 15, 2)->default(0);
-            $table->unsignedDecimal('balance_due', 15, 2);
+            $table->decimal('balance_due', 15, 2);  // Removes the unsigned constraint.
             $table->text('invoice_notes')->nullable();
             $table->foreignId('customer_id')->constrained('customers')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('branch_id')->default(1)->constrained('branches')->cascadeOnUpdate()->restrictOnDelete();

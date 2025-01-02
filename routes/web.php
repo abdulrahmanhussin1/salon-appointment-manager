@@ -134,5 +134,10 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::get('reports/store-balance', [StoreBalanceReportController::class, 'index'])->name('report.stock_balance');
     Route::get('reports/store-balance/data', [StoreBalanceReportController::class, 'getData'])->name('report.stock_balance_transfer');
 
+    Route::get('/categories', [salesInvoiceController::class, 'getByType'])->name('sales_invoices.getByType');
+    Route::get('/items', [salesInvoiceController::class, 'getByCategory'])->name('sales_invoices.getByCategory');
+    Route::get('/items/{id}', [salesInvoiceController::class, 'getDetails'])->name('sales_invoices.getDetails');
+
 });
+
 require __DIR__ . '/auth.php';

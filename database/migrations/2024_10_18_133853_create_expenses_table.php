@@ -20,7 +20,7 @@ return new class extends Migration
 
             $table->string('invoice_number')->nullable();
             $table->unsignedDecimal('paid_amount', 15, 2)->default(0);
-            $table->unsignedDecimal('balance', 15, 2)->default(0);
+            $table->decimal('balance', 15, 2)->default(0);
 
             $table->foreignId('payment_method_id')->constrained('payment_methods','id')->cascadeOnUpdate()->restrictOnDelete();
             $table->enum('status', ['active', 'inactive'])->default('active');

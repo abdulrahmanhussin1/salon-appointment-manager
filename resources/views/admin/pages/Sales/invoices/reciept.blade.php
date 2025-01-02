@@ -167,6 +167,8 @@
                     <th style="width: 180px;">Item Name</th>
                     <th>QTY</th>
                     <th>Price</th>
+                    {{-- <th>Tax</th>
+                    <th>Discount</th> --}}
                     <th>SubTotal</th>
                 </tr>
             </thead>
@@ -182,7 +184,9 @@
                         <td>{{ $item->name() }}</td>
                         <td>{{ $item->quantity }}</td>
                         <td> {{ $item->customer_price }} </td>
-                        <td> {{ $item->subtotal }} </td>
+                        {{-- <td> {{ $item->tax }} </td>
+                        <td> {{ $item->discount }} </td> --}}
+                        <td> {{ $item->quantity * $item->customer_price }} </td>
                     </tr>
                     @php
 
@@ -221,13 +225,19 @@
               border-radius: 3px;">
             <thead>
                 <tr>
-                    <td>Total : </td>
-                    <td style="text-align: right;">{{ $total }}</td>
+                    <td>Total Saving In : </td>
+                    <td style="text-align: right;">{{ $invoice->invoice_discount }}</td>
                 </tr>
                 <tr>
-                    <td>Total Saving In %: </td>
-                    <td style="text-align: right;">32%</td>
+                    <td>Tax: </td>
+                    <td style="text-align: right;">{{ $invoice->invoice_tax }}</td>
                 </tr>
+
+                <tr>
+                    <td>Total : </td>
+                    <td style="text-align: right;">{{ $invoice->net_total }}</td>
+                </tr>
+
             </thead>
 
         </table>
