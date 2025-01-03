@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use Carbon\Carbon;
+use App\Models\Service;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use App\Models\SalesInvoiceDetail;
@@ -14,7 +15,8 @@ class EmployeeReportController extends Controller
     public function index()
     {
         $employees = Employee::select('id', 'name')->where('status', 'active')->get();
-        return view('admin.pages.reports.employee_report', compact('employees'));
+        $services = Service::select('id', 'name')->where('status', 'active')->get();
+        return view('admin.pages.reports.employee_report', compact('employees','services'));
     }
 
     public function getData(Request $request)
