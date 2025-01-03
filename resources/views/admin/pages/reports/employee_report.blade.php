@@ -45,6 +45,17 @@
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
+                        <label>Service</label>
+                        <select class="form-control" id="service_filter">
+                            <option value="">All Services</option>
+                            @foreach ($services as $service)
+                                <option value="{{ $service->id }}">{{ $service->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
                         <label>&nbsp;</label>
                         <button class="btn btn-primary btn-sm btn-block mt-4" id="filter_button">Filters</button>
                     </div>
@@ -80,6 +91,8 @@
                         d.start_date = $('#start_date').val();
                         d.end_date = $('#end_date').val();
                         d.employee_id = $('#employee_filter').val();
+                        d.service_id = $('#service_filter').val(); // Add service filter
+
                     }
                 },
                 columns: [{
@@ -124,6 +137,8 @@
                         start_date: $('#start_date').val(),
                         end_date: $('#end_date').val(),
                         employee_id: $('#employee_filter').val()
+                        service_id: $('#service_filter').val() // Add service filter
+
                     },
                     success: function(data) {
                         // Update summary statistics if needed

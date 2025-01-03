@@ -23,6 +23,11 @@ class Inventory extends Model
         return $this->belongsTo(Branch::class);
     }
 
+    public function inventoryProducts()
+    {
+        return $this->hasMany(InventoryProduct::class);
+    }
+
     public function inventoryTransactions()
     {
         return $this->morphMany(InventoryTransaction::class, 'reference');

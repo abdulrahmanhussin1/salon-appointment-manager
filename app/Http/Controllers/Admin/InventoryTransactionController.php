@@ -40,6 +40,20 @@ class InventoryTransactionController extends Controller
             'net_total' => 'required|numeric|min:0',
         ]);
 
+        // Check if the source inventory has enough stock for the transfer
+        $sourceInventory = Inventory::find($validatedData['source_inventory']);
+        $destinationInventory = Inventory::find($validatedData['destination_inventory']);
+
+        foreach ($validatedData['products'] as $product) {
+            $sourceProduct = $sourceInventory->inventoryProducts()->where('product_id', $product['product_id'])->first();
+
+           // dd($sourceProduct);
+            if (empty($sourceProduct->quantity) || $sourceProduct->quantity < $product['quantity']) {
+                Alert::error('Error', 'Not enough stock in the source inventory for the selected products.')->persistent('Close');
+                return redirect()->route('inventory_transactions.transferView');
+            }
+        }
+
         try {
             DB::transaction(function () use ($validatedData) {
                 // Step 1: Create the inventory transaction

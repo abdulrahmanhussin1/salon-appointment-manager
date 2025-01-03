@@ -13,7 +13,7 @@ class EmployeeReportController extends Controller
 {
     public function index()
     {
-        $employees = Employee::select('id','name')->where('status', 'active')->get();
+        $employees = Employee::select('id', 'name')->where('status', 'active')->get();
         return view('admin.pages.reports.employee_report', compact('employees'));
     }
 
@@ -37,6 +37,11 @@ class EmployeeReportController extends Controller
             $query->where('provider_id', $request->employee_id);
         }
 
+        // Apply service filter
+        if ($request->filled('service_id')) {
+            $query->where('service_id', $request->service_id); // Assuming service_id exists in your SalesInvoiceDetail model
+        }
+
         return DataTables::of($query)
             ->addColumn('employee_name', function ($row) {
                 return $row->provider->name;
@@ -53,6 +58,7 @@ class EmployeeReportController extends Controller
             ->rawColumns(['action'])
             ->make(true);
     }
+
 
     public function getEmployeeStats(Request $request)
     {

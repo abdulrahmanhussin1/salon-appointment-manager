@@ -45,7 +45,7 @@ class StoreBalanceReportController extends Controller
                 $qty = InventoryProduct::where('product_id', $product->id)
                     ->where('created_at', '<', $firstDayOfMonth)
                     ->sum('quantity');
-                $cost = $product->supplierPrices->sortByDesc('created_at')->first()->supplier_price ?? 0;
+            $cost = $product->supplierPrices->sortBy('created_at')->first()->supplier_price ?? 0;
                 return $qty * $cost;
             })
             ->addColumn('in_qty', function ($product) use ($firstDayOfMonth, $lastDayOfMonth) {
