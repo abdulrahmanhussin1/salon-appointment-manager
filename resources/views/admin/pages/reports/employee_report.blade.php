@@ -136,7 +136,7 @@
                     data: {
                         start_date: $('#start_date').val(),
                         end_date: $('#end_date').val(),
-                        employee_id: $('#employee_filter').val()
+                        employee_id: $('#employee_filter').val(),
                         service_id: $('#service_filter').val() // Add service filter
 
                     },
