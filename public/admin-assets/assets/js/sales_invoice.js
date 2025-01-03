@@ -314,7 +314,7 @@ function loadItems(type, categoryId) {
             );
             response.forEach((item) => {
                 const option = new Option(item.name, item.id);
-                $(option).data("code", item.code ?? item.id);
+                $(option).data("code", item.code ?? toString(item.id));
                 $item.append(option);
             });
             $item.prop("disabled", false);

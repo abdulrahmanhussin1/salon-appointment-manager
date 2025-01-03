@@ -61,6 +61,10 @@ class ServiceDataTable extends DataTable
                 }
             })
 
+            ->addColumn('service_category_id', function ($model) {
+                return $model->serviceCategory? $model->serviceCategory->name : null;
+            })
+
             ->editColumn('price', function ($model) {
                 return $model->price ? 'L.E ' . number_format($model->price, 2) : null;
             })
@@ -81,7 +85,7 @@ class ServiceDataTable extends DataTable
             ->addColumn('created_by', function ($model) {
                 return $model->createdBy ? $model->createdBy->name : null;
             })
-            ->rawColumns(['action', 'status','image'])
+            ->rawColumns(['action', 'status','image', 'is_target'])
             ->setRowId('id');
     }
 
@@ -134,7 +138,7 @@ class ServiceDataTable extends DataTable
             Column::make('name')->addClass('text-center'),
             Column::make('duration')->addClass('text-center'),
             Column::make('price')->addClass('text-center'),
-
+            Column::make('service_category_id')->addClass('text-center')->title('Service Category'),
             Column::make('is_target')->addClass('text-center')->title('Target'),
             Column::make('status')->addClass('text-center'),
             Column::make('created_by')->addClass('text-center'),

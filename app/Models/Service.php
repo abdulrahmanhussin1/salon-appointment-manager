@@ -19,6 +19,11 @@ class Service extends Model
         return $this->belongsToMany(Tool::class, 'service_tools', 'service_id', 'tool_id');
     }
 
+    public function serviceCategory()
+    {
+        return $this->belongsTo(ServiceCategory::class);
+    }
+
 
     public function employees()
     {

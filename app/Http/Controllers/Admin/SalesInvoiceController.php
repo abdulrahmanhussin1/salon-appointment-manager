@@ -202,6 +202,7 @@ class SalesInvoiceController extends Controller
 
     private function validateInvoiceData(Request $request)
     {
+
         return $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'items' => 'required|array',
