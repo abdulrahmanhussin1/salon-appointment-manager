@@ -208,7 +208,7 @@ class SalesInvoiceController extends Controller
             'items' => 'required|array',
             'items.*.type' => 'required|in:product,service',
             'items.*.item_id' => 'required|integer',
-            'items.*.code' => 'required|string',
+            'items.*.code' => 'required',
             'items.*.price' => 'required|numeric|min:0',
             'items.*.provider_id' => 'required|integer|exists:employees,id',
             'items.*.quantity' => 'required|numeric|min:1',
