@@ -18,7 +18,7 @@ class HomePageController extends Controller
      */
     public function index()
     {
-        $userBranchId = Auth::user()->employee->branch->id;
+        $userBranchId = Auth::user()->employee->branch->id ?? null;
 
         // If the user's branch ID is 1, sum across all branches; otherwise, sum for the user's branch only
         $expenseAmountQuery = Expense::where('status', 'active')->whereDate('created_at', today());

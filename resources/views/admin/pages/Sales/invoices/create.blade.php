@@ -319,7 +319,7 @@
 
 @section('js')
     <script src="{{ asset('admin-assets/assets/js/sales_invoice.js') }}"></script>
-    
+
     <script>
         $(document).ready(function() {
             $("#salutation,#gender,#added_from").select2({

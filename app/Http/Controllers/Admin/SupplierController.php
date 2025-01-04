@@ -42,14 +42,15 @@ class SupplierController extends Controller
                 "email" => $request->email,
                 'phone' => $request->phone,
                 'address' => $request->address,
-                'initial_balance' => $request->initial_balance,
+                'initial_balance' => $request->initial_balance ?? 0,
                 'status' => $request->status,
                 'created_by' => auth()->id(),
             ]);
 
             SupplierTransaction::create([
-                'supplier-id' => $supplier->id,
-                'type' => 'initial_balance',
+                'supplier_id' => $supplier->id,
+                'reference_type' => 'initial_balance',
+                'reference_id' => 0, // Set a meaningful reference ID if applicable
                 'amount' => $supplier->initial_balance,
                 'notes' => 'Initial Balance'
             ]);
@@ -60,9 +61,10 @@ class SupplierController extends Controller
             return redirect()->back();
         } catch (\Throwable $th) {
             DB::rollBack();
-            dd($th->getMessage());
-        }
+            Alert::error('Failure in creating supplier');
+            return redirect()->back();
 
+        }
     }
 
     /**
@@ -94,7 +96,7 @@ class SupplierController extends Controller
                 "email" => $request->email,
                 'phone' => $request->phone,
                 'address' => $request->address,
-                'initial_balance' => $request->initial_balance,
+                'initial_balance' => $request->initial_balance ?? 0,
                 'status' => $request->status,
                 'updated_by' => auth()->id(),
             ]);
@@ -109,7 +111,8 @@ class SupplierController extends Controller
             return redirect()->route('suppliers.index');
         } catch (\Throwable $th) {
             DB::rollBack();
-            dd($th->getMessage());
+            Alert::error('Failure in Updating supplier');
+            return redirect()->back();
         }
     }
 
