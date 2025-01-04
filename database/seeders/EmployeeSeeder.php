@@ -16,23 +16,23 @@ class EmployeeSeeder extends Seeder
      */
     public function run(): void
     {
-        Employee::factory()->count(5)->create();
-        //EmployeeWage::factory()->count(5)->create();
+    //     Employee::factory()->count(5)->create();
+    //     //EmployeeWage::factory()->count(5)->create();
 
-    $branches = Branch::all();
+    // $branches = Branch::all();
 
-    foreach ($branches as $branch) {
-        $branch['manager_id'] = rand(1, 3); // Assuming you have 10 employees
-        $branch->save();
-    }
+    // foreach ($branches as $branch) {
+    //     $branch['manager_id'] = rand(1, 3); // Assuming you have 10 employees
+    //     $branch->save();
+    // }
 
-        $users = User::whereIn('id', [1, 2])->get();
+    //     $users = User::whereIn('id', [1, 2])->get();
 
-        foreach ($users as $user) {
-            $user->update([
-                'employee_id' => $user->id, // Assign employee_id equal to the user ID
-            ]);
-        }
+    //     foreach ($users as $user) {
+    //         $user->update([
+    //             'employee_id' => $user->id, // Assign employee_id equal to the user ID
+    //         ]);
+    //     }
 
 
 

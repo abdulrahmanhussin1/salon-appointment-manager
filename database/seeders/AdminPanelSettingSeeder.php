@@ -15,11 +15,11 @@ class AdminPanelSettingSeeder extends Seeder
     public function run(): void
     {
         DB::table('admin_panel_settings')->insert([
-            'system_name' => ' Salon ',
+            'system_name' => 'Next',
             'system_phone' => '012345678910',
             'system_address' => 'Cairo Egypt',
             'system_notes' => 'system Notes from the system settings page are available in the system settings page in the system settings page in the system settings page in the system settings page in the ',
-            'system_logo'=> asset('admin-assets/assets/img/logo.jpg'),
+            'system_logo'=> asset('admin-assets/assets/img/next-logo.jpeg'),
             //'status' => 'active', // Enum value
             'created_by' => 1, // Assuming the user with ID 1 exists
             'updated_by' => 1, // Assuming the user with ID 1 exists
