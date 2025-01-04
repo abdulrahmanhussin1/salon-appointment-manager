@@ -22,8 +22,8 @@ class HomePageController extends Controller
 
         // If the user's branch ID is 1, sum across all branches; otherwise, sum for the user's branch only
         $expenseAmountQuery = Expense::where('status', 'active')->whereDate('created_at', today());
-        $creditCardSalesQuery = SalesInvoice::where('status', 'active')->where('payment_method_id', 2)->whereDate('created_at', today());
-        $cashSalesQuery = SalesInvoice::where('status', 'active')->where('payment_method_id', 1)->whereDate('created_at', today());
+        $creditCardSalesQuery = SalesInvoice::where('status', 'active')->where('payment_method_id', 1)->whereDate('created_at', today());
+        $cashSalesQuery = SalesInvoice::where('status', 'active')->where('payment_method_id', 2)->whereDate('created_at', today());
 
         // Apply branch filtering if the user's branch ID is not 1
         if ($userBranchId != 1) {
