@@ -459,18 +459,6 @@ function validateItemForm() {
     return true;
 }
 
-// function showError(message) {
-//     // Implement based on your preferred notification system
-//     // Example using Bootstrap toast or alert:
-//     alert(message);
-// }
-
-// function showSuccess(message) {
-//     // Implement based on your preferred notification system
-//     alert(message);
-// }
-
-// Initialize event handlers
 $(document).ready(function () {
     // Set a global variable to track the current AJAX request URL
     let currentAjaxUrl = null;
@@ -509,6 +497,7 @@ $(document).ready(function () {
                 }
             });
     });
+
     // Item type change
     $("#item-type").change(function () {
         const type = $(this).val();
@@ -601,6 +590,23 @@ $(document).ready(function () {
         }
     });
 
+    // Format only specific number inputs on blur
+    const numberInputs = [
+        "#deposit-input",
+        "#payment-method-value",
+        "#cash-value",
+        "#price",
+        "#quantity",
+        "#discount",
+        "#tax",
+        "#customer-deposit",
+    ];
+
+    $(numberInputs.join(", ")).on("blur", function () {
+        const value = parseFloat($(this).val()) || 0;
+        $(this).val(value.toFixed(2));
+    });
+
     $("#deposit-input").on("input", function () {
         const value = parseFloat($(this).val()) || 0;
         if (value < 0) {
@@ -638,11 +644,5 @@ $(document).ready(function () {
         if (value > maxCash) {
             $(this).val(maxCash.toFixed(2));
         }
-    });
-
-    // Format number inputs on blur
-    $("input[type='text']").on("blur", function () {
-        const value = parseFloat($(this).val()) || 0;
-        $(this).val(value.toFixed(2));
     });
 });
