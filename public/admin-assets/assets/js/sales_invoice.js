@@ -167,6 +167,7 @@ const invoiceItemsStore = {
         const deposit = parseFloat($("#deposit-input").val()) || 0;
         const netTotal = grandTotal - deposit;
         $("#net-total").text(`$${netTotal.toFixed(2)}`);
+        $("#cash-value").val(`$${netTotal.toFixed(2)}`);
 
         // Store the grand total for later calculations
         this.grandTotal = grandTotal;
