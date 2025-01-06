@@ -230,7 +230,7 @@ function handleCheckout(e) {
         },
         contentType: "application/json",
         data: JSON.stringify(data),
-         beforeSend: () => notifications.loading(),
+        beforeSend: () => notifications.loading(),
         success: function (response) {
             Swal.fire({
                 icon: "success",
@@ -246,10 +246,10 @@ function handleCheckout(e) {
 
                 if (result.isConfirmed) {
                     window.open(`invoice/${response.invoice_id}`, "_blank");
-                     $("#customer_id").val("").trigger("change");
-                     invoiceItemsStore.items = [];
-                     invoiceItemsStore.updateTable();
-                     invoiceItemsStore.updateTotals();
+                    $("#customer_id").val("").trigger("change");
+                    invoiceItemsStore.items = [];
+                    invoiceItemsStore.updateTable();
+                    invoiceItemsStore.updateTotals();
                 } else if (result.isDenied) {
                     window.location.href = route("sales_invoices.create");
                 } else {
@@ -259,6 +259,7 @@ function handleCheckout(e) {
                     invoiceItemsStore.items = [];
                     invoiceItemsStore.updateTable();
                     invoiceItemsStore.updateTotals();
+                    window.location.href = route("sales_invoices.create");
                 }
             });
         },
