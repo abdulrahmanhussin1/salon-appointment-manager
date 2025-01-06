@@ -4,7 +4,7 @@
 @endsection
 @section('content')
     {{-- Start breadcrumbs --}}
-    <x-breadcrumb pageName="customers">
+    <x-breadcrumb pageName="customers Payments">
         <x-breadcrumb-item>
             <a class="active" href="{{ route('home.index') }}">{{ __('Home') }}</a>
         </x-breadcrumb-item>
@@ -31,7 +31,6 @@
             enctype="multipart/form-data">
             @csrf
             <div class="modal-body">
-
                 <x-form-select name="customer_id" id="customer_id" label='Customers' required>
                     <option value="">{{ __('Select one Customer') }}</option>
                     @foreach ($customers as $customer)
@@ -46,8 +45,6 @@
                     placeholder='Amount' id="amount"     oninput="this.value = this.value.replace(/[^0-9+]/g, '')" required />
 
                 <x-form-description value="{{ old('notes') }}" label="notes" name='notes' placeholder='Notes' />
-
-
             </div>
             <x-modal-footer />
         </form>

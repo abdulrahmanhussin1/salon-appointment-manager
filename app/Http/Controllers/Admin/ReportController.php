@@ -83,12 +83,12 @@ class ReportController extends Controller
         return view('admin.pages.reports.daily_revenues');
     }
 
-
     public function TotalDailyRevenuesPage(Request $request)
     {
         return view('admin.pages.reports.total_daily_revenues');
 
     }
+
     public function TotalDailyRevenues(Request $request)
     {
         $request->validate([
@@ -133,11 +133,11 @@ class ReportController extends Controller
         return DataTables::of($data)->make(true);
     }
 
-
     public function dailySummaryPage(Request $request)
     {
         return view('admin.pages.reports.daily_summary');
     }
+
     public function dailySummary(Request $request)
     {
         $request->validate([
@@ -237,6 +237,7 @@ class ReportController extends Controller
     {
         return view('admin.pages.reports.monthly_summary');
     }
+    
     public function monthlySummary(Request $request)
     {
         $year = $request->input('year', date('Y'));
@@ -322,7 +323,7 @@ class ReportController extends Controller
 
             //get total revenue of new customers only
 
-            
+
 
 
 

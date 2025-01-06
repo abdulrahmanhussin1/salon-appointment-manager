@@ -42,18 +42,17 @@ class SalesInvoiceController extends Controller
     public function create()
     {
 
-        // $customers = Customer::select('id', 'name', 'phone', 'dob', 'last_service', 'created_at', 'is_vip','deposit')->where('status', 'active')->get();
         $customers = Customer::select('id', 'name', 'phone', 'dob', 'last_service', 'created_at', 'is_vip')
-            ->selectSub(function (Builder $query) {
-                $query->from('customer_transactions')
-                    ->whereColumn('customer_transactions.customer_id', 'customers.id')
-                    ->where('customer_transactions.reference_type', 'deposit')
-                    ->orderBy('customer_transactions.created_at', 'desc')
-                    ->select('customer_transactions.amount')
-                    ->limit(1); // Latest deposit
-            }, 'deposit')
-            ->where('status', 'active')
-            ->get();
+        ->selectSub(function (Builder $query) {
+            $query->from('customer_transactions')
+            ->whereColumn('customer_transactions.customer_id', 'customers.id')
+            ->where('status', 'available') // Only get available deposits
+                ->where('amount', '>', 0)
+                ->select(DB::raw('SUM(amount)')) // Sum all available deposits
+                ->limit(1);
+        }, 'deposit')
+        ->where('status', 'active')
+        ->get();
 
 
         $paymentMethods = PaymentMethod::select('id', 'name')->where('status', 'active')->where('name', '!=', 'cash')->get();
@@ -88,58 +87,6 @@ class SalesInvoiceController extends Controller
         return view('admin.pages.Sales.invoices.create',
         compact('customers', 'employees', 'products', 'services', 'paymentMethods', 'branches','categories','serviceCategories'));
     }
-
-    public function getByType(Request $request)
-    {
-        $type = $request->input('type');
-
-        if ($type === 'product') {
-            return ProductCategory::where('status', 'active')->get(['id', 'name']);
-        } else {
-            return ServiceCategory::where('status', 'active')->get(['id', 'name']);
-        }
-    }
-
-    // ItemController.php
-    public function getByCategory(Request $request)
-    {
-        $type = $request->input('type');
-        $categoryId = $request->input('category_id');
-
-        if ($type === 'product') {
-            return Product::where('category_id', $categoryId)
-                ->where('status', 'active')
-                ->get(['id', 'name', 'code']);
-        } else {
-            return Service::where('service_category_id', $categoryId)
-                ->where('status', 'active')
-                ->get(['id', 'name']);
-        }
-    }
-
-    public function getDetails(Request $request, $id)
-    {
-        $type = $request->input('type');
-
-        if ($type === 'product') {
-            $item = Product::with(['supplierPrices' => function ($query) {
-                $query->where('quantity', '>', 0)
-                ->orderBy('created_at', 'desc');
-            }])->findOrFail($id);
-
-            return [
-                'price' => $item->supplierPrices->first()?->customer_price ?? 0,
-                'price_can_change' => $item->price_can_change
-            ];
-        } else {
-            $service = Service::findOrFail($id);
-            return [
-                'price' => $service->price,
-                'price_can_change' => $service->price_can_change
-            ];
-        }
-    }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -163,6 +110,7 @@ class SalesInvoiceController extends Controller
         try {
             DB::beginTransaction();
 
+            // Process invoice items
             foreach ($validatedData['items'] as $item) {
                 if ($item['type'] === 'product') {
                     $productData = $this->processProduct($item);
@@ -175,16 +123,26 @@ class SalesInvoiceController extends Controller
                 }
             }
 
+            // Create invoice first
             $invoice = $this->createInvoiceTransaction($validatedData, $invoiceItems, $totals);
 
-            CustomerTransaction::create([
-                'customer_id' => $validatedData['customer_id'],
-                'reference_type' => 'invoice',
-                'reference_id' => $invoice->id,
-                'amount' => $invoice->net_total,
-                'notes' => 'invoice',
-                'created_by' => Auth::id(),
-            ]);
+            // Calculate the total amount to be paid
+            $totalToPay = $invoice->net_total;
+
+            // Use deposits if available
+            if ($validatedData['deposit'] > 0) {
+                $depositUsage = $this->processDepositUsage(
+                    $validatedData['customer_id'],
+                    $validatedData['deposit'],
+                    $invoice->id
+                );
+
+                // Update invoice with used deposit
+                $invoice->update([
+                    'invoice_deposit' => $depositUsage['used_amount'],
+                    'balance_due' => $invoice->balance_due - $depositUsage['used_amount']
+                ]);
+            }
 
             DB::commit();
 
@@ -200,6 +158,81 @@ class SalesInvoiceController extends Controller
         }
     }
 
+    private function processDepositUsage($customerId, $requestedDepositAmount, $invoiceId)
+    {
+        // Get available deposits
+        $availableDeposits = CustomerTransaction::where('customer_id', $customerId)
+            ->where('status', 'available')
+            ->where('amount', '>', 0)
+            ->orderBy('created_at')
+            ->get();
+
+        $remainingToUse = $requestedDepositAmount;
+        $usedAmount = 0;
+
+        foreach ($availableDeposits as $deposit) {
+            if ($remainingToUse <= 0) break;
+
+            if ($deposit->amount <= $remainingToUse) {
+                // Use entire deposit
+                $useAmount = $deposit->amount;
+                $deposit->status = 'used';
+                $deposit->save();
+            } else {
+                // Partially use deposit
+                $useAmount = $remainingToUse;
+                $deposit->amount -= $useAmount;
+                $deposit->save();
+            }
+
+            // Create transaction record for deposit usage
+            CustomerTransaction::create([
+                'customer_id' => $customerId,
+                'reference_type' => 'invoice',
+                'reference_id' => $invoiceId,
+                'amount' => -$useAmount,
+                'notes' => 'Deposit usage for invoice #' . $invoiceId,
+                'status' => 'used',
+                'used_in_transaction_id' => $deposit->id,
+                'created_by' => auth()->id()
+            ]);
+
+            $usedAmount += $useAmount;
+            $remainingToUse -= $useAmount;
+        }
+
+        return [
+            'used_amount' => $usedAmount,
+            'remaining_requested' => $remainingToUse
+        ];
+    }
+
+    private function createInvoiceTransaction($validatedData, $invoiceItems, $totals)
+    {
+        $grandTotal = $totals['productsTotal'] + $totals['servicesTotal'];
+        $netTotal = $grandTotal - $totals['discount'] + $totals['tax'];
+
+        $invoice = SalesInvoice::create([
+            'customer_id' => $validatedData['customer_id'],
+            'payment_method_id' => $validatedData['payment_method_id'],
+            'payment_method_value' => $validatedData['payment_method_value'] ?? 0,
+            'branch_id' => $validatedData['branch_id'],
+            'invoice_date' => $validatedData['invoice_date'],
+            'total_amount' => $grandTotal,
+            'invoice_discount' => $totals['discount'],
+            'invoice_tax' => $totals['tax'],
+            'net_total' => $netTotal,
+            'invoice_deposit' => 0, // Will be updated after deposit processing
+            'balance_due' => $netTotal - ($validatedData['payment_method_value'] ?? 0) - ($validatedData['cash_payment'] ?? 0),
+            'status' => $validatedData['status'],
+            'paid_amount_cash' => $validatedData['cash_payment'] ?? 0,
+            'created_by' => auth()->id(),
+        ]);
+
+        $invoice->salesInvoiceDetails()->createMany($invoiceItems);
+
+        return $invoice;
+    }
     private function validateInvoiceData(Request $request)
     {
 
@@ -328,52 +361,6 @@ class SalesInvoiceController extends Controller
             $totals['servicesTotal'] += $itemData['grossTotal'];
         }
     }
-
-    private function createInvoiceTransaction($validatedData, $invoiceItems, $totals)
-    {
-        DB::beginTransaction();
-        $grandTotal = $totals['productsTotal'] + $totals['servicesTotal'];
-        $netTotal = $grandTotal - $totals['discount'] + $totals['tax'];
-        $deposit = $validatedData['deposit'] ?? 0;
-
-       // dd(round($netTotal - $deposit - ($validatedData['payment_method_value'] ?? 0) - ($validatedData['cash_payment'] ?? 0), 2));
-
-
-
-        $invoice = SalesInvoice::create([
-            'customer_id' => $validatedData['customer_id'],
-            'payment_method_id' => $validatedData['payment_method_id'],
-            'payment_method_value' => $validatedData['payment_method_value'] ?? 0,
-            'branch_id' => $validatedData['branch_id'],
-            'invoice_date' => $validatedData['invoice_date'],
-            'total_amount' => $grandTotal,
-            'invoice_discount' => $totals['discount'],
-            'invoice_tax' => $totals['tax'],
-            'net_total' => $netTotal,
-            'invoice_deposit' => $deposit,
-            'balance_due' => round($netTotal - $deposit - ($validatedData['payment_method_value'] ?? 0) - ($validatedData['cash_payment'] ?? 0), 2),
-            'status' => $validatedData['status'],
-            'paid_amount_cash' => $validatedData['cash_payment'] ?? 0,
-            'created_by' => auth()->id(),
-        ]);
-
-        $invoice->salesInvoiceDetails()->createMany($invoiceItems);
-
-        // CustomerTransaction::where('customer_id',$validatedData['customer_id'])->first()->create([
-        //     'customer_id' => $validatedData['customer_id'],
-        //     'reference_type' => 'invoice',
-        //     'reference_id' => $invoice->id,
-        //     'notes' => 'invoice',
-        //     'created_by' => Auth::id(),
-        //     'amount' => ($netTotal - $deposit - ($validatedData['payment_method_value'] ?? 0) - ($validatedData['cash_payment'] ?? 0)) ?? 0,
-        // ]);
-
-        DB::commit();
-
-        return $invoice;
-    }
-
-
     private function checkInventoryAvailability($productId, $requestedQuantity)
     {
         $totalAvailable = InventoryProduct::where('product_id', $productId)
@@ -439,7 +426,7 @@ class SalesInvoiceController extends Controller
      */
     public function show(SalesInvoice $salesInvoice)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -447,7 +434,7 @@ class SalesInvoiceController extends Controller
      */
     public function edit(SalesInvoice $salesInvoice)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -455,7 +442,7 @@ class SalesInvoiceController extends Controller
      */
     public function update(Request $request, SalesInvoice $salesInvoice)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -463,7 +450,7 @@ class SalesInvoiceController extends Controller
      */
     public function destroy(SalesInvoice $salesInvoice)
     {
-        //
+        abort(404);
     }
     public function getItem(Request $request)
     {
@@ -487,5 +474,56 @@ class SalesInvoiceController extends Controller
     public function bookAppointment()
     {
         return view('admin.pages.Sales.booking.index');
+    }
+
+    public function getByType(Request $request)
+    {
+        $type = $request->input('type');
+
+        if ($type === 'product') {
+            return ProductCategory::where('status', 'active')->get(['id', 'name']);
+        } else {
+            return ServiceCategory::where('status', 'active')->get(['id', 'name']);
+        }
+    }
+
+    // ItemController.php
+    public function getByCategory(Request $request)
+    {
+        $type = $request->input('type');
+        $categoryId = $request->input('category_id');
+
+        if ($type === 'product') {
+            return Product::where('category_id', $categoryId)
+                ->where('status', 'active')
+                ->get(['id', 'name', 'code']);
+        } else {
+            return Service::where('service_category_id', $categoryId)
+                ->where('status', 'active')
+                ->get(['id', 'name']);
+        }
+    }
+
+    public function getDetails(Request $request, $id)
+    {
+        $type = $request->input('type');
+
+        if ($type === 'product') {
+            $item = Product::with(['supplierPrices' => function ($query) {
+                $query->where('quantity', '>', 0)
+                ->orderBy('created_at', 'desc');
+            }])->findOrFail($id);
+
+            return [
+                'price' => $item->supplierPrices->first()?->customer_price ?? 0,
+                'price_can_change' => $item->price_can_change
+            ];
+        } else {
+            $service = Service::findOrFail($id);
+            return [
+                'price' => $service->price,
+                'price_can_change' => $service->price_can_change
+            ];
+        }
     }
 }

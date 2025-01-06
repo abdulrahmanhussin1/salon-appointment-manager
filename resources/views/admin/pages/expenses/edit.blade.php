@@ -89,7 +89,6 @@
 
                     <!-- Payment Method -->
                     <x-form-select name="payment_method_id" id="payment_method_id" label='Payment Method' required>
-                        <option value="">{{ __('Select one Payment Method') }}</option>
                         @foreach ($paymentMethods as $paymentMethod)
                             <option @if ((isset($expense) && $expense->payment_method_id == $paymentMethod->id) || old('payment_method_id') == $paymentMethod->id) selected="selected" @endif
                                 @if (!isset($expense) && Auth::user()->employee?->payment_method_id == $paymentMethod->id) selected="selected" @endif value="{{ $paymentMethod->id }}">

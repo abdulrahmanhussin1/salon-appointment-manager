@@ -412,7 +412,7 @@
                         '<i class="bi bi-star-fill" style="color:#D38E29;font-size: x-large;"></i> Yes' :
                         '<i class="bi bi-star-fill" style="color:#D9DCE1;font-size: x-large;"></i> No'
                     );
-                    $('#deposit-input').val(parseFloat(selectedCustomer.deposit).toFixed(2));
+                    $('#deposit-input').val(parseFloat(selectedCustomer.deposit ?? 0).toFixed(2) || 0);
                 } else {
                     // Clear the input field if no customer is selected
                     $('#deposit-input').val('0.00');

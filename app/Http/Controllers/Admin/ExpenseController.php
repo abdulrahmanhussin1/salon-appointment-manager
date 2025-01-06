@@ -20,7 +20,7 @@ class ExpenseController extends Controller
     public function index(ExpenseDataTable $dataTable)
     {
         $expenseTypes = ExpenseType::where('status','active')->select('id','name')->get();
-        $paymentMethods = PaymentMethod::where('status','active')->select('id','name')->get();
+        $paymentMethods = PaymentMethod::where('status','active')->where('name','cash')->select('id','name')->get();
         $branches = Branch::where('status','active')->select('id','name')->get();
         return $dataTable->render('admin.pages.expenses.index',compact('expenseTypes','paymentMethods','branches'));
     }
@@ -69,7 +69,7 @@ class ExpenseController extends Controller
     public function edit(Expense $expense)
     {
         $expenseTypes = ExpenseType::where('status', 'active')->select('id', 'name')->get();
-        $paymentMethods = PaymentMethod::where('status', 'active')->select('id', 'name')->get();
+        $paymentMethods = PaymentMethod::where('status', 'active')->where('name', 'cash')->select('id', 'name')->get();
         $branches = Branch::where('status', 'active')->select('id', 'name')->get();
 
         return view('admin.pages.expenses.edit', compact('expense','paymentMethods','expenseTypes','branches'));

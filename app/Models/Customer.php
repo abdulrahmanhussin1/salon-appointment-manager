@@ -22,4 +22,13 @@ class Customer extends Model
     {
         return $this->hasMany(CustomerTransaction::class);
     }
+    
+    public function getAvailableDepositAmount()
+    {
+        return $this->transactions()
+            ->where('status', 'available')
+            ->where('amount', '>', 0)
+            ->sum('amount');
+    }
+
 }

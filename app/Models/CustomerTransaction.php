@@ -18,4 +18,45 @@ class CustomerTransaction extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    public static function useDepositsForInvoice($customerId, $invoiceAmount)
+    {
+        $availableDeposits = self::where('customer_id', $customerId)
+            ->where('status', 'available')
+            ->where('amount', '>', 0)
+            ->orderBy('created_at')
+            ->get();
+
+        $remainingAmount = $invoiceAmount;
+        $usedDeposits = [];
+
+        foreach ($availableDeposits as $deposit) {
+            if ($remainingAmount <= 0) break;
+
+            if ($deposit->amount <= $remainingAmount) {
+                // Use entire deposit
+                $usedAmount = $deposit->amount;
+                $deposit->status = 'used';
+                $deposit->save();
+            } else {
+                // Split deposit
+                $usedAmount = $remainingAmount;
+
+                // Update current deposit
+                $deposit->amount -= $usedAmount;
+                $deposit->save();
+            }
+
+            $usedDeposits[] = [
+                'amount' => $usedAmount,
+                'deposit_id' => $deposit->id
+            ];
+            $remainingAmount -= $usedAmount;
+        }
+
+        return [
+            'used_deposits' => $usedDeposits,
+            'remaining_to_pay' => max(0, $remainingAmount)
+        ];
+    }
 }
+

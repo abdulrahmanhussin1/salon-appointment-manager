@@ -96,6 +96,12 @@
                                 <td>Total Other Expenses</td>
                                 <td><strong class="text-danger" id="total-expenses">0.00</strong></td>
                             </tr>
+                            <tr class="table-net-cash-total">
+                                <td><strong>Net Cash Revenue (Total Cash Revenue - Total Cash Payments):</strong></td>
+                                <td><strong class="text-net-cash-total text-warning" id="net-cash-revenue">0.00</strong>
+                                </td>
+
+                            </tr>
                             <tr class="table-warning">
                                 <td><strong>Net Income</strong></td>
                                 <td><strong class="text-warning" id="net-income">0.00</strong></td>
@@ -217,27 +223,36 @@
                                 $('#total-tax-sales').text(parseFloat(response
                                     .total_taxes || 0).toFixed(2));
                                 $('#total-revenue').text(
-    (parseFloat(response.total_sales || 0) + parseFloat(response.total_taxes || 0)).toFixed(2)
-);
-
+                                    (parseFloat(response.total_sales || 0) + parseFloat(
+                                        response.total_taxes || 0)).toFixed(2)
+                                );
 
                                 $('#total-cash-payments').text(parseFloat(response
                                     .total_deposits || 0).toFixed(2));
+
                                 $('#total-other-payments').text(parseFloat(response
                                         .total_other_payment_methods_revenue || 0)
                                     .toFixed(2));
+
                                 $('#total-cash').text(parseFloat(response
                                     .total_cash_revenue || 0).toFixed(2));
+
                                 $('#total-expenses').text(parseFloat(response
                                     .total_other_expenses || 0).toFixed(2));
+
+                                $('#net-cash-revenue').text(parseFloat(response
+                                    .total_cash_revenue || 0) - parseFloat(response
+                                    .total_other_expenses || 0).toFixed(2));
+
                                 $('#net-income').text(
-    (
-        parseFloat(response.total_cash_revenue || 0) +
-        parseFloat(response.total_deposits || 0) +
-        parseFloat(response.total_other_payment_methods_revenue || 0) -
-        parseFloat(response.total_other_expenses || 0)
-    ).toFixed(2)
-);
+                                    (
+                                        parseFloat(response.total_cash_revenue || 0) +
+                                        parseFloat(response.total_deposits || 0) +
+                                        parseFloat(response
+                                            .total_other_payment_methods_revenue || 0) -
+                                        parseFloat(response.total_other_expenses || 0)
+                                    ).toFixed(2)
+                                );
 
 
                                 // Update the summary section fields

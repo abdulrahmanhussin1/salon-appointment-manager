@@ -242,7 +242,7 @@ function handleCheckout(e) {
                 denyButtonText: "Create New Invoice",
                 cancelButtonText: "Stay Here",
             }).then((result) => {
-                console.log(result);
+                //console.log(result);
 
                 if (result.isConfirmed) {
                     window.open(`invoice/${response.invoice_id}`, "_blank");
@@ -607,42 +607,116 @@ $(document).ready(function () {
         $(this).val(value.toFixed(2));
     });
 
+    // Function to set default cash value to net total
+    function setDefaultCashValue() {
+        const grandTotal = invoiceItemsStore.grandTotal || 0;
+        const deposit = parseFloat($("#deposit-input").val()) || 0;
+        const netTotal = grandTotal - deposit;
+        $("#cash-value").val(netTotal.toFixed(2));
+        $("#payment-method-value").val("0.00");
+    }
+
+    // Function to validate payment totals
+    function validatePaymentTotals() {
+        const grandTotal = invoiceItemsStore.grandTotal || 0;
+        const deposit = parseFloat($("#deposit-input").val()) || 0;
+        const netTotal = grandTotal - deposit;
+        const paymentMethodValue =
+            parseFloat($("#payment-method-value").val()) || 0;
+        const cashValue = parseFloat($("#cash-value").val()) || 0;
+        const totalPayment = paymentMethodValue + cashValue;
+
+        return Math.abs(totalPayment - netTotal) < 0.01; // Using small epsilon for floating-point comparison
+    }
+
+    // Initialize with default cash value
+    setDefaultCashValue();
+
+    // Enhanced deposit input handler
     $("#deposit-input").on("input", function () {
         const value = parseFloat($(this).val()) || 0;
         if (value < 0) {
             $(this).val("0.00");
         }
         invoiceItemsStore.updateTotals();
+        setDefaultCashValue(); // Reset cash value when deposit changes
     });
 
-    // Handle payment method value changes
+    // Enhanced payment method value handler
     $("#payment-method-value").on("input", function () {
         const value = parseFloat($(this).val()) || 0;
         const grandTotal = invoiceItemsStore.grandTotal || 0;
         const deposit = parseFloat($("#deposit-input").val()) || 0;
         const netTotal = grandTotal - deposit;
 
+        // Limit payment method value to net total
         if (value > netTotal) {
             $(this).val(netTotal.toFixed(2));
         }
 
-        // Update cash value
-        const paymentMethodValue = parseFloat($(this).val()) || 0;
-        const remainingBalance = netTotal - paymentMethodValue;
-        $("#cash-value").val(remainingBalance.toFixed(2));
+        // If payment method equals net total, set cash to 0
+        if (value === netTotal) {
+            $("#cash-value").val("0.00");
+        } else {
+            // Update cash value to maintain total
+            const remainingBalance = netTotal - value;
+            $("#cash-value").val(remainingBalance.toFixed(2));
+        }
     });
 
-    // Handle cash value changes
+    // Enhanced cash value handler
     $("#cash-value").on("input", function () {
         const value = parseFloat($(this).val()) || 0;
         const grandTotal = invoiceItemsStore.grandTotal || 0;
         const deposit = parseFloat($("#deposit-input").val()) || 0;
+        const netTotal = grandTotal - deposit;
         const paymentMethodValue =
             parseFloat($("#payment-method-value").val()) || 0;
-        const maxCash = grandTotal - deposit - paymentMethodValue;
 
-        if (value > maxCash) {
-            $(this).val(maxCash.toFixed(2));
+        // If cash is set to 0, update payment method to net total
+        if (value === 0) {
+            $("#payment-method-value").val(netTotal.toFixed(2));
+        } else {
+            // Calculate and set payment method value
+            const remainingPayment = netTotal - value;
+            if (remainingPayment >= 0) {
+                $("#payment-method-value").val(remainingPayment.toFixed(2));
+            } else {
+                // If cash exceeds net total, adjust it back
+                $(this).val((netTotal - paymentMethodValue).toFixed(2));
+            }
         }
+    });
+
+    // Enhanced checkout handler
+    $("#checkout").click(function (e) {
+        e.preventDefault();
+
+        if (invoiceItemsStore.items.length === 0) {
+            notifications.error("Please add at least one item to the invoice");
+            return;
+        }
+
+        // Validate payment totals before submission
+        if (!validatePaymentTotals()) {
+            notifications.error("Total payments must equal net total");
+            return;
+        }
+
+        // Handle special cases before submission
+        const netTotal =
+            invoiceItemsStore.grandTotal -
+            (parseFloat($("#deposit-input").val()) || 0);
+        const cashValue = parseFloat($("#cash-value").val()) || 0;
+        const paymentMethodValue =
+            parseFloat($("#payment-method-value").val()) || 0;
+
+        // If both payment method and cash are 0, set cash to net total
+        if (cashValue === 0 && paymentMethodValue === 0) {
+            $("#cash-value").val(netTotal.toFixed(2));
+        }
+
+        // Continue with existing checkout logic
+        handleCheckout(e);
     });
 });

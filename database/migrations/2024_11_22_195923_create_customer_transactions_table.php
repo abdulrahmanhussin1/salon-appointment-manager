@@ -17,6 +17,8 @@ return new class extends Migration
             $table->morphs('reference'); // Reference to models like SaleInvoice, Booking, etc.
             $table->decimal('amount', 15, 2)->default(0);
             $table->string('notes')->nullable();
+            $table->enum('status', ['available', 'used'])->default('available');
+            $table->foreignId('used_in_transaction_id')->nullable()->constrained('customer_transactions');
             $table->foreignId('created_by')->constrained('users', 'id')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users', 'id')->cascadeOnUpdate()->nullOnDelete();
             $table->timestamps();
