@@ -13,6 +13,6 @@ class EmployeeLevelSeeder extends Seeder
      */
     public function run(): void
     {
-        //EmployeeLevel::factory()->count(5)->create();
+        EmployeeLevel::factory()->count(5)->create();
     }
 }
