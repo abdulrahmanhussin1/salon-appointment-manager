@@ -279,7 +279,7 @@ function handleCheckout(e) {
                         resetAfterSuccess();
                     }  else {
                         resetAfterSuccess();
-                        window.location.href = route("sales_invoices.create");
+                        window.location.reload();
                     }
                 }).finally(() => {
                     $checkoutButton.prop("disabled", false); // Re-enable button

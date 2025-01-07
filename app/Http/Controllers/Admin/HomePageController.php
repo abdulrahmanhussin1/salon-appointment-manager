@@ -21,7 +21,7 @@ class HomePageController extends Controller
         $userBranchId = Auth::user()->employee->branch->id ?? null;
 
         // If the user's branch ID is 1, sum across all branches; otherwise, sum for the user's branch only
-        $expenseAmountQuery = Expense::where('status', 'active')->whereDate('created_at', today());
+        $expenseAmountQuery = Expense::where('status', 'active')->whereDate('paid_at', today());
         $creditCardSalesQuery = SalesInvoice::where('status', 'active')->where('payment_method_id', 1)->whereDate('created_at', today());
         $cashSalesQuery = SalesInvoice::where('status', 'active')->where('payment_method_id', 2)->whereDate('created_at', today());
 
@@ -33,7 +33,7 @@ class HomePageController extends Controller
         }
 
         // Get the sums
-        $expenseAmount = $expenseAmountQuery->sum('amount');
+        $expenseAmount = $expenseAmountQuery->sum('paid_amount');
         $creditCardSales = $creditCardSalesQuery->sum('net_total');
         $cashSales = $cashSalesQuery->sum('net_total');
 

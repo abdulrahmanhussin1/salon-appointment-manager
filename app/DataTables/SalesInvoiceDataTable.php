@@ -73,8 +73,8 @@ class SalesInvoiceDataTable extends DataTable
         ->editColumn('invoice_date', function ($model) {
             return $model->invoice_date? $model->invoice_date : null;
         })
-        ->addColumn('net_amount', function ($model) {
-            return '$'. $model->total_amount - $model->invoice_discount;
+        ->editColumn('net_amount', function ($model) {
+            return '$'. $model->net_total;
         })
         ->editColumn('branch_id', function ($model) {
             return $model->branch_id ? $model->branch->name : '';

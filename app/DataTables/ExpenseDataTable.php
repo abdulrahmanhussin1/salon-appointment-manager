@@ -23,31 +23,33 @@ class ExpenseDataTable extends DataTable
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
-        return (new EloquentDataTable($query
-        // ->when(request('start_date') && request('end_date') , function($q){
-        //     $startDate = request()->get('start_date');
-        //     $endDate = request()->get('end_date');
-        //     $startDate = Carbon::parse($startDate)->startOfDay()->format('Y-m-d H:i:s'); // e.g., 2024-12-29 00:00:00
-        //     $endDate = Carbon::parse($endDate)->endOfDay()->format('Y-m-d H:i:s');       // e.g., 2024-12-29 23:59:59
-        //    $q->whereBetween('created_at', [$startDate, $endDate]);
-        // })
-        ->when(request('start_date'), function($q) {
-            $startDate = Carbon::parse(request('start_date'))->startOfDay()->format('Y-m-d H:i:s'); // e.g., 2024-12-29 00:00:00
-            $q->where('created_at', '>=', $startDate);
-        })
-        ->when(request('end_date'), function($q) {
-            $endDate = Carbon::parse(request('end_date'))->endOfDay()->format('Y-m-d H:i:s'); // e.g., 2024-12-29 23:59:59
-            $q->where('created_at', '<=', $endDate);
-        })
-        ->when(request('expense_type_id'), function($q){
-            $q->where('expense_type_id', request()->get('expense_type_id'));
-        })
-        ->when(request('branch_id'), function($q){
-            $q->where('branch_id', request()->get('branch_id'));
-        })
+        return (new EloquentDataTable(
+            $query
+                // ->when(request('start_date') && request('end_date') , function($q){
+                //     $startDate = request()->get('start_date');
+                //     $endDate = request()->get('end_date');
+                //     $startDate = Carbon::parse($startDate)->startOfDay()->format('Y-m-d H:i:s'); // e.g., 2024-12-29 00:00:00
+                //     $endDate = Carbon::parse($endDate)->endOfDay()->format('Y-m-d H:i:s');       // e.g., 2024-12-29 23:59:59
+                //    $q->whereBetween('created_at', [$startDate, $endDate]);
+                // })
+                ->when(request('start_date'), function ($q) {
+                    $startDate = Carbon::parse(request('start_date'))->startOfDay()->format('Y-m-d H:i:s'); // e.g., 2024-12-29 00:00:00
+                    $q->where('paid_at', '>=', $startDate);
+                })
+                ->when(request('end_date'), function ($q) {
+                    $endDate = Carbon::parse(request('end_date'))->endOfDay()->format('Y-m-d H:i:s'); // e.g., 2024-12-29 23:59:59
+                    $q->where('paid_at', '<=', $endDate);
+                })
+                ->when(request('expense_type_id'), function ($q) {
+                    $q->where('expense_type_id', request()->get('expense_type_id'));
+                })
+                ->when(request('branch_id'), function ($q) {
+                    $q->where('branch_id', request()->get('branch_id'));
+                })
         ))
+
             ->editColumn('paid_at', function ($model) {
-                return $model->paid_at ? $model->paid_at->format('Y-m-d H:i:s') : null;
+                return $model->paid_at ? $model->paid_at->format('Y-m-d') : null;
             })
             ->addColumn('action', function ($model) {
                 $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
@@ -106,26 +108,26 @@ class ExpenseDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('expense-table')
-                    ->columns($this->getColumns())
-                    ->minifiedAjax()
+            ->setTableId('expense-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
             ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
             ->orderBy(0, 'desc')
             ->selectStyleSingle()
- ->buttons([
-            Button::make('excel')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('csv')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('pdf')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('print')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-        ]);
+            ->buttons([
+                Button::make('excel')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('csv')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('pdf')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('print')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+            ]);
     }
 
     /**
