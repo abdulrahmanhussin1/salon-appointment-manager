@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use App\Models\Branch;
 use App\Models\Inventory;
 use Illuminate\Database\Seeder;
@@ -30,6 +31,12 @@ class BranchSeeder extends Seeder
             'branch_id' => $branch->id,
             'created_by' => 1,
         ]);
+
+        $user = User::find(1);
+        $user->update([
+            'employee_id' => $branch->id, // Assign employee_id equal to the user ID
+        ]);
+
 
         // Create 10 additional branches and assign them 10 inventories each
         // Branch::factory(10)->create()->each(function ($branch) {
