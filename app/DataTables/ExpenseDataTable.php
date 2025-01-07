@@ -45,10 +45,10 @@ class ExpenseDataTable extends DataTable
         ->when(request('branch_id'), function($q){
             $q->where('branch_id', request()->get('branch_id'));
         })
-
-
-
         ))
+            ->editColumn('paid_at', function ($model) {
+                return $model->paid_at ? $model->paid_at->format('Y-m-d H:i:s') : null;
+            })
             ->addColumn('action', function ($model) {
                 $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
                             <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2"
