@@ -26,11 +26,11 @@ class SalesInvoiceDataTable extends DataTable
         return (new EloquentDataTable($query
         ->when(request('start_date'), function($q) {
             $startDate = Carbon::parse(request('start_date'))->startOfDay()->format('Y-m-d H:i:s'); // e.g., 2024-12-29 00:00:00
-            $q->where('created_at', '>=', $startDate);
+            $q->where('invoice_date', '>=', $startDate);
         })
         ->when(request('end_date'), function($q) {
             $endDate = Carbon::parse(request('end_date'))->endOfDay()->format('Y-m-d H:i:s'); // e.g., 2024-12-29 23:59:59
-            $q->where('created_at', '<=', $endDate);
+            $q->where('invoice_date', '<=', $endDate);
         })
         ->when(request('branch_id'), function($q) {
             $q->where('branch_id', request('branch_id'));

@@ -267,19 +267,17 @@ function handleCheckout(e) {
                 icon: "success",
                 title: "Invoice Created Successfully",
                 text: "What would you like to do next?",
-                showDenyButton: true,
+                //showDenyButton: true,
                 showCancelButton: true,
                 confirmButtonText: "Print Invoice",
-                denyButtonText: "Create New Invoice",
+               // denyButtonText: "Create New Invoice",
                 cancelButtonText: "Stay Here",
             })
                 .then((result) => {
                     if (result.isConfirmed) {
                         window.open(`invoice/${response.invoice_id}`, "_blank");
                         resetAfterSuccess();
-                    } else if (result.isDenied) {
-                        window.location.href = route("sales_invoices.create");
-                    } else {
+                    }  else {
                         resetAfterSuccess();
                         window.location.href = route("sales_invoices.create");
                     }
