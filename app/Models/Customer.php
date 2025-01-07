@@ -25,10 +25,8 @@ class Customer extends Model
     
     public function getAvailableDepositAmount()
     {
-        return $this->transactions()
-            ->where('status', 'available')
-            ->where('amount', '>', 0)
-            ->sum('amount');
+        return CustomerTransaction::getAvailableDeposits($this->id)->sum('amount');
     }
+
 
 }

@@ -205,23 +205,49 @@ function loadCategories(type) {
 // Enhanced checkout handler with improved validation and response handling
 function handleCheckout(e) {
     e.preventDefault();
+    const $checkoutButton = $("#checkout");
+    if ($checkoutButton.prop("disabled")) return;
+    $checkoutButton.prop("disabled", true);
 
     if (invoiceItemsStore.items.length === 0) {
         notifications.error("Please add at least one item to the invoice");
         return;
     }
 
+    // Parse values properly, removing any currency symbols and ensuring numbers
+    const cashValue =
+        parseFloat(
+            $("#cash-value")
+                .val()
+                .replace(/[^0-9.-]+/g, "")
+        ) || 0;
+    const paymentMethodValue =
+        parseFloat(
+            $("#payment-method-value")
+                .val()
+                .replace(/[^0-9.-]+/g, "")
+        ) || 0;
+    const deposit =
+        parseFloat(
+            $("#deposit-input")
+                .val()
+                .replace(/[^0-9.-]+/g, "")
+        ) || 0;
+
     const data = {
         customer_id: $("#customer_id").val(),
-        deposit: parseFloat($("#deposit-input").val()) || 0,
+        deposit: deposit,
         payment_method_id: $("#payment_method_id").val(),
-        payment_method_value: parseFloat($("#payment-method-value").val()) || 0,
+        payment_method_value: paymentMethodValue,
         branch_id: $("#branch_id").val(),
         invoice_date: $("#invoice_date").val(),
         items: invoiceItemsStore.getItemsForSubmission(),
         status: $("#status").val(),
-        cash_payment: parseFloat($("#cash-value").val()) || 0,
+        cash_payment: cashValue, // Use the properly parsed cash value
     };
+
+    // Log the data being sent for debugging
+    //console.log("Sending data to server:", data);
 
     $.ajax({
         url: API_ENDPOINTS.INVOICE_STORE,
@@ -231,7 +257,11 @@ function handleCheckout(e) {
         },
         contentType: "application/json",
         data: JSON.stringify(data),
-        beforeSend: () => notifications.loading(),
+        beforeSend: () => {
+            notifications.loading();
+            // Log the stringified data for verification
+            //console.log("Stringified data:", JSON.stringify(data));
+        },
         success: function (response) {
             Swal.fire({
                 icon: "success",
@@ -242,59 +272,33 @@ function handleCheckout(e) {
                 confirmButtonText: "Print Invoice",
                 denyButtonText: "Create New Invoice",
                 cancelButtonText: "Stay Here",
-            }).then((result) => {
-                //console.log(result);
-
-                if (result.isConfirmed) {
-                    window.open(`invoice/${response.invoice_id}`, "_blank");
-                    $("#customer_id").val("").trigger("change");
-                    invoiceItemsStore.items = [];
-                    invoiceItemsStore.updateTable();
-                    invoiceItemsStore.updateTotals();
-                } else if (result.isDenied) {
-                    window.location.href = route("sales_invoices.create");
-                } else {
-                    // Reset form if staying on page
-                    resetForm();
-                    $("#customer_id").val("").trigger("change");
-                    invoiceItemsStore.items = [];
-                    invoiceItemsStore.updateTable();
-                    invoiceItemsStore.updateTotals();
-                    window.location.href = route("sales_invoices.create");
-                }
-            });
+            })
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        window.open(`invoice/${response.invoice_id}`, "_blank");
+                        resetAfterSuccess();
+                    } else if (result.isDenied) {
+                        window.location.href = route("sales_invoices.create");
+                    } else {
+                        resetAfterSuccess();
+                        window.location.href = route("sales_invoices.create");
+                    }
+                }).finally(() => {
+                    $checkoutButton.prop("disabled", false); // Re-enable button
+                });
         },
         error: function (xhr, status, error) {
-            if (xhr.status === 422) {
-                const validationErrors = xhr.responseJSON.errors;
-                let errorMessages = "";
-                for (const field in validationErrors) {
-                    if (validationErrors.hasOwnProperty(field)) {
-                        errorMessages += `${validationErrors[field].join(
-                            "\n"
-                        )}\n`;
-                    }
-                }
-
-                Swal.fire({
-                    icon: "error",
-                    title: "Validation Error",
-                    text:
-                        errorMessages ||
-                        "Please correct the errors and try again.",
-                    confirmButtonColor: "#dc3545",
-                });
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "An unexpected error occurred. Please try again.",
-                    confirmButtonColor: "#dc3545",
-                });
-            }
-            console.error("Checkout error:", error);
+            handleAjaxError(xhr, status, error);
+            $checkoutButton.prop("disabled", false); // Re-enable button on error
         },
     });
+}
+
+function resetAfterSuccess() {
+    $("#customer_id").val("").trigger("change");
+    invoiceItemsStore.items = [];
+    invoiceItemsStore.updateTable();
+    invoiceItemsStore.updateTotals();
 }
 
 function loadItems(type, categoryId) {
@@ -485,9 +489,6 @@ $(document).ready(function () {
         currentAjaxUrl = ajaxSettings.url;
     });
 
-    // Attach enhanced event handlers
-    $("#checkout").click(handleCheckout);
-
     // Delete item handler with confirmation
     $(document).on("click", ".delete-item", function () {
         const index = $(this).data("index");
@@ -666,31 +667,41 @@ $(document).ready(function () {
         }
     });
 
-    // Enhanced cash value handler
     $("#cash-value").on("input", function () {
-        const value = parseFloat($(this).val()) || 0;
+        let value =
+            parseFloat(
+                $(this)
+                    .val()
+                    .replace(/[^0-9.-]+/g, "")
+            ) || 0;
         const grandTotal = invoiceItemsStore.grandTotal || 0;
-        const deposit = parseFloat($("#deposit-input").val()) || 0;
+        const deposit =
+            parseFloat(
+                $("#deposit-input")
+                    .val()
+                    .replace(/[^0-9.-]+/g, "")
+            ) || 0;
         const netTotal = grandTotal - deposit;
         const paymentMethodValue =
-            parseFloat($("#payment-method-value").val()) || 0;
+            parseFloat(
+                $("#payment-method-value")
+                    .val()
+                    .replace(/[^0-9.-]+/g, "")
+            ) || 0;
 
-        // If cash is set to 0, update payment method to net total
-        if (value === 0) {
-            $("#payment-method-value").val(netTotal.toFixed(2));
-        } else {
-            // Calculate and set payment method value
-            const remainingPayment = netTotal - value;
-            if (remainingPayment >= 0) {
-                $("#payment-method-value").val(remainingPayment.toFixed(2));
-            } else {
-                // If cash exceeds net total, adjust it back
-                $(this).val((netTotal - paymentMethodValue).toFixed(2));
-            }
-        }
+        // Ensure value doesn't exceed net total - payment method value
+        const maxCashValue = netTotal - paymentMethodValue;
+        value = Math.min(value, maxCashValue);
+
+        // Update the display with proper formatting
+        $(this).val(value.toFixed(2));
+
+        // Update payment method value if necessary
+        const remainingForPaymentMethod = netTotal - value;
+        $("#payment-method-value").val(remainingForPaymentMethod.toFixed(2));
     });
 
-    // Enhanced checkout handler
+    // Add validation before checkout
     $("#checkout").click(function (e) {
         e.preventDefault();
 
@@ -699,26 +710,34 @@ $(document).ready(function () {
             return;
         }
 
-        // Validate payment totals before submission
-        if (!validatePaymentTotals()) {
+        // Ensure proper number parsing
+        const netTotal =
+            invoiceItemsStore.grandTotal -
+            (parseFloat(
+                $("#deposit-input")
+                    .val()
+                    .replace(/[^0-9.-]+/g, "")
+            ) || 0);
+        const cashValue =
+            parseFloat(
+                $("#cash-value")
+                    .val()
+                    .replace(/[^0-9.-]+/g, "")
+            ) || 0;
+        const paymentMethodValue =
+            parseFloat(
+                $("#payment-method-value")
+                    .val()
+                    .replace(/[^0-9.-]+/g, "")
+            ) || 0;
+
+        // Validate total payments
+        const totalPayments = cashValue + paymentMethodValue;
+        if (Math.abs(totalPayments - netTotal) > 0.01) {
             notifications.error("Total payments must equal net total");
             return;
         }
 
-        // Handle special cases before submission
-        const netTotal =
-            invoiceItemsStore.grandTotal -
-            (parseFloat($("#deposit-input").val()) || 0);
-        const cashValue = parseFloat($("#cash-value").val()) || 0;
-        const paymentMethodValue =
-            parseFloat($("#payment-method-value").val()) || 0;
-
-        // If both payment method and cash are 0, set cash to net total
-        if (cashValue === 0 && paymentMethodValue === 0) {
-            $("#cash-value").val(netTotal.toFixed(2));
-        }
-
-        // Continue with existing checkout logic
         handleCheckout(e);
     });
 });

@@ -43,16 +43,16 @@ class SalesInvoiceController extends Controller
     {
 
         $customers = Customer::select('id', 'name', 'phone', 'dob', 'last_service', 'created_at', 'is_vip')
-        ->selectSub(function (Builder $query) {
-            $query->from('customer_transactions')
-            ->whereColumn('customer_transactions.customer_id', 'customers.id')
-            ->where('status', 'available') // Only get available deposits
-                ->where('amount', '>', 0)
-                ->select(DB::raw('SUM(amount)')) // Sum all available deposits
-                ->limit(1);
-        }, 'deposit')
-        ->where('status', 'active')
-        ->get();
+            ->selectSub(function (Builder $query) {
+                $query->from('customer_transactions')
+                    ->whereColumn('customer_transactions.customer_id', 'customers.id')
+                    ->where('status', 'available') // Only get available deposits
+                    ->where('amount', '>', 0)
+                    ->select(DB::raw('SUM(amount)')) // Sum all available deposits
+                    ->limit(1);
+            }, 'deposit')
+            ->where('status', 'active')
+            ->get();
 
 
         $paymentMethods = PaymentMethod::select('id', 'name')->where('status', 'active')->where('name', '!=', 'cash')->get();
@@ -80,13 +80,16 @@ class SalesInvoiceController extends Controller
         $branches = Auth::user()->hasRole('cashier')
             ? Branch::where('id', Auth::user()->employee?->branch_id)->get(['id', 'name'])
             : Branch::where('status', 'active')->get(['id', 'name']);
-        $categories = ProductCategory::where('status', 'active')->select('id','name')->get();
-        $serviceCategories = ServiceCategory::where('status', 'active')->select('id','name')->get();
+        $categories = ProductCategory::where('status', 'active')->select('id', 'name')->get();
+        $serviceCategories = ServiceCategory::where('status', 'active')->select('id', 'name')->get();
 
 
-        return view('admin.pages.Sales.invoices.create',
-        compact('customers', 'employees', 'products', 'services', 'paymentMethods', 'branches','categories','serviceCategories'));
+        return view(
+            'admin.pages.Sales.invoices.create',
+            compact('customers', 'employees', 'products', 'services', 'paymentMethods', 'branches', 'categories', 'serviceCategories')
+        );
     }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -94,26 +97,31 @@ class SalesInvoiceController extends Controller
     {
         $validatedData = $this->validateInvoiceData($request);
 
-        $customer = $this->validateCustomer($validatedData['customer_id']);
-        if (!$customer) {
-            return back()->withErrors(['customer_id' => 'Selected customer is not active.']);
-        }
+        // Get an exclusive lock on the customer to prevent concurrent transactions
+        return DB::transaction(function () use ($validatedData, $request) {
+            $customer = Customer::where('id', $validatedData['customer_id'])
+                ->lockForUpdate()  // This is crucial for preventing race conditions
+                ->first();
 
-        $invoiceItems = [];
-        $totals = [
-            'discount' => 0,
-            'tax' => 0,
-            'productsTotal' => 0,
-            'servicesTotal' => 0,
-        ];
+            if (!$customer || $customer->status !== 'active') {
+                throw new \Exception('Selected customer is not active.');
+            }
 
-        try {
-            DB::beginTransaction();
+            $invoiceItems = [];
+            $totals = [
+                'discount' => 0,
+                'tax' => 0,
+                'productsTotal' => 0,
+                'servicesTotal' => 0,
+            ];
 
             // Process invoice items
             foreach ($validatedData['items'] as $item) {
                 if ($item['type'] === 'product') {
-                    $productData = $this->processProduct($item);
+                    // Lock the product inventory
+                    $productData = DB::transaction(function () use ($item) {
+                        return $this->processProduct($item);
+                    });
                     $invoiceItems[] = $productData['invoiceItem'];
                     $this->updateTotals($totals, $productData);
                 } elseif ($item['type'] === 'service') {
@@ -123,13 +131,9 @@ class SalesInvoiceController extends Controller
                 }
             }
 
-            // Create invoice first
+            // Create invoice and process deposit in the same transaction
             $invoice = $this->createInvoiceTransaction($validatedData, $invoiceItems, $totals);
 
-            // Calculate the total amount to be paid
-            $totalToPay = $invoice->net_total;
-
-            // Use deposits if available
             if ($validatedData['deposit'] > 0) {
                 $depositUsage = $this->processDepositUsage(
                     $validatedData['customer_id'],
@@ -144,26 +148,19 @@ class SalesInvoiceController extends Controller
                 ]);
             }
 
-            DB::commit();
-
             return response()->json([
                 'invoice_id' => $invoice->id,
             ], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Invoice Creation Error: ' . $e->getMessage());
-            return response()->json([
-                'error' => $e->getMessage()
-            ], 422);
-        }
+        }, 5); // 5 retries for deadlock cases
     }
 
     private function processDepositUsage($customerId, $requestedDepositAmount, $invoiceId)
     {
-        // Get available deposits
+        // Get available deposits with a lock
         $availableDeposits = CustomerTransaction::where('customer_id', $customerId)
             ->where('status', 'available')
             ->where('amount', '>', 0)
+            ->lockForUpdate()  // Add lock here
             ->orderBy('created_at')
             ->get();
 
@@ -173,17 +170,20 @@ class SalesInvoiceController extends Controller
         foreach ($availableDeposits as $deposit) {
             if ($remainingToUse <= 0) break;
 
-            if ($deposit->amount <= $remainingToUse) {
+            // Create a snapshot of the current deposit amount
+            $currentDepositAmount = $deposit->amount;
+
+            if ($currentDepositAmount <= $remainingToUse) {
                 // Use entire deposit
-                $useAmount = $deposit->amount;
+                $useAmount = $currentDepositAmount;
                 $deposit->status = 'used';
-                $deposit->save();
             } else {
                 // Partially use deposit
                 $useAmount = $remainingToUse;
                 $deposit->amount -= $useAmount;
-                $deposit->save();
             }
+
+            $deposit->save();
 
             // Create transaction record for deposit usage
             CustomerTransaction::create([
@@ -205,6 +205,48 @@ class SalesInvoiceController extends Controller
             'used_amount' => $usedAmount,
             'remaining_requested' => $remainingToUse
         ];
+    }
+
+    private function processProduct($item)
+    {
+        return DB::transaction(function () use ($item) {
+            $product = Product::with('supplierPrices')
+                ->where('id', $item['item_id'])
+                ->where('status', 'active')
+                ->lockForUpdate()  // Add lock for product
+                ->firstOrFail();
+
+            // Check if there's enough inventory
+            $availableQuantity = $this->checkInventoryAvailability($product->id, $item['quantity']);
+            if (!$availableQuantity) {
+                throw new \Exception("Insufficient inventory for product {$product->name}");
+            }
+
+            $allocatedPrices = $this->allocateProductPrices($product, $item['quantity']);
+            $customerPrice = $allocatedPrices[0]['price'];
+
+            $grossTotal = $this->calculateTotal($allocatedPrices);
+            $discount = ($grossTotal * ($item['discount'] ?? 0)) / 100;
+            $tax = (($grossTotal - $discount) * ($item['tax'] ?? 0)) / 100;
+
+            // Deduct from inventory
+            $this->deductFromInventory($product->id, $item['quantity']);
+
+            return [
+                'grossTotal' => $grossTotal,
+                'discount' => $discount,
+                'tax' => $tax,
+                'invoiceItem' => [
+                    'product_id' => $product->id,
+                    'provider_id' => $item['provider_id'],
+                    'quantity' => $item['quantity'],
+                    'customer_price' => $customerPrice,
+                    'discount' => $item['discount'],
+                    'tax' => $item['tax'],
+                    'subtotal' => $grossTotal - $discount + $tax,
+                ],
+            ];
+        });
     }
 
     private function createInvoiceTransaction($validatedData, $invoiceItems, $totals)
@@ -255,51 +297,6 @@ class SalesInvoiceController extends Controller
             'cash_payment' => 'nullable|numeric|min:0',
             'payment_method_value' => 'nullable|numeric|min:0',
         ]);
-    }
-
-    private function validateCustomer($customerId)
-    {
-        $customer = Customer::find($customerId);
-        return $customer && $customer->status === 'active' ? $customer : null;
-    }
-
-    private function processProduct($item)
-    {
-        $product = Product::with('supplierPrices')
-            ->where('id', $item['item_id'])
-            ->where('status', 'active')
-            ->firstOrFail();
-
-        // Check if there's enough inventory
-        $availableQuantity = $this->checkInventoryAvailability($product->id, $item['quantity']);
-        if (!$availableQuantity) {
-            throw new \Exception("Insufficient inventory for product {$product->name}");
-        }
-
-        $allocatedPrices = $this->allocateProductPrices($product, $item['quantity']);
-        $customerPrice = $allocatedPrices[0]['price'];
-
-        $grossTotal = $this->calculateTotal($allocatedPrices);
-        $discount = ($grossTotal * ($item['discount'] ?? 0)) / 100;
-        $tax = (($grossTotal - $discount) * ($item['tax'] ?? 0)) / 100;
-
-        // Deduct from inventory
-        $this->deductFromInventory($product->id, $item['quantity']);
-
-        return [
-            'grossTotal' => $grossTotal,
-            'discount' => $discount,
-            'tax' => $tax,
-            'invoiceItem' => [
-                'product_id' => $product->id,
-                'provider_id' => $item['provider_id'],
-                'quantity' => $item['quantity'],
-                'customer_price' => $customerPrice,
-                'discount' => $item['discount'],
-                'tax' => $item['tax'],
-                'subtotal' => $grossTotal - $discount + $tax,
-            ],
-        ];
     }
 
     private function processService($item)
@@ -511,7 +508,7 @@ class SalesInvoiceController extends Controller
         if ($type === 'product') {
             $item = Product::with(['supplierPrices' => function ($query) {
                 $query->where('quantity', '>', 0)
-                ->orderBy('created_at', 'desc');
+                    ->orderBy('created_at', 'desc');
             }])->findOrFail($id);
 
             return [
