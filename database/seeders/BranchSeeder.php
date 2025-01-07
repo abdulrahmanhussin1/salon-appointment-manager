@@ -32,12 +32,6 @@ class BranchSeeder extends Seeder
             'created_by' => 1,
         ]);
 
-        $user = User::find(1);
-        $user->update([
-            'employee_id' => $branch->id, // Assign employee_id equal to the user ID
-        ]);
-
-
         // Create 10 additional branches and assign them 10 inventories each
         // Branch::factory(10)->create()->each(function ($branch) {
         //     // Create 10 inventories for each branch
