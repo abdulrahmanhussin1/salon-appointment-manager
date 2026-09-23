@@ -24,7 +24,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //share admin panel setting model with layouts
-
-        View::share('adminPanelSetting', \App\Models\AdminPanelSetting::first());
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('admin_panel_settings')) {
+                View::share('adminPanelSetting', \App\Models\AdminPanelSetting::first());
+            }
+        } catch (\Throwable $e) {
+            // Ignore during initial migrations or when database is not yet initialized
+        }
     }
 }

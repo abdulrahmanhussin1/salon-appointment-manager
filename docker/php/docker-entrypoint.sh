@@ -28,7 +28,7 @@ fi
 # Ensure composer dependencies are installed
 if [ ! -d /var/www/html/vendor ]; then
     echo "==> Installing Composer dependencies..."
-    composer install --no-interaction --prefer-dist --optimize-autoloader
+    composer install --no-interaction --prefer-dist --optimize-autoloader --no-audit
 fi
 
 # Ensure application key is set

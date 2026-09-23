@@ -54,8 +54,8 @@ docker compose --profile dev up npm
 | **Web (Nginx / Laravel)** | [http://localhost:8000](http://localhost:8000) | Main application interface |
 | **Mailpit (Web UI)** | [http://localhost:8025](http://localhost:8025) | Local email preview inbox |
 | **Mailpit (SMTP)** | `localhost:1025` | SMTP port for outgoing mail |
-| **MySQL Database** | `localhost:3306` | MySQL 8.0 server |
-| **Redis** | `localhost:6379` | In-memory cache & sessions |
+| **MySQL Database** | `localhost:3307` | MySQL 8.0 server (port 3307 mapped to avoid host 3306 conflict) |
+| **Redis** | `localhost:6380` | In-memory cache & sessions (port 6380 mapped to avoid host 6379 conflict) |
 | **Vite Dev Server** | `localhost:5173` | Hot Module Replacement (when running `npm`) |
 
 ---

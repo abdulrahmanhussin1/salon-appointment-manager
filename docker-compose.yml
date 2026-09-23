@@ -40,7 +40,7 @@ services:
       - "${APP_PORT:-8000}:80"
     volumes:
       - ./:/var/www/html:ro
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     networks:
       - salon_network
     depends_on:
@@ -51,7 +51,7 @@ services:
     container_name: salon_db
     restart: unless-stopped
     ports:
-      - "${FORWARD_DB_PORT:-3306}:3306"
+      - "${FORWARD_DB_PORT:-3307}:3306"
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-salon_db}
       MYSQL_USER: ${DB_USERNAME:-salon_user}
@@ -74,7 +74,7 @@ services:
     container_name: salon_redis
     restart: unless-stopped
     ports:
-      - "${FORWARD_REDIS_PORT:-6379}:6379"
+      - "${FORWARD_REDIS_PORT:-6380}:6379"
     volumes:
       - salon_redis_data:/data
     networks:
