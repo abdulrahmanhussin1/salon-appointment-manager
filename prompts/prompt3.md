@@ -23,12 +23,10 @@ docs/audit/
 </role>
 
 <task>
-TASK_ID:
+TASK_ID: REQ-001
 <TASK_ID>
 
-TASK:
-<DESCRIBE ONE SPECIFIC FEATURE, BUG, OR REFACTOR> </task>
-
+TASK: Secure appointment routes (move inside auth middleware, add input validation)
 <rules>
 
 1. Investigate the existing implementation before modifying anything.
