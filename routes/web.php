@@ -47,13 +47,9 @@ Route::get('/', function () {
     return redirect()->route('home.index');
 });
 
-Route::get('admin/calender', function(){
-    return view('admin.calender');
-})->name('home.calender');
-
-Route::resource('appointments', AppointmentController::class);
-
-
+Route::match(['get', 'post', 'put', 'delete'], 'appointments/{any?}', function () {
+    return redirect()->route('appointments.index');
+})->where('any', '.*');
 
 Route::get('admin/sales_invoices/invoice/{id}', [SalesInvoiceController::class, 'showReceipt'])->name('sales_invoices.invoice');
 
@@ -61,6 +57,10 @@ Route::get('admin/sales_invoices/invoice/{id}', [SalesInvoiceController::class, 
 Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(function () {
 
     Route::get('/', [HomePageController::class, 'index'])->name('home.index');
+    Route::get('calender', function () {
+        return view('admin.calender');
+    })->name('home.calender');
+    Route::resource('appointments', AppointmentController::class);
 
 
     Route::get('/dashboard', function () {

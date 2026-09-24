@@ -10,7 +10,12 @@ class EmployeeWage extends Model
 {
     use HasFactory,HasUserActions;
 
-    protected $guarded=['id'];
+    protected $guarded = ['id'];
+
     protected $table = 'employee_wages';
-    
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
+    }
 }

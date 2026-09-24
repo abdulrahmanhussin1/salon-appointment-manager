@@ -373,7 +373,13 @@
                 events: '{{ route('appointments.index') }}',
                 editable: false, // Enables drag-and-drop editing
                 eventClick: function(info) {
-                    // Open a prompt to edit the event title
+                    // Set form action URLs dynamically to target the clicked appointment
+                    var updateUrl = "{{ route('appointments.update', ':id') }}".replace(':id', info.event.id);
+                    document.getElementById('appoentmentFormUpdate').action = updateUrl;
+
+                    var destroyUrl = "{{ route('appointments.destroy', ':id') }}".replace(':id', info.event.id);
+                    document.getElementById('appoentmentFormDelete').action = destroyUrl;
+
                     document.getElementById('id').value = info.event.id;
                     document.getElementById('id_destroy').value = info.event.id;
 

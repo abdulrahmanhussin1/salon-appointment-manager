@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 @section('title')
-    {{ _('Sales Invoice') }}
+    {{ __('Sales Invoice') }}
 @endsection
 @section('css')
     <style>

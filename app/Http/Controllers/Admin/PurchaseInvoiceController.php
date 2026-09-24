@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Exception;
+use App\DataTables\PurchaseInvoiceDataTable;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\PurchaseInvoiceRequest;
 use App\Models\Branch;
 use App\Models\Product;
-use App\Models\Supplier;
-use Illuminate\Http\Request;
-use App\Models\SupplierPrice;
 use App\Models\PurchaseInvoice;
-use Illuminate\Support\Facades\DB;
+use App\Models\Supplier;
+use App\Models\SupplierPrice;
 use App\Models\SupplierTransaction;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 use RealRashid\SweetAlert\Facades\Alert;
-use App\DataTables\PurchaseInvoiceDataTable;
-use App\Http\Requests\PurchaseInvoiceRequest;
 
 class PurchaseInvoiceController extends Controller
 {
@@ -37,15 +36,16 @@ class PurchaseInvoiceController extends Controller
         $branches = Branch::where('status', 'active')->select('id', 'name')->get();
         $latestInvoiceNumber = null;
 
-        if (!empty(auth()->user()->employee_id)) {
+        if (! empty(auth()->user()->employee_id)) {
             $employee = auth()->user()->employee;
 
             if ($employee && $employee->branch) {
                 $latestInvoiceNumber = $employee->branch->purchaseInvoices->max('invoice_number');
             } else {
-                Log::warning('Employee or branch is missing for user ID: ' . auth()->id());
+                Log::warning('Employee or branch is missing for user ID: '.auth()->id());
             }
         }
+
         return view('admin.pages.suppliers.purchase_invoices.create', compact('products', 'branches', 'suppliers', 'latestInvoiceNumber'));
     }
 
@@ -81,7 +81,7 @@ class PurchaseInvoiceController extends Controller
             ]);
 
             // Save purchase invoice details
-            $purchaseInvoice->saveDetails($details,$request);
+            $purchaseInvoice->saveDetails($details, $request);
 
             // Create supplier transaction
             SupplierTransaction::create([
@@ -89,18 +89,20 @@ class PurchaseInvoiceController extends Controller
                 'reference_id' => $purchaseInvoice->id,
                 'reference_type' => SupplierTransaction::TYPE_PURCHASE,
                 'amount' => $request->total_amount,
-                'notes' => 'Purchase invoice #' . $purchaseInvoice->invoice_number,
+                'notes' => 'Purchase invoice #'.$purchaseInvoice->invoice_number,
             ]);
 
             DB::commit();
 
             Alert::success(__(key: 'Success'), __('Created Successfully'));
-            return redirect()->back();
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::error('Error creating purchase invoice: ' . $e->getMessage());
 
-            return back()->with('error', 'Failed to create purchase invoice. Please try again.');
+            return redirect()->back();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('Error creating purchase invoice: '.$e->getMessage(), ['exception' => $e]);
+            Alert::error(__('Error'), __('Failed to create purchase invoice. Please try again.'));
+
+            return back()->withInput()->with('error', 'Failed to create purchase invoice. Please try again.');
         }
     }
 
@@ -115,14 +117,14 @@ class PurchaseInvoiceController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(String $id)
+    public function edit(string $id)
     {
         // Fetch the invoice with all related details
         $invoice = PurchaseInvoice::with([
             'details' => function ($query) {
                 $query->with(['product']);
             },
-            'supplier'
+            'supplier',
         ])->findOrFail($id);
 
         // Attach the supplier and customer prices for each detail
@@ -146,10 +148,10 @@ class PurchaseInvoiceController extends Controller
         // Fetch the latest invoice number
         $latestInvoiceNumber = null;
         $user = auth()->user();
-        if (!empty($user->employee_id) && $user->employee && $user->employee->branch) {
+        if (! empty($user->employee_id) && $user->employee && $user->employee->branch) {
             $latestInvoiceNumber = $user->employee->branch->purchaseInvoices()->max('invoice_number');
         } else {
-            Log::warning('Employee or branch is missing for user ID: ' . $user->id);
+            Log::warning('Employee or branch is missing for user ID: '.$user->id);
         }
 
         // Return the view
@@ -214,21 +216,22 @@ class PurchaseInvoiceController extends Controller
                 'reference_id' => $invoice->id,
                 'reference_type' => SupplierTransaction::TYPE_PURCHASE,
                 'amount' => $invoice->total_amount,
-                'notes' => 'Purchase invoice #' . $invoice->invoice_number,
+                'notes' => 'Purchase invoice #'.$invoice->invoice_number,
             ]);
 
             DB::commit();
 
             Alert::success(__(key: 'Success'), __('Updated Successfully'));
+
             return redirect()->back();
-        } catch (Exception $e) {
-            dd($e->getMessage());
+        } catch (\Throwable $e) {
             DB::rollBack();
-            Log::error('Error updating purchase invoice: ' . $e->getMessage());
-            return back()->with('error', 'Failed to update purchase invoice. Please try again.');
+            Log::error('Error updating purchase invoice: '.$e->getMessage(), ['exception' => $e]);
+            Alert::error(__('Error'), __('Failed to update purchase invoice. Please try again.'));
+
+            return back()->withInput()->with('error', 'Failed to update purchase invoice. Please try again.');
         }
     }
-
 
     /**
      * Remove the specified resource from storage.

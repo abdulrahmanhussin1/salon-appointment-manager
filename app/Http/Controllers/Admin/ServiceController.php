@@ -2,34 +2,31 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Tool;
-use App\Models\Branch;
-use App\Models\Product;
-use App\Models\Service;
-use App\Models\Employee;
-use App\Traits\AppHelper;
-use App\Models\ServiceTool;
-use Illuminate\Http\Request;
-use App\Models\ServiceProduct;
-use App\Models\ServiceCategory;
-use App\Models\ServiceEmployee;
-use Illuminate\Support\Facades\DB;
 use App\DataTables\ServiceDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ServiceRequest;
+use App\Models\Branch;
+use App\Models\Employee;
+use App\Models\Product;
+use App\Models\Service;
+use App\Models\ServiceCategory;
+use App\Models\ServiceEmployee;
+use App\Models\ServiceProduct;
+use App\Models\ServiceTool;
+use App\Models\Tool;
+use App\Traits\AppHelper;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class ServiceController extends Controller
 {
-
-
     /**
      * Display a listing of the resource.
      */
     public function index(ServiceDataTable $dataTable)
     {
-
 
         return $dataTable->render('admin.pages.services.services.index');
     }
@@ -44,7 +41,8 @@ class ServiceController extends Controller
         $tools = Tool::select('id', 'name')->where('status', 'active')->get();
         $products = Product::select('id', 'name')->where('status', 'active')->get();
         $branches = Branch::select('id', 'name')->where('status', 'active')->get();
-        return view('admin.pages.services.services.create_edit', compact('serviceCategories', 'employees', 'tools', 'products','branches'));
+
+        return view('admin.pages.services.services.create_edit', compact('serviceCategories', 'employees', 'tools', 'products', 'branches'));
     }
 
     /**
@@ -55,7 +53,7 @@ class ServiceController extends Controller
         try {
             $image = null;
             if ($request->hasFile('image')) {
-                $image = AppHelper::handleFileUpload($request, 'image', "uploads/images/services", null);
+                $image = AppHelper::handleFileUpload($request, 'image', 'uploads/images/services', null);
             }
 
             DB::beginTransaction();
@@ -101,7 +99,7 @@ class ServiceController extends Controller
                         'service_id' => $service->id,
                         'employee_id' => $employeeId,
                         'commission_type' => $request->input("commission_type.$employeeId"),
-                        'commission_value' => $request->input("commission_value.$employeeId") ?? 0 ,
+                        'commission_value' => $request->input("commission_value.$employeeId") ?? 0,
                         'is_immediate_commission' => $request->input("is_immediate_commission.$employeeId", false),
                     ]);
                 }
@@ -109,11 +107,14 @@ class ServiceController extends Controller
 
             DB::commit();
             Alert::success(__('Success'), __('Create Successfully'));
+
             return redirect()->route('services.create');
         } catch (\Throwable $th) {
-            dd($th->getMessage());
             DB::rollBack();
-            Alert::error(__('error'), __('error in create service , please try again'));
+            Log::error('Error creating service: '.$th->getMessage(), ['exception' => $th]);
+            Alert::error(__('Error'), __('Error creating service, please try again.'));
+
+            return redirect()->back()->withInput();
         }
     }
 
@@ -135,7 +136,8 @@ class ServiceController extends Controller
         $tools = Tool::select('id', 'name')->where('status', 'active')->get();
         $products = Product::select('id', 'name')->where('status', 'active')->get();
         $branches = Branch::select('id', 'name')->where('status', 'active')->get();
-        return view('admin.pages.services.services.create_edit', compact('service', 'serviceCategories', 'employees', 'tools', 'products','branches'));
+
+        return view('admin.pages.services.services.create_edit', compact('service', 'serviceCategories', 'employees', 'tools', 'products', 'branches'));
     }
 
     /**
@@ -146,7 +148,7 @@ class ServiceController extends Controller
         try {
             $image = $service->image;
             if ($request->hasFile('image')) {
-                $image = AppHelper::handleFileUpload($request, 'image', "uploads/images/services", null);
+                $image = AppHelper::handleFileUpload($request, 'image', 'uploads/images/services', null);
             }
             DB::beginTransaction();
             $service->update([
@@ -199,10 +201,14 @@ class ServiceController extends Controller
             }
             DB::commit();
             Alert::success(__('Success'), __('Update Successfully'));
+
             return redirect()->route('services.index');
         } catch (\Throwable $th) {
             DB::rollBack();
-            Alert::error(__('error'), __('error in update service , please try again'));
+            Log::error('Error updating service: '.$th->getMessage(), ['exception' => $th]);
+            Alert::error(__('Error'), __('Error updating service, please try again.'));
+
+            return redirect()->back()->withInput();
         }
 
     }
@@ -221,5 +227,4 @@ class ServiceController extends Controller
         $service->delete();
         Alert::success(__('Success'), __('Deleted Successfully'));
     }
-
 }

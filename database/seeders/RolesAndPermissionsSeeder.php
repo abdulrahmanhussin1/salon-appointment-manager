@@ -173,6 +173,13 @@ class RolesAndPermissionsSeeder extends Seeder
                 /* Reports */
                 'reports.index',
 
+                /* appointments */
+                'appointments.index',
+                'appointments.show',
+                'appointments.create',
+                'appointments.edit',
+                'appointments.destroy',
+
             ],
         ];
 

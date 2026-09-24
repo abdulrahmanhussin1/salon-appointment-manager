@@ -150,4 +150,30 @@ When implementing a requirement from `PRODUCT_REQUIREMENTS.md`:
 
 ---
 
-*— No further decisions recorded yet. Entries will be added as implementation proceeds. —*
+## DEC-007: Appointment Authorization via Spatie Permissions and CheckRole Integration
+
+**Date:** 2026-09-24
+**Requirement:** REQ-001
+**Status:** Accepted
+
+**Context:** Appointment routes were previously completely outside the auth and checkRole middleware group. When moved inside `Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])`:
+1. The app uses `CheckRole` middleware which maps route names (`{resource}.{action}`) to Spatie permissions (`{resource}.create`, `{resource}.edit`, `{resource}.destroy`, `{resource}.index`).
+2. Previously, no appointment permissions existed in the `permissions` table or `RolesAndPermissionsSeeder`.
+3. If moved without seeding and migrating permissions, even administrators would receive 403 Forbidden.
+4. The calendar view (`home.calender`) was also unauthenticated.
+
+**Decision:**
+1. Create a migration `2026_09_24_000001_add_appointment_permissions.php` to insert permissions: `appointments.index`, `appointments.show`, `appointments.create`, `appointments.edit`, `appointments.destroy`, and grant them to `admin` and `cashier` roles.
+2. Update `RolesAndPermissionsSeeder` so fresh database seeds include them.
+3. Move `appointments` resource and `calender` inside `Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])`.
+4. Add route matching redirect for legacy `/appointments` to redirect unauthenticated or external requests to `/admin/appointments` (which triggers auth redirect).
+5. Update `CheckRole` middleware to authorize `home.calender` via `appointments.index`.
+
+**Reason:**
+- Preserves existing role-based access control paradigm consistently across all resources in the system.
+- Avoids hardcoded role checks; uses permission granularity.
+- Ensures zero downtime or 403 lockout for existing administrator and cashier accounts.
+
+**Consequences:** Users must have the corresponding permission to manage appointments.
+
+---

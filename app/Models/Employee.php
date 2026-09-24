@@ -10,7 +10,8 @@ class Employee extends Model
 {
     use HasFactory,HasUserActions;
 
-    protected $guarded=['id'];
+    protected $guarded = ['id'];
+
     protected $table = 'employees';
 
     public function employeeLevel()
@@ -20,14 +21,13 @@ class Employee extends Model
 
     public function services()
     {
-        return $this->belongsToMany(Service::class,'service_employees', 'employee_id','service_id')
+        return $this->belongsToMany(Service::class, 'service_employees', 'employee_id', 'service_id')
             ->withPivot(['commission_type', 'commission_value', 'is_immediate_commission']);
     }
 
-
     public function salesInvoiceDetails()
     {
-        return $this->hasMany(SalesInvoiceDetail::class,'provider_id');
+        return $this->hasMany(SalesInvoiceDetail::class, 'provider_id');
     }
 
     public function branch()
@@ -37,19 +37,11 @@ class Employee extends Model
 
     public function user()
     {
-        return $this->hasOne(User::class,'employee_id');
+        return $this->hasOne(User::class, 'employee_id');
     }
 
-    protected static function boot()
+    public function wage()
     {
-        parent::boot();
-
-        static::created(function ($employee) {
-            EmployeeWage::create([
-                'employee_id' => $employee->id, // This will now have a valid ID
-            ]);
-        });
+        return $this->hasOne(EmployeeWage::class);
     }
-
-
 }

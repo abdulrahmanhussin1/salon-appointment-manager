@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckRole
 {
     use AppHelper;
+
     public function getRoute()
     {
         return Route::current()->getName();
@@ -31,13 +32,13 @@ class CheckRole
             }
             if (
                 $this->getRoute() === 'home.index'
-                ||  ($page === 'multi_destroy' && self::perUSer($type . '.destroy'))
-                || ($page === 'store' && self::perUSer($type . '.create'))
-                || ($page === 'export' && self::perUSer($type . '.export'))
-                || ($page === 'update' && self::perUSer($type . '.edit'))
-                || ($page === 'transferOut' && self::perUSer($type . '.transferOutView'))
-                || ($page === 'transfer' && self::perUSer($type . '.transferView'))
-
+                || ($this->getRoute() === 'home.calender' && self::perUSer('appointments.index'))
+                || ($page === 'multi_destroy' && self::perUSer($type.'.destroy'))
+                || ($page === 'store' && self::perUSer($type.'.create'))
+                || ($page === 'export' && self::perUSer($type.'.export'))
+                || ($page === 'update' && self::perUSer($type.'.edit'))
+                || ($page === 'transferOut' && self::perUSer($type.'.transferOutView'))
+                || ($page === 'transfer' && self::perUSer($type.'.transferView'))
 
                 || ($page === 'daily_revenues' && self::perUSer('reports.index'))
                 || ($page === 'TotalDailyRevenuesPage' && self::perUSer('reports.index'))
@@ -48,33 +49,31 @@ class CheckRole
                 || ($page === 'monthlySummaryPage' && self::perUSer('reports.index'))
                 || ($page === 'monthlySummary' && self::perUSer('reports.index'))
 
-
-
                 || ($page === 'employee-services' && self::perUSer('reports.index'))
                 || ($page === 'employee-services.data' && self::perUSer('reports.index'))
                 || ($page === 'employee-services.stats' && self::perUSer('reports.index'))
 
-
                 || ($page === 'employee-summary-services' && self::perUSer('reports.index'))
                 || ($page === 'employee-summary-services.data' && self::perUSer('reports.index'))
                 || ($page === 'employee-summary-services.stats' && self::perUSer('reports.index'))
-                || ($page ==='stock' && self::perUSer('reports.index'))
+                || ($page === 'stock' && self::perUSer('reports.index'))
                 || ($page === 'stock_report' && self::perUSer('reports.index'))
                 || ($page === 'stock_balance' && self::perUSer('reports.index'))
-                || ($page ==='stock_balance_transfer' && self::perUSer('reports.index'))
+                || ($page === 'stock_balance_transfer' && self::perUSer('reports.index'))
 
-                || ($page ==='getDetails' && self::perUSer('sales_invoices.create'))
+                || ($page === 'getDetails' && self::perUSer('sales_invoices.create'))
                 || ($page === 'getByType' && self::perUSer('sales_invoices.create'))
                 || ($page === 'getByCategory' && self::perUSer('sales_invoices.create'))
-
 
                 || self::perUSer($this->getRoute())
                 || in_array($this->getRoute(), ['dashboard', 'sales_invoices.getItem', 'sales_invoices.getRelatedEmployees'])
             ) {
                 return $next($request);
             }
+
             return abort(403);
         }
+
         return redirect()->route('redirect');
     }
 }

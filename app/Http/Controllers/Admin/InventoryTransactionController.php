@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Product;
-use App\Models\Inventory;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Inventory;
 use App\Models\InventoryTransaction;
 use App\Models\InventoryTransactionDetail;
+use App\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class InventoryTransactionController extends Controller
 {
-
     public function transferView()
     {
         $inventories = Inventory::where('status', 'active')->select('id', 'name')->get();
         $products = Product::with('supplierPrices')->where('status', 'active')->select('id', 'name')->get();
+
         return view('admin.pages.inventories.transactions.transfer', compact('inventories', 'products'));
     }
 
@@ -47,9 +47,9 @@ class InventoryTransactionController extends Controller
         foreach ($validatedData['products'] as $product) {
             $sourceProduct = $sourceInventory->inventoryProducts()->where('product_id', $product['product_id'])->first();
 
-           // dd($sourceProduct);
             if (empty($sourceProduct->quantity) || $sourceProduct->quantity < $product['quantity']) {
                 Alert::error('Error', 'Not enough stock in the source inventory for the selected products.')->persistent('Close');
+
                 return redirect()->route('inventory_transactions.transferView');
             }
         }
@@ -85,7 +85,6 @@ class InventoryTransactionController extends Controller
                         ->where('product_id', $product['product_id'])
                         ->increment('quantity', $product['quantity']);
 
-
                     InventoryTransactionDetail::create([
                         'inventory_transaction_id' => $transaction->id,
                         'product_id' => $product['product_id'],
@@ -108,15 +107,17 @@ class InventoryTransactionController extends Controller
 
             DB::commit();
             Alert::success(__(key: 'Success'), __('Transfer transaction successfully stored.'));
+
             return redirect()->back();
 
-           // return response()->json(['message' => 'Transfer transaction successfully stored.'], 201);
+            // return response()->json(['message' => 'Transfer transaction successfully stored.'], 201);
         } catch (\Exception $e) {
             DB::rollBack();
             Alert::success(__(key: 'Error'), __('Try Again'));
+
             return redirect()->back();
 
-           // return response()->json(['message' => 'Transfer transaction failed'], 500);
+            // return response()->json(['message' => 'Transfer transaction failed'], 500);
         }
     }
 }

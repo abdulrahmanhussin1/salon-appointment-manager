@@ -2,20 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\AppointmentRequest;
 use App\Http\Resources\AppointmentResource;
 use App\Models\Appointment;
-use App\Models\Unit;
-use App\Models\Branch;
-use App\Models\Product;
-use App\Models\Supplier;
 use Carbon\Carbon;
-use Carbon\Traits\Units;
 use Illuminate\Http\Request;
-use App\Models\ProductCategory;
-use App\DataTables\ProductDataTable;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\ProductRequest;
-use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class AppointmentController extends Controller
@@ -25,9 +17,9 @@ class AppointmentController extends Controller
      */
     public function index()
     {
-       $Appointments = Appointment::all();
-        return response()->json( AppointmentResource::collection($Appointments) ) ;
+        $appointments = Appointment::all();
 
+        return response()->json(AppointmentResource::collection($appointments));
     }
 
     /**
@@ -35,59 +27,62 @@ class AppointmentController extends Controller
      */
     public function create()
     {
-        $suppliers = Supplier::where('status', 'active')->select('id', 'name')->get();
-        $units = Unit::where('status', 'active')->select('id', 'name')->get();
-        $productCategories = ProductCategory::where('status', 'active')->select('id', 'name')->get();
-        $branches = Branch::where('status', 'active')->select('id', 'name')->get();
-
-        return view('admin.pages.products.products.create_edit', compact('suppliers', 'units', 'productCategories','branches'));
+        return redirect()->route('home.calender');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(AppointmentRequest $request)
     {
-
         Appointment::create([
-            'customer_id' => $request->customer_id,
-            'provider_id' => $request->provider_id,
-            'service_id' => $request->service_id,
-            'start_date' => Carbon::parse( $request->start_date)->format('Y-m-d H:i:s'),
-            'end_date' => Carbon::parse( $request->end_date)->format('Y-m-d H:i:s'),
+            'customer_id' => $request->validated('customer_id'),
+            'provider_id' => $request->validated('provider_id'),
+            'service_id' => $request->validated('service_id'),
+            'start_date' => Carbon::parse($request->validated('start_date'))->format('Y-m-d H:i:s'),
+            'end_date' => Carbon::parse($request->validated('end_date'))->format('Y-m-d H:i:s'),
             'created_by' => auth()->id(),
         ]);
 
-        Alert::success(__(key: 'Success'), __('Created Successfully'));
+        Alert::success(__('Success'), __('Created Successfully'));
+
         return redirect()->back();
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Product $product)
+    public function show($id)
     {
         abort(404);
     }
 
-
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit($id)
+    {
+        abort(404);
+    }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(AppointmentRequest $request, $id)
     {
-        $product= Appointment::findOrFail( $request->id ) ;
+        $appointment = Appointment::findOrFail($id);
 
-        $product->update([
-            'customer_id' => $request->customer_id,
-            'provider_id' => $request->provider_id,
-            'service_id' => $request->service_id,
-            'start_date' => Carbon::parse( $request->start_date)->format('Y-m-d H:i:s'),
-            'end_date' => Carbon::parse( $request->end_date)->format('Y-m-d H:i:s'),
+        $appointment->update([
+            'customer_id' => $request->validated('customer_id'),
+            'provider_id' => $request->validated('provider_id'),
+            'service_id' => $request->validated('service_id'),
+            'start_date' => Carbon::parse($request->validated('start_date'))->format('Y-m-d H:i:s'),
+            'end_date' => Carbon::parse($request->validated('end_date'))->format('Y-m-d H:i:s'),
             'updated_by' => auth()->id(),
         ]);
+
         Alert::success(__('Success'), __('Updated Successfully'));
+
         return redirect()->back();
     }
 
@@ -96,10 +91,11 @@ class AppointmentController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $product= Appointment::findOrFail( $request->id ) ;
-        $product->delete();
-        Alert::success(__('Success'), __('Deleted Successfully'));
-        return redirect()->back();
+        $appointment = Appointment::findOrFail($id);
+        $appointment->delete();
 
+        Alert::success(__('Success'), __('Deleted Successfully'));
+
+        return redirect()->back();
     }
 }

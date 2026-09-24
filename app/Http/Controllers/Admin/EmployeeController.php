@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Branch;
-use App\Models\Service;
-use App\Models\Employee;
-use App\Traits\AppHelper;
-use App\Models\EmployeeWage;
-use Illuminate\Http\Request;
-use App\Models\EmployeeLevel;
-use App\Models\ServiceEmployee;
-use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
 use App\DataTables\EmployeeDataTable;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\EmployeeRequest;
+use App\Models\Branch;
+use App\Models\Employee;
+use App\Models\EmployeeLevel;
+use App\Models\EmployeeWage;
+use App\Models\Service;
+use App\Models\ServiceEmployee;
+use App\Traits\AppHelper;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -35,6 +36,7 @@ class EmployeeController extends Controller
         $employeeLevels = EmployeeLevel::where('status', 'active')->select('id', 'name')->get();
         $services = Service::where('status', 'active')->select('id', 'name')->get();
         $branches = Branch::where('status', 'active')->select('id', 'name')->get();
+
         return view('admin.pages.employees.employees.create_edit', compact('employeeLevels', 'services', 'branches'));
     }
 
@@ -44,9 +46,8 @@ class EmployeeController extends Controller
     public function store(EmployeeRequest $request)
     {
         try {
-            $photo = AppHelper::handleFileUpload($request, 'photo',  "uploads/images/employees", null);
-            $idCard = AppHelper::handleFileUpload($request, 'id_card',  "uploads/images/employees/id-cards", null);
-
+            $photo = AppHelper::handleFileUpload($request, 'photo', 'uploads/images/employees', null);
+            $idCard = AppHelper::handleFileUpload($request, 'id_card', 'uploads/images/employees/id-cards', null);
 
             DB::beginTransaction();
             $employee = Employee::create([
@@ -85,14 +86,13 @@ class EmployeeController extends Controller
                 'overtime_rate' => $request->overtime_rate ?? 0,
                 'penalty_late_hour' => $request->penalty_late_hour ?? 0,
                 'penalty_absence_day' => $request->penalty_absence_day ?? 0,
-                'sales_target_settings' => $request->sales_target_settings ??  'no',
+                'sales_target_settings' => $request->sales_target_settings ?? 'no',
                 'start_working_time' => $request->start_working_time ?? 0,
                 'break_time' => $request->break_time ?? 0,
                 'break_duration_minutes' => $request->break_duration_minutes ?? 0,
             ]);
 
-            if($request->has('service_id'))
-            {
+            if ($request->has('service_id')) {
                 $services = $request->input('service_id');
                 foreach ($services as $serviceId) {
                     ServiceEmployee::create([
@@ -102,16 +102,19 @@ class EmployeeController extends Controller
                         'commission_value' => $request->input("commission_value.$serviceId"),
                         'is_immediate_commission' => $request->input("is_immediate_commission.$serviceId", false),
                     ]);
-                };
+                }
             }
 
             DB::commit();
             Alert::success(__('Success'), __('Created Successfully'));
+
             return redirect()->back();
         } catch (\Throwable $th) {
-            dd($th->getMessage());
             DB::rollBack();
-            Alert::error(__('error'), __('error in create employee , please try again'));
+            Log::error('Error creating employee: '.$th->getMessage(), ['exception' => $th]);
+            Alert::error(__('Error'), __('Error creating employee, please try again.'));
+
+            return redirect()->back()->withInput();
         }
     }
 
@@ -129,7 +132,7 @@ class EmployeeController extends Controller
     public function edit(Employee $employee)
     {
         $employeeLevels = EmployeeLevel::where('status', 'active')->select('id', 'name')->get();
-        $employeeWage = EmployeeWage::where('employee_id', $employee->id)->first();
+        $employeeWage = $employee->wage ?? EmployeeWage::firstOrCreate(['employee_id' => $employee->id]);
         $services = Service::where('status', 'active')->select('id', 'name')->get();
         $branches = Branch::where('status', 'active')->select('id', 'name')->get();
 
@@ -142,8 +145,8 @@ class EmployeeController extends Controller
     public function update(EmployeeRequest $request, Employee $employee)
     {
         try {
-            $photo = AppHelper::handleFileUpload($request, 'photo',  "uploads/images/employees", null);
-            $idCard = AppHelper::handleFileUpload($request, 'id_card',  "uploads/images/employees/id-cards", null);
+            $photo = AppHelper::handleFileUpload($request, 'photo', 'uploads/images/employees', null);
+            $idCard = AppHelper::handleFileUpload($request, 'id_card', 'uploads/images/employees/id-cards', null);
 
             DB::beginTransaction();
             $employee->update([
@@ -164,11 +167,11 @@ class EmployeeController extends Controller
                 'employee_level_id' => $request->employee_level_id,
                 'inactive_reason' => $request->inactive_reason,
                 'termination_date' => $request->termination_date,
-                'branches_id' => $request->branches_id,
+                'branch_id' => $request->branch_id,
                 'updated_by' => auth()->user()->id,
             ]);
 
-            $employeeWage = EmployeeWage::where('employee_id', $employee->id)->first();
+            $employeeWage = $employee->wage ?? EmployeeWage::firstOrCreate(['employee_id' => $employee->id]);
 
             $totalSalary = $this->calculateTotalSalary($request);
             $employeeWage->update([
@@ -183,7 +186,7 @@ class EmployeeController extends Controller
                 'overtime_rate' => $request->overtime_rate ?? 0,
                 'penalty_late_hour' => $request->penalty_late_hour ?? 0,
                 'penalty_absence_day' => $request->penalty_absence_day ?? 0,
-                'sales_target_settings' => $request->sales_target_settings ??  'no',
+                'sales_target_settings' => $request->sales_target_settings ?? 'no',
                 'start_working_time' => $request->start_working_time ?? 0,
                 'break_time' => $request->break_time ?? 0,
                 'break_duration_minutes' => $request->break_duration_minutes ?? 0,
@@ -200,15 +203,18 @@ class EmployeeController extends Controller
                         'commission_value' => $request->input("commission_value.$serviceId"),
                         'is_immediate_commission' => $request->input("is_immediate_commission.$serviceId", false),
                     ]);
-                };
+                }
             }
             DB::commit();
             Alert::success(__('Success'), __('Updated Successfully'));
+
             return redirect()->route('employees.index');
         } catch (\Throwable $th) {
             DB::rollBack();
-            Alert::error(__('error'), __('error in update employee , please try again'));
-            return redirect()->back();
+            Log::error('Error updating employee: '.$th->getMessage(), ['exception' => $th]);
+            Alert::error(__('Error'), __('Error updating employee, please try again.'));
+
+            return redirect()->back()->withInput();
         }
     }
 
@@ -231,7 +237,6 @@ class EmployeeController extends Controller
         Alert::success(__('Success'), __('Deleted Successfully'));
     }
 
-
     private function calculateTotalSalary($request)
     {
         return ($request->basic_salary ?? 0) +
@@ -247,21 +252,20 @@ class EmployeeController extends Controller
         $itemType = $request->query('item_type');
         $itemId = $request->query('item_id');
 
-        if (!$itemType || !$itemId) {
+        if (! $itemType || ! $itemId) {
             return response()->json(['error' => 'Invalid parameters'], 400);
         }
 
-        if($itemType == 'product')
-        {
+        if ($itemType == 'product') {
             $employees = Employee::select('id', 'name')->where('status', 'active')->get();
 
-        }elseif($itemType == 'service'){
-            $employeesId = ServiceEmployee::where('service_id',$itemId)->pluck('employee_id')->toArray();
+        } elseif ($itemType == 'service') {
+            $employeesId = ServiceEmployee::where('service_id', $itemId)->pluck('employee_id')->toArray();
             $employees = Employee::whereIn('id', $employeesId)
-            ->select('id', 'name')
+                ->select('id', 'name')
                 ->get();
         }
+
         return response()->json($employees);
     }
-
 }

@@ -21,9 +21,9 @@
 
 | ID | Requirement | Status | Notes |
 |---|---|---|---|
-| REQ-001 | Secure appointment routes (auth middleware) | ⬜ | |
-| REQ-002 | Fix AppointmentController using `$request->id` instead of route param | ⬜ | |
-| REQ-003 | Remove `dd()` from all catch blocks | ⬜ | Affects: EmployeeController, ServiceController, PurchaseInvoiceController |
+| REQ-001 | Secure appointment routes (auth middleware) | ✅ | Moved inside admin auth/checkRole group, AppointmentRequest validation added, migration 2026_09_24_000001 created, 7 tests passing |
+| REQ-002 | Fix AppointmentController using `$request->id` instead of route param | ✅ | Bound directly to route param `$id` via `findOrFail($id)`, updated calendar JS action dynamically, 10 tests passing |
+| REQ-003 | Remove `dd()` from all catch blocks | ✅ | Replaced with DB::rollBack(), Log::error() with exception context, Alert::error(), redirect back with input; zero dd() remaining in app/, 3 tests passing |
 | REQ-004 | Fix EmployeeWage duplicate creation (BUG-002) | ⬜ | |
 | REQ-005 | Fix inventory transfer silent failure (BUG-004) | ⬜ | |
 | REQ-006 | Fix `price_can_change` ignored in `processService()` (BUG-011) | ⬜ | |
@@ -81,6 +81,38 @@
 
 > Most recent first.
 
+### 2026-09-24 — REQ-003 Implemented & Verified
+
+- Removed all active `dd()` calls from catch blocks in `EmployeeController`, `ServiceController`, and `PurchaseInvoiceController`.
+- Removed commented debug statement `// dd($sourceProduct);` from `InventoryTransactionController`.
+- In all transaction catch blocks: ensured `DB::rollBack()` executes before logging, exceptions are logged via `Log::error()` with message and context (`['exception' => $th]`), user-friendly error messages are flashed via `Alert::error(...)`, and requests redirect back with input (`redirect()->back()->withInput()`).
+- Added `tests/Feature/CatchBlockErrorHandlingTest.php` with 3 test cases:
+  - Employee creation transaction failure rollback, logging, and redirect with input.
+  - Service creation transaction failure rollback, logging, and redirect with input.
+  - Architectural regression test verifying zero active `dd()` statements exist across all PHP files in `app/`.
+- Total test suite across requirements: 13 passed, 52 assertions.
+
+### 2026-09-24 — REQ-002 Implemented & Verified
+
+- Modified `AppointmentController::update()` and `::destroy()` to bind strictly to route parameter `$id` (`Appointment::findOrFail($id)`), completely ignoring `$request->id` in the request body.
+- Updated `resources/views/admin/calender.blade.php` FullCalendar `eventClick` handler to dynamically set form `action` URLs for update (`admin/appointments/{id}`) and delete (`admin/appointments/{id}`).
+- Added 3 new tests in `tests/Feature/AppointmentSecurityTest.php` verifying:
+  - Route parameter enforcement ignoring body ID spoofing on update
+  - Route parameter enforcement ignoring body ID spoofing on destroy
+  - HTTP 404 response on non-existent route IDs for both PUT and DELETE
+- Total test suite: 10 tests, 43 assertions, all passing.
+
+### 2026-09-24 — REQ-001 Implemented & Verified
+
+- Moved `Route::resource('appointments', ...)` and `admin/calender` inside `Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])`.
+- Added legacy redirect for `/appointments` → `/admin/appointments`.
+- Created migration `2026_09_24_000001_add_appointment_permissions.php` adding Spatie permissions `appointments.{index,show,create,edit,destroy}` and assigned to `admin` and `cashier` roles.
+- Created `app/Http/Requests/AppointmentRequest.php` enforcing validation on `customer_id`, `provider_id`, `service_id`, `start_date`, and `end_date` (with FK existence and chronological order).
+- Updated `app/Http/Controllers/Admin/AppointmentController.php` with `AppointmentRequest` and cleaned dead imports.
+- Updated `app/Http/Middleware/CheckRole.php` to authorize `home.calender` via `appointments.index`.
+- Restored test framework harness (`tests/TestCase.php`, `tests/CreatesApplication.php`, configured in-memory sqlite in phpunit.xml).
+- Added comprehensive Feature test suite `tests/Feature/AppointmentSecurityTest.php` (7 tests, 35 assertions, all passing).
+
 ### 2026-09-24 — Product & Domain Audit Complete
 
 - Completed full repository analysis (migrations, models, controllers, routes, existing docs)
@@ -122,8 +154,8 @@ REQ-015 (invoice void)
 
 | Phase | Total | Done | In Progress | Blocked |
 |---|---|---|---|---|
-| Phase 0 | 8 | 0 | 0 | 0 |
+| Phase 0 | 8 | 3 | 0 | 0 |
 | Phase 1 | 4 | 0 | 0 | 0 |
 | Phase 2 | 5 | 0 | 0 | 0 |
 | Phase 3 | 3 | 0 | 0 | 0 |
-| **Total** | **20** | **0** | **0** | **0** |
+| **Total** | **20** | **3** | **0** | **0** |
