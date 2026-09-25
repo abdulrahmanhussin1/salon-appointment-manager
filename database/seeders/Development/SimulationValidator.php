@@ -82,16 +82,19 @@ class SimulationValidator
         $negativeTotalsCount = 0;
 
         foreach ($invoices as $inv) {
-            $computedGross = round((float) $inv->salesInvoiceDetails->sum('subtotal'), 2);
+            $computedGross = round((float) $inv->salesInvoiceDetails->sum(fn ($d) => (float) $d->customer_price * (float) $d->quantity), 2);
             $grossDiff = abs((float) $inv->total_amount - $computedGross);
 
-            $computedNet = round((float) $inv->total_amount - (float) $inv->invoice_discount + (float) $inv->invoice_tax, 2);
-            $netDiff = abs((float) $inv->net_total - $computedNet);
+            $computedDetailsNet = round((float) $inv->salesInvoiceDetails->sum('subtotal'), 2);
+            $netDetailsDiff = abs((float) $inv->net_total - $computedDetailsNet);
+
+            $computedHeaderNet = round((float) $inv->total_amount - (float) $inv->invoice_discount + (float) $inv->invoice_tax, 2);
+            $netHeaderDiff = abs((float) $inv->net_total - $computedHeaderNet);
 
             $computedBalance = round((float) $inv->net_total - (float) $inv->paid_amount_cash - (float) $inv->payment_method_value - (float) $inv->invoice_deposit, 2);
             $balanceDiff = abs((float) $inv->balance_due - $computedBalance);
 
-            if ($grossDiff > 0.10 || $netDiff > 0.10 || $balanceDiff > 0.10) {
+            if ($grossDiff > 0.10 || $netDetailsDiff > 0.10 || $netHeaderDiff > 0.10 || $balanceDiff > 0.10) {
                 $discrepancyCount++;
             }
 

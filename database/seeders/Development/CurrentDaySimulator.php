@@ -4,6 +4,7 @@ namespace Database\Seeders\Development;
 
 use App\Enums\AppointmentStatus;
 use App\Models\Appointment;
+use App\Models\Customer;
 use App\Models\Inventory;
 use App\Models\InventoryProduct;
 use App\Models\Product;

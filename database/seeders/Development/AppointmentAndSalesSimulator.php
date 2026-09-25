@@ -460,32 +460,35 @@ class AppointmentAndSalesSimulator extends Seeder
                 }
             }
 
-            // Flush chunked batch if buffer size reached to conserve memory
-            if (count($appointmentsToInsert) >= 600) {
+            // Flush chunked batch if buffer size reached to conserve memory and preserve FK constraints
+            if (count($appointmentsToInsert) >= 200) {
                 DB::table('appointments')->insert($appointmentsToInsert);
                 $appointmentsToInsert = [];
-            }
-            if (count($salesInvoicesToInsert) >= 400) {
-                DB::table('sales_invoices')->insert($salesInvoicesToInsert);
-                $salesInvoicesToInsert = [];
-            }
-            if (count($salesDetailsToInsert) >= 600) {
-                DB::table('sales_invoice_details')->insert($salesDetailsToInsert);
-                $salesDetailsToInsert = [];
+                if (! empty($salesInvoicesToInsert)) {
+                    DB::table('sales_invoices')->insert($salesInvoicesToInsert);
+                    $salesInvoicesToInsert = [];
+                }
+                if (! empty($salesDetailsToInsert)) {
+                    DB::table('sales_invoice_details')->insert($salesDetailsToInsert);
+                    $salesDetailsToInsert = [];
+                }
             }
 
             $currentDate->addDay();
         }
 
-        // Flush remaining buffers
+        // Flush remaining buffers in strict parent-to-child order
         if (! empty($appointmentsToInsert)) {
             DB::table('appointments')->insert($appointmentsToInsert);
+            $appointmentsToInsert = [];
         }
         if (! empty($salesInvoicesToInsert)) {
             DB::table('sales_invoices')->insert($salesInvoicesToInsert);
+            $salesInvoicesToInsert = [];
         }
         if (! empty($salesDetailsToInsert)) {
             DB::table('sales_invoice_details')->insert($salesDetailsToInsert);
+            $salesDetailsToInsert = [];
         }
 
         // 2. Sync final stock balances back to inventory_products

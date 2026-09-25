@@ -63,7 +63,43 @@ class FoundationSeeder extends Seeder
             ]
         );
 
-        // 3. Spatie Permissions & Roles
+        // 3. Create Branches
+        $branchesData = [
+            1 => [
+                'name' => 'Downtown Flagship',
+                'address' => '15 Tahrir Square, Downtown, Cairo',
+                'phone' => '01011112222',
+                'email' => 'downtown@luxeandglow.test',
+            ],
+            2 => [
+                'name' => 'Uptown Mall Branch',
+                'address' => 'Mall of Arabia, Gate 4, Giza',
+                'phone' => '01033334444',
+                'email' => 'mall@luxeandglow.test',
+            ],
+            3 => [
+                'name' => 'Westside Boutique',
+                'address' => '22 El-Gezira St, Zamalek, Cairo',
+                'phone' => '01055556666',
+                'email' => 'boutique@luxeandglow.test',
+            ],
+        ];
+
+        foreach ($branchesData as $bId => $bData) {
+            \App\Models\Branch::updateOrCreate(
+                ['id' => $bId],
+                [
+                    'name' => $bData['name'],
+                    'address' => $bData['address'],
+                    'phone' => $bData['phone'],
+                    'email' => $bData['email'],
+                    'status' => 'active',
+                    'created_by' => 1,
+                ]
+            );
+        }
+
+        // 4. Spatie Permissions & Roles
         $allPermissions = [
             'admin_panel_settings.index', 'admin_panel_settings.update',
             'roles.index', 'roles.show', 'roles.create', 'roles.edit', 'roles.rolesPermissions', 'roles.destroy',
@@ -196,7 +232,7 @@ class FoundationSeeder extends Seeder
         foreach ($units as $id => $name) {
             Unit::updateOrCreate(
                 ['id' => $id],
-                ['name' => $name, 'status' => 'active', 'created_by' => 1]
+                ['name' => $name, 'status' => 'active', 'branch_id' => 1, 'created_by' => 1]
             );
         }
 
@@ -214,7 +250,7 @@ class FoundationSeeder extends Seeder
         foreach ($tools as $id => $name) {
             Tool::updateOrCreate(
                 ['id' => $id],
-                ['name' => $name, 'status' => 'active', 'created_by' => 1]
+                ['name' => $name, 'status' => 'active', 'branch_id' => 1, 'created_by' => 1]
             );
         }
 
