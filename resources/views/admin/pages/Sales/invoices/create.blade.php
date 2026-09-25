@@ -65,6 +65,21 @@
                         </div>
                     </div>
                     @include('admin.layouts.alerts')
+                    @if (isset($linkedAppointment) && $linkedAppointment)
+                        <div class="alert alert-primary d-flex align-items-center mx-3 my-2 py-2" role="alert">
+                            <i class="bi bi-calendar2-check-fill fs-4 me-2 text-primary"></i>
+                            <div>
+                                <strong>{{ __('Checkout for Appointment #') }}{{ $linkedAppointment->id }}:</strong>
+                                <span class="fw-semibold">{{ $linkedAppointment->customer->name }}</span> &bull;
+                                <span class="badge bg-light text-dark border">{{ $linkedAppointment->service->name }}</span> &bull;
+                                <span>{{ __('Provider:') }} {{ $linkedAppointment->provider->name }}</span> &bull;
+                                <small class="text-muted">{{ \Carbon\Carbon::parse($linkedAppointment->start_date)->format('Y-m-d H:i') }}</small>
+                            </div>
+                        </div>
+                        <input type="hidden" name="appointment_id" id="appointment_id" value="{{ $linkedAppointment->id }}">
+                    @else
+                        <input type="hidden" name="appointment_id" id="appointment_id" value="">
+                    @endif
                     <form action="{{ route('sales_invoices.store') }}" method="POST">
                         @csrf
                         <div class="card-body">
@@ -72,7 +87,10 @@
                                 <div class="col-6 ">
                                     <x-form-select name="branch_id" id="branch_id" label='Branch' required>
                                         @foreach ($branches as $branch)
-                                            <option @if (old('branch_id') == $branch->id) selected="selected" @endif
+                                            @php
+                                                $isSelectedBranch = (isset($linkedAppointment) && $linkedAppointment && (($linkedAppointment->service?->branch_id == $branch->id) || ($linkedAppointment->provider?->branch_id == $branch->id))) || (old('branch_id') == $branch->id);
+                                            @endphp
+                                            <option @if ($isSelectedBranch) selected="selected" @endif
                                                 value="{{ $branch->id }}">
                                                 {{ $branch->name }}
                                             </option>
@@ -82,7 +100,7 @@
                                 <div class="col-6">
                                     <x-form-select name='status' id="status" label="status" required>
                                         <option @if (old('status') == 'active') selected @endif value="active">
-                                            {{ __('Active') }}</option>
+                                             {{ __('Active') }}</option>
                                         <option @if (old('status') == 'inactive') selected @endif value="inactive">
                                             {{ __('Inactive') }}</option>
                                         <option @if (old('status') == 'draft') selected @endif value="draft">
@@ -93,8 +111,10 @@
                                     <x-form-select name="customer_id" id="customer_id" label='Customers' required>
                                         <option value="">{{ __('Select one Customer') }}</option>
                                         @foreach ($customers as $customer)
-                                            <option @if (isset($invoice) && ($invoice->customer_id == $customer->id || old('customer_id') == $customer->id)) selected="selected" @endif
-                                                @if (!isset($invoice) && Auth::user()->employee?->customer_id == $customer->id) selected="selected" @endif
+                                            @php
+                                                $isSelectedCustomer = (isset($linkedAppointment) && $linkedAppointment && $linkedAppointment->customer_id == $customer->id) || (isset($invoice) && ($invoice->customer_id == $customer->id || old('customer_id') == $customer->id));
+                                            @endphp
+                                            <option @if ($isSelectedCustomer) selected="selected" @endif
                                                 value="{{ $customer->id }}">
                                                 {{ $customer->name }} - {{ $customer->phone }}
                                             </option>
@@ -418,6 +438,34 @@
                     $('#deposit-input').val('0.00');
                 }
             });
+
+            @if (isset($linkedAppointment) && $linkedAppointment)
+                // Trigger customer selection change to populate details
+                $('#customer_id').trigger('change');
+
+                // Pre-populate service line item from the linked appointment
+                const aptPrice = {{ (float) $linkedAppointment->service->price }};
+                const aptTax = 14;
+                const aptDue = aptPrice + ((aptPrice * aptTax) / 100);
+
+                const appointmentItem = {
+                    type: 'service',
+                    itemId: {{ $linkedAppointment->service_id }},
+                    itemName: @json($linkedAppointment->service->name),
+                    code: @json($linkedAppointment->service->code ?? ('SRV-' . $linkedAppointment->service_id)),
+                    providerId: {{ $linkedAppointment->provider_id }},
+                    providerName: @json($linkedAppointment->provider->name),
+                    quantity: 1,
+                    price: aptPrice,
+                    discount: 0,
+                    tax: aptTax,
+                    due: aptDue
+                };
+
+                if (typeof invoiceItemsStore !== 'undefined') {
+                    invoiceItemsStore.addItem(appointmentItem);
+                }
+            @endif
         });
     </script>
 @endsection

@@ -72,6 +72,12 @@
                 <button type="button" id="btnComplete" class="btn btn-sm btn-success action-btn d-none" onclick="triggerStatusAction('complete')">
                     <i class="bi bi-check2-all me-1"></i>{{ __('Complete') }}
                 </button>
+                <button type="button" id="btnCheckout" class="btn btn-sm btn-success text-white action-btn d-none" onclick="proceedToCheckout()">
+                    <i class="bi bi-cart-check me-1"></i>{{ __('Checkout / Invoice') }}
+                </button>
+                <a href="#" id="btnViewInvoice" class="btn btn-sm btn-outline-primary action-btn d-none" target="_blank">
+                    <i class="bi bi-receipt me-1"></i>{{ __('View Invoice') }}
+                </a>
                 <button type="button" id="btnNoShow" class="btn btn-sm btn-dark action-btn d-none" onclick="triggerStatusAction('no-show')">
                     <i class="bi bi-person-x me-1"></i>{{ __('No Show') }}
                 </button>
@@ -449,7 +455,7 @@
         var currentEventId = null;
         var calendar = null;
 
-        function updateStatusButtons(status) {
+        function updateStatusButtons(status, invoiceId) {
             $('.action-btn').addClass('d-none');
 
             if (status === 'requested') {
@@ -457,16 +463,28 @@
                 $('#btnCancel').removeClass('d-none');
             } else if (status === 'confirmed') {
                 $('#btnCheckIn').removeClass('d-none');
+                $('#btnCheckout').removeClass('d-none');
                 $('#btnNoShow').removeClass('d-none');
                 $('#btnCancel').removeClass('d-none');
             } else if (status === 'checked_in') {
                 $('#btnStartService').removeClass('d-none');
+                $('#btnCheckout').removeClass('d-none');
                 $('#btnNoShow').removeClass('d-none');
                 $('#btnCancel').removeClass('d-none');
             } else if (status === 'in_service') {
                 $('#btnComplete').removeClass('d-none');
+                $('#btnCheckout').removeClass('d-none');
                 $('#btnCancel').removeClass('d-none');
+            } else if (status === 'completed') {
+                if (invoiceId) {
+                    $('#btnViewInvoice').attr('href', `/admin/sales_invoices/invoice/${invoiceId}`).removeClass('d-none');
+                }
             }
+        }
+
+        function proceedToCheckout() {
+            if (!currentEventId) return;
+            window.location.href = `{{ route('sales_invoices.create') }}?appointment_id=${currentEventId}`;
         }
 
         function triggerStatusAction(action) {
@@ -601,7 +619,7 @@
                         $('#event_cancellation_info').addClass('d-none');
                     }
 
-                    updateStatusButtons(status);
+                    updateStatusButtons(status, info.event.extendedProps.invoice_id);
                     openModal();
                 }
             });

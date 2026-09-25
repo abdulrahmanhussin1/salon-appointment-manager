@@ -63,7 +63,7 @@ class CheckRole
                 || ($page === 'stock_report' && self::perUSer('reports.index'))
                 || ($page === 'stock_balance' && self::perUSer('reports.index'))
                 || ($page === 'stock_balance_transfer' && self::perUSer('reports.index'))
-                || (in_array($page, ['customer_deposits', 'customer_deposits_data', 'customer_deposits_stats']) && self::perUSer('reports.index'))
+                || (in_array($page, ['customer_deposits', 'customer_deposits_data', 'customer_deposits_stats', 'appointment_conversion', 'appointment_conversion_stats']) && self::perUSer('reports.index'))
 
                 || ($page === 'getDetails' && self::perUSer('sales_invoices.create'))
                 || ($page === 'getByType' && self::perUSer('sales_invoices.create'))

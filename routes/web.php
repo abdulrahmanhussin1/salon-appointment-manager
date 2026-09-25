@@ -141,6 +141,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::get('reports/customer-deposits', [ReportController::class, 'customerDeposits'])->name('report.customer_deposits');
     Route::get('reports/customer-deposits/data', [ReportController::class, 'customerDepositsData'])->name('report.customer_deposits_data');
     Route::get('reports/customer-deposits/stats', [ReportController::class, 'customerDepositsStats'])->name('report.customer_deposits_stats');
+    Route::get('reports/appointment-conversion', [ReportController::class, 'appointmentConversion'])->name('report.appointment_conversion');
+    Route::get('reports/appointment-conversion/stats', [ReportController::class, 'appointmentConversionStats'])->name('report.appointment_conversion_stats');
 
     Route::get('/categories', [salesInvoiceController::class, 'getByType'])->name('sales_invoices.getByType');
     Route::get('/items', [salesInvoiceController::class, 'getByCategory'])->name('sales_invoices.getByCategory');

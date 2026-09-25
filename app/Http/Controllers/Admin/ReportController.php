@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\AppointmentStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
 use App\Models\Customer;
 use App\Models\CustomerTransaction;
 use App\Models\Expense;
@@ -10,6 +12,7 @@ use App\Models\PaymentMethod;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceDetail;
+use App\Models\Service;
 use App\Traits\HasBranchFilter;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -569,6 +572,147 @@ class ReportController extends Controller
             'total_deposited' => number_format($totalDeposited, 2, '.', ''),
             'total_used' => number_format($totalUsed, 2, '.', ''),
             'customers_count' => $customersCount,
+        ]);
+    }
+
+    /**
+     * Display the Appointment Conversion Analytics Report page.
+     */
+    public function appointmentConversion(Request $request)
+    {
+        $branches = $this->getAvailableBranches();
+        $canSelectAll = $this->canAccessAllBranches();
+        $effectiveBranchId = $this->getEffectiveBranchId($request->input('branch_id'));
+        $fromDate = $request->input('from_date', now()->startOfMonth()->toDateString());
+        $toDate = $request->input('to_date', now()->toDateString());
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return $this->appointmentConversionStats($request);
+        }
+
+        return view('admin.pages.reports.appointment_conversion', compact('branches', 'canSelectAll', 'effectiveBranchId', 'fromDate', 'toDate'));
+    }
+
+    /**
+     * Return JSON analytics for Appointment Conversion (confirmed -> completed).
+     */
+    public function appointmentConversionStats(Request $request)
+    {
+        $effectiveBranchId = $this->getEffectiveBranchId($request->input('branch_id'));
+        $fromDate = $request->input('from_date') ? Carbon::parse($request->input('from_date'))->startOfDay() : now()->startOfMonth()->startOfDay();
+        $toDate = $request->input('to_date') ? Carbon::parse($request->input('to_date'))->endOfDay() : now()->endOfDay();
+
+        $baseQuery = Appointment::with(['provider', 'service', 'salesInvoice'])
+            ->whereBetween('start_date', [$fromDate->format('Y-m-d H:i:s'), $toDate->format('Y-m-d H:i:s')])
+            ->when($effectiveBranchId, function ($query, $branchId) {
+                $query->where(function ($sub) use ($branchId) {
+                    $sub->whereHas('provider', fn ($q) => $q->where('branch_id', $branchId))
+                        ->orWhereHas('service', fn ($q) => $q->where('branch_id', $branchId));
+                });
+            });
+
+        $appointments = $baseQuery->get();
+
+        $statusOf = fn ($apt) => $apt->status instanceof \BackedEnum ? $apt->status->value : (string) $apt->status;
+
+        $totalBooked = $appointments->filter(fn ($apt) => $statusOf($apt) !== AppointmentStatus::REJECTED->value)->count();
+        $requestedCount = $appointments->filter(fn ($apt) => $statusOf($apt) === AppointmentStatus::REQUESTED->value)->count();
+        $confirmedCount = $appointments->filter(fn ($apt) => $statusOf($apt) === AppointmentStatus::CONFIRMED->value)->count();
+        $checkedInCount = $appointments->filter(fn ($apt) => $statusOf($apt) === AppointmentStatus::CHECKED_IN->value)->count();
+        $inServiceCount = $appointments->filter(fn ($apt) => $statusOf($apt) === AppointmentStatus::IN_SERVICE->value)->count();
+        $completedCount = $appointments->filter(fn ($apt) => $statusOf($apt) === AppointmentStatus::COMPLETED->value)->count();
+        $cancelledCount = $appointments->filter(fn ($apt) => $statusOf($apt) === AppointmentStatus::CANCELLED->value)->count();
+        $noShowCount = $appointments->filter(fn ($apt) => $statusOf($apt) === AppointmentStatus::NO_SHOW->value)->count();
+
+        // Invoiced appointments: count of appointments that have a linked active sales invoice
+        $invoicedAppointments = $appointments->filter(function ($apt) {
+            return $apt->salesInvoice && $apt->salesInvoice->status === 'active';
+        });
+        $invoicedCount = $invoicedAppointments->count();
+        $totalRevenue = (float) $invoicedAppointments->sum(fn ($apt) => $apt->salesInvoice->net_total ?? 0);
+
+        // Confirmed pool = confirmed + checked_in + in_service + completed + cancelled + no_show
+        $confirmedPool = $confirmedCount + $checkedInCount + $inServiceCount + $completedCount + $cancelledCount + $noShowCount;
+        $confirmedToCompletedRate = $confirmedPool > 0 ? round(($completedCount / $confirmedPool) * 100, 1) : 0.0;
+        $bookedToCompletedRate = $totalBooked > 0 ? round(($completedCount / $totalBooked) * 100, 1) : 0.0;
+        $cancellationRate = $totalBooked > 0 ? round(($cancelledCount / $totalBooked) * 100, 1) : 0.0;
+        $noShowRate = $totalBooked > 0 ? round(($noShowCount / $totalBooked) * 100, 1) : 0.0;
+
+        // Provider conversion breakdown
+        $providerBreakdown = $appointments->groupBy('provider_id')->map(function ($items, $providerId) use ($statusOf) {
+            $provider = $items->first()->provider;
+            $total = $items->filter(fn ($apt) => $statusOf($apt) !== AppointmentStatus::REJECTED->value)->count();
+            $completed = $items->filter(fn ($apt) => $statusOf($apt) === AppointmentStatus::COMPLETED->value)->count();
+            $cancelled = $items->filter(fn ($apt) => $statusOf($apt) === AppointmentStatus::CANCELLED->value)->count();
+            $noShow = $items->filter(fn ($apt) => $statusOf($apt) === AppointmentStatus::NO_SHOW->value)->count();
+            $confirmedSubPool = $items->filter(fn ($apt) => in_array($statusOf($apt), [
+                AppointmentStatus::CONFIRMED->value,
+                AppointmentStatus::CHECKED_IN->value,
+                AppointmentStatus::IN_SERVICE->value,
+                AppointmentStatus::COMPLETED->value,
+                AppointmentStatus::CANCELLED->value,
+                AppointmentStatus::NO_SHOW->value,
+            ]))->count();
+            $rate = $confirmedSubPool > 0 ? round(($completed / $confirmedSubPool) * 100, 1) : 0.0;
+
+            $rev = $items->filter(fn ($apt) => $apt->salesInvoice && $apt->salesInvoice->status === 'active')
+                ->sum(fn ($apt) => $apt->salesInvoice->net_total ?? 0);
+
+            return [
+                'provider_id' => $providerId,
+                'provider_name' => $provider?->name ?? 'Unknown',
+                'total_booked' => $total,
+                'completed' => $completed,
+                'cancelled' => $cancelled,
+                'no_show' => $noShow,
+                'conversion_rate' => $rate,
+                'revenue' => number_format((float) $rev, 2, '.', ''),
+            ];
+        })->values();
+
+        // Service conversion breakdown
+        $serviceBreakdown = $appointments->groupBy('service_id')->map(function ($items, $serviceId) use ($statusOf) {
+            $service = $items->first()->service;
+            $total = $items->filter(fn ($apt) => $statusOf($apt) !== AppointmentStatus::REJECTED->value)->count();
+            $completed = $items->filter(fn ($apt) => $statusOf($apt) === AppointmentStatus::COMPLETED->value)->count();
+            $confirmedSubPool = $items->filter(fn ($apt) => in_array($statusOf($apt), [
+                AppointmentStatus::CONFIRMED->value,
+                AppointmentStatus::CHECKED_IN->value,
+                AppointmentStatus::IN_SERVICE->value,
+                AppointmentStatus::COMPLETED->value,
+                AppointmentStatus::CANCELLED->value,
+                AppointmentStatus::NO_SHOW->value,
+            ]))->count();
+            $rate = $confirmedSubPool > 0 ? round(($completed / $confirmedSubPool) * 100, 1) : 0.0;
+
+            return [
+                'service_id' => $serviceId,
+                'service_name' => $service?->name ?? 'Unknown',
+                'total_booked' => $total,
+                'completed' => $completed,
+                'conversion_rate' => $rate,
+            ];
+        })->values();
+
+        return response()->json([
+            'from_date' => $fromDate->toDateString(),
+            'to_date' => $toDate->toDateString(),
+            'total_booked' => $totalBooked,
+            'requested_count' => $requestedCount,
+            'confirmed_count' => $confirmedCount,
+            'checked_in_count' => $checkedInCount,
+            'in_service_count' => $inServiceCount,
+            'completed_count' => $completedCount,
+            'cancelled_count' => $cancelledCount,
+            'no_show_count' => $noShowCount,
+            'invoiced_count' => $invoicedCount,
+            'total_revenue' => number_format($totalRevenue, 2, '.', ''),
+            'confirmed_to_completed_rate' => $confirmedToCompletedRate,
+            'booked_to_completed_rate' => $bookedToCompletedRate,
+            'cancellation_rate' => $cancellationRate,
+            'no_show_rate' => $noShowRate,
+            'provider_breakdown' => $providerBreakdown,
+            'service_breakdown' => $serviceBreakdown,
         ]);
     }
 }

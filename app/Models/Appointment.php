@@ -37,6 +37,16 @@ class Appointment extends Model
         return $this->belongsTo(Service::class, 'service_id');
     }
 
+    public function salesInvoice()
+    {
+        return $this->hasOne(SalesInvoice::class, 'appointment_id');
+    }
+
+    public function salesInvoices()
+    {
+        return $this->hasMany(SalesInvoice::class, 'appointment_id');
+    }
+
     /**
      * Transition the appointment to a new lifecycle state.
      *

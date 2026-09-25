@@ -58,7 +58,7 @@
 
 | ID | Requirement | Status | Notes |
 |---|---|---|---|
-| REQ-017 | Appointment → Invoice linkage | ⬜ | Depends on REQ-009 |
+| REQ-017 | Appointment → Invoice linkage | ✅ | Migration 2026_09_25_000006 added appointment_id FK; auto-transition to completed on invoice create/activate; calendar checkout action button & invoice modal; prefilling in POS create; appointment conversion & revenue report with branch filtering; 13 feature tests passing (57 assertions) |
 | REQ-018 | Manual stock adjustment workflow | ⬜ | New UI + InventoryTransaction type |
 | REQ-019 | Refund / return workflow | ⬜ | Depends on REQ-015, REQ-012 |
 
@@ -68,15 +68,58 @@
 
 | ID | Requirement | Status | Notes |
 |---|---|---|---|
-| NFR-001 | Security — all routes auth-guarded, no dd(), debug=false | ⬜ | Covered by REQ-001–003 + deployment guidance |
-| NFR-002 | Data integrity — transactions, no hard-delete on financial records | ⬜ | Ongoing; enforce per feature |
-| NFR-003 | Branch isolation — server-side enforcement | ⬜ | Partially covered by REQ-013 |
-| NFR-004 | Auditability — created_by/updated_by + void/refund audit | ⬜ | Covered per feature |
-| NFR-005 | Reporting accuracy — correct commissions + expenses + branch filter | ⬜ | Covered by REQ-012, REQ-013, REQ-016 |
+| NFR-001 | Security — all routes auth-guarded, no dd(), debug=false | ✅ | Covered by REQ-001–003; zero dd() in app/; all routes auth/role protected |
+| NFR-002 | Data integrity — transactions, no hard-delete on financial records | ✅ | Enforced via DB::transaction across financial operations, draft protection, invoice void rollback |
+| NFR-003 | Branch isolation — server-side enforcement | ✅ | Enforced via HasBranchFilter across all reports (REQ-013, REQ-020) and server-side cashier branch validation on invoice store (GAP-001) |
+| NFR-004 | Auditability — created_by/updated_by + void/refund audit | 🔄 | created_by/updated_by on records, void audit trail (voided_by/voided_at/void_reason); stock audit coming in REQ-018 |
+| NFR-005 | Reporting accuracy — correct commissions + expenses + branch filter | ✅ | Covered by REQ-012 (commission_amount), REQ-013, REQ-016 (all payment methods), REQ-020 |
 
 ---
 
 ## Implementation Log
+
+### 2026-09-25 — REQ-017 Implemented & Verified (Appointment → Invoice Linkage & Conversion Analytics)
+
+- **Database Migration**: Added nullable `appointment_id` foreign key referencing `appointments.id` to `sales_invoices` table (`database/migrations/2026_09_25_000006_add_appointment_id_to_sales_invoices_table.php`) with cascadeOnUpdate and nullOnDelete.
+- **Model Relationships & State Transitions**:
+  - Defined `SalesInvoice::appointment()` and `Appointment::salesInvoice()` / `Appointment::salesInvoices()`.
+  - Updated `AppointmentStatus::allowedTransitions()` to support direct checkout transitions (`confirmed -> completed` and `checked_in -> completed`) in addition to `in_service -> completed`.
+- **Controller & POS Integration**:
+  - `SalesInvoiceController::create()`: Pre-loads linked appointment with customer, service, branch, and provider; validates cashier branch scoping.
+  - `SalesInvoiceController::validateInvoiceData()`: Validates `appointment_id`, ensures appointment is not cancelled/rejected/no-show/expired, ensures no duplicate active invoice exists for same appointment, checks customer consistency, enforces server-side cashier branch isolation.
+  - `SalesInvoiceController::store()` & `activate()`: Auto-transitions linked appointment to `completed` upon active invoice creation or draft activation.
+  - POS Create Blade view: Added appointment checkout notification banner, hidden `appointment_id` input, pre-populated customer and branch, automated JS line item insertion.
+  - `public/admin-assets/assets/js/sales_invoice.js`: Updated `handleCheckout()` to transmit `appointment_id` in JSON checkout payload.
+- **Calendar UI & API**:
+  - `AppointmentResource`: Exposes `can_checkout`, `invoice_id`, and `checkout_url`.
+  - `resources/views/admin/calender.blade.php`: Added "Checkout / Invoice" button on appointment modal for open statuses, and "View Invoice" link for completed appointments.
+- **Appointment Conversion & Revenue Analytics**:
+  - Registered web routes `report.appointment_conversion` and `report.appointment_conversion_stats`.
+  - Added `CheckRole` middleware authorization under `reports.index`.
+  - Implemented `ReportController::appointmentConversion()` and `ReportController::appointmentConversionStats()` with `HasBranchFilter`, computing confirmed-to-completed conversion %, total booked, invoiced revenue, cancellation/no-show loss rates, and provider/service breakdowns.
+  - Built comprehensive analytics Blade view `resources/views/admin/pages/reports/appointment_conversion.blade.php` with KPI summary cards, filter bars, and DataTables.
+  - Added Appointment Conversion Report link under the Reports dropdown in navbar (`resources/views/admin/layouts/navbar.blade.php`).
+- **Testing & Verification**:
+  - Created `tests/Feature/AppointmentInvoiceLinkageTest.php` with 13 comprehensive feature tests covering schema, prefilling, lifecycle auto-transitions, direct checkout, draft isolation, duplicate invoice prevention, cancellation/no-show rejection, cashier branch isolation, AppointmentResource metadata, and report analytics/branch filtering (57 assertions).
+  - All 131 domain feature tests passing (556 assertions).
+  - Clean Laravel Pint formatting (284 files).
+
+### 2026-09-25 — GAP-001 Implemented & Pre-Phase 3 Hardening Complete (Cashier Branch Isolation)
+
+- **GAP-001 / BR-006 / NFR-003: Server-side Cashier Branch Isolation on Invoice Creation**:
+  - Investigated and resolved pre-Phase 3 audit finding GAP-001. Previously, `SalesInvoiceController::validateInvoiceData()` only checked that `branch_id` existed, allowing a cashier at Branch A to spoof Branch B by manipulating the POST body.
+  - Added server-side branch restriction in `SalesInvoiceController::validateInvoiceData()`: if `$user->hasRole('cashier')`, asserts `$validated['branch_id'] === $user->employee?->branch_id`, returning HTTP 403 `You are not authorized to create invoices for another branch.` if violated.
+  - Created dedicated test suite `tests/Feature/CashierBranchIsolationTest.php` with 6 tests verifying:
+    - Cashier can create invoices for their own branch.
+    - Cashier cannot create invoices for another branch (returns 403).
+    - Cashier B cannot spoof Branch A.
+    - Admin can create invoices for any branch unrestricted.
+    - 403 response includes descriptive error JSON message.
+    - Blocked attempt does not persist any invoice or line item records.
+  - Updated documentation:
+    - `docs/ai/PROGRESS.md` Quick Stats table updated to reflect 17/20 requirements (100% Phase 0, Phase 1, Phase 2).
+    - `docs/product/business-rules.md` updated all resolved VIOLATED and PROPOSED rules to CONFIRMED.
+    - NFR status table updated to reflect verified NFR-001, NFR-002, NFR-003, NFR-005.
 
 ### 2026-09-25 — REQ-020 Implemented & Verified (Outstanding Customer Deposit Report) — Phase 2 Complete
 
@@ -406,6 +449,6 @@ REQ-015 (invoice void)
 |---|---|---|---|---|
 | Phase 0 | 8 | 8 | 0 | 0 |
 | Phase 1 | 4 | 4 | 0 | 0 |
-| Phase 2 | 5 | 2 | 0 | 0 |
-| Phase 3 | 3 | 0 | 0 | 0 |
-| **Total** | **20** | **14** | **0** | **0** |
+| Phase 2 | 5 | 5 | 0 | 0 |
+| Phase 3 | 3 | 1 | 0 | 0 |
+| **Total** | **20** | **18** | **0** | **0** |

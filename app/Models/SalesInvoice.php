@@ -39,6 +39,11 @@ class SalesInvoice extends Model
         return $this->hasMany(SalesInvoiceDetail::class);
     }
 
+    public function appointment()
+    {
+        return $this->belongsTo(Appointment::class, 'appointment_id');
+    }
+
     /**
      * Void the invoice and reverse its effects.
      */

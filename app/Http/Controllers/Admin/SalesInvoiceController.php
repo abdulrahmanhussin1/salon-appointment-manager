@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\DataTables\SalesInvoiceDataTable;
+use App\Enums\AppointmentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\AdminPanelSetting;
+use App\Models\Appointment;
 use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\CustomerTransaction;
@@ -38,8 +40,22 @@ class SalesInvoiceController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
+        $linkedAppointment = null;
+        if ($request->filled('appointment_id')) {
+            $linkedAppointment = Appointment::with(['customer', 'provider', 'service.serviceCategory'])->find($request->appointment_id);
+            if ($linkedAppointment) {
+                // If cashier, ensure appointment belongs to their branch
+                $user = Auth::user();
+                if ($user->hasRole('cashier')) {
+                    $aptBranchId = $linkedAppointment->service?->branch_id ?? $linkedAppointment->provider?->branch_id;
+                    if ($aptBranchId && (int) $aptBranchId !== (int) $user->employee?->branch_id) {
+                        abort(403, 'You are not authorized to process appointments from another branch.');
+                    }
+                }
+            }
+        }
 
         $customers = Customer::select('id', 'name', 'phone', 'dob', 'last_service', 'created_at', 'is_vip')
             ->selectSub(function (Builder $query) {
@@ -83,7 +99,7 @@ class SalesInvoiceController extends Controller
 
         return view(
             'admin.pages.Sales.invoices.create',
-            compact('customers', 'employees', 'products', 'services', 'paymentMethods', 'branches', 'categories', 'serviceCategories')
+            compact('customers', 'employees', 'products', 'services', 'paymentMethods', 'branches', 'categories', 'serviceCategories', 'linkedAppointment')
         );
     }
 
@@ -155,6 +171,14 @@ class SalesInvoiceController extends Controller
                         $customer->update([
                             'last_service' => $validatedData['invoice_date'],
                         ]);
+                    }
+                }
+
+                // If invoice is created as active with linked appointment, mark appointment as completed (REQ-017)
+                if (! empty($validatedData['appointment_id']) && $validatedData['status'] === 'active') {
+                    $appointment = Appointment::find($validatedData['appointment_id']);
+                    if ($appointment && $appointment->status !== AppointmentStatus::COMPLETED) {
+                        $appointment->transitionTo(AppointmentStatus::COMPLETED);
                     }
                 }
 
@@ -288,6 +312,7 @@ class SalesInvoiceController extends Controller
 
         $invoice = SalesInvoice::create([
             'customer_id' => $validatedData['customer_id'],
+            'appointment_id' => $validatedData['appointment_id'] ?? null,
             'payment_method_id' => $validatedData['payment_method_id'],
             'payment_method_value' => $validatedData['payment_method_value'] ?? 0,
             'branch_id' => $validatedData['branch_id'],
@@ -310,8 +335,8 @@ class SalesInvoiceController extends Controller
 
     private function validateInvoiceData(Request $request)
     {
-
-        return $request->validate([
+        $validated = $request->validate([
+            'appointment_id' => 'nullable|integer|exists:appointments,id',
             'customer_id' => 'required|exists:customers,id',
             'items' => 'required|array',
             'items.*.type' => 'required|in:product,service',
@@ -330,6 +355,63 @@ class SalesInvoiceController extends Controller
             'cash_payment' => 'nullable|numeric|min:0',
             'payment_method_value' => 'nullable|numeric|min:0',
         ]);
+
+        // NFR-003 / BR-006: Cashiers may only create invoices for their own branch.
+        // UI-only restriction is insufficient; enforce server-side (GAP-001).
+        $user = Auth::user();
+        if ($user->hasRole('cashier')) {
+            $cashierBranchId = $user->employee?->branch_id;
+            if ((int) $validated['branch_id'] !== (int) $cashierBranchId) {
+                abort(403, 'You are not authorized to create invoices for another branch.');
+            }
+        }
+
+        // Validate appointment linkage if provided (REQ-017)
+        if (! empty($validated['appointment_id'])) {
+            $appointment = Appointment::with(['provider', 'service'])->find($validated['appointment_id']);
+            if (! $appointment) {
+                abort(404, 'Appointment not found.');
+            }
+
+            // Cannot checkout cancelled, rejected, no_show, or expired appointments
+            if (in_array($appointment->status, [
+                AppointmentStatus::CANCELLED,
+                AppointmentStatus::REJECTED,
+                AppointmentStatus::NO_SHOW,
+                AppointmentStatus::EXPIRED,
+            ], true)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'appointment_id' => [__('Cannot create invoice for an appointment that is cancelled, rejected, or marked as no-show.')],
+                ]);
+            }
+
+            // Prevent linking if already linked to an active sales invoice
+            $existingActive = SalesInvoice::where('appointment_id', $appointment->id)
+                ->where('status', 'active')
+                ->first();
+            if ($existingActive) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'appointment_id' => [__('This appointment is already linked to active invoice #:id.', ['id' => $existingActive->id])],
+                ]);
+            }
+
+            // Ensure customer matches
+            if ((int) $appointment->customer_id !== (int) $validated['customer_id']) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'appointment_id' => [__('The appointment customer does not match the invoice customer.')],
+                ]);
+            }
+
+            // Cashier branch check on appointment
+            if ($user->hasRole('cashier')) {
+                $aptBranchId = $appointment->service?->branch_id ?? $appointment->provider?->branch_id;
+                if ($aptBranchId && (int) $aptBranchId !== (int) $user->employee?->branch_id) {
+                    abort(403, 'You are not authorized to create invoices for another branch.');
+                }
+            }
+        }
+
+        return $validated;
     }
 
     private function processService($item, $status = 'active', $branchId = null, &$warnings = [])
@@ -712,6 +794,14 @@ class SalesInvoiceController extends Controller
 
                     if ($customer && (empty($customer->last_service) || $salesInvoice->invoice_date >= $customer->last_service)) {
                         $customer->update(['last_service' => $salesInvoice->invoice_date]);
+                    }
+                }
+
+                // 6. Transition linked appointment to completed (REQ-017)
+                if ($salesInvoice->appointment_id) {
+                    $appointment = Appointment::find($salesInvoice->appointment_id);
+                    if ($appointment && $appointment->status !== AppointmentStatus::COMPLETED) {
+                        $appointment->transitionTo(AppointmentStatus::COMPLETED);
                     }
                 }
             });

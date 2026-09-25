@@ -50,6 +50,10 @@ class AppointmentResource extends JsonResource
 
             'cancelled_at' => $this->cancelled_at?->toIso8601String(),
             'cancellation_reason' => $this->cancellation_reason,
+
+            'can_checkout' => in_array($statusEnum, [AppointmentStatus::CONFIRMED, AppointmentStatus::CHECKED_IN, AppointmentStatus::IN_SERVICE], true) && ! $this->salesInvoice()->where('status', 'active')->exists(),
+            'invoice_id' => $this->salesInvoice?->id,
+            'checkout_url' => route('sales_invoices.create', ['appointment_id' => $this->id]),
         ];
     }
 }

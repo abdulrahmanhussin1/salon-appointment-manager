@@ -72,30 +72,21 @@ if (!$customer || $customer->status !== 'active') {
 
 ## BR-006 — Cashier can only create invoices for their own branch
 
-**Status:** CONFIRMED (partial)
+**Status:** CONFIRMED
 
 **Rule:** A user with the `cashier` role is restricted to creating invoices for their assigned branch.
 
-**Evidence:** `SalesInvoiceController::create()`:
-```php
-$branches = Auth::user()->hasRole('cashier')
-    ? Branch::where('id', Auth::user()->employee?->branch_id)->get(['id', 'name'])
-    : Branch::where('status', 'active')->get(['id', 'name']);
-```
-
-**Limitation:** This only restricts the branch dropdown in the UI. If a cashier submits the form with a different `branch_id` value, the server does not validate it against their assigned branch.
+**Evidence:** `SalesInvoiceController::create()` limits the branch dropdown, and `SalesInvoiceController::validateInvoiceData()` validates server-side that `$validated['branch_id'] === Auth::user()->employee->branch_id`, returning 403 otherwise (enforced via GAP-001 / NFR-003).
 
 ---
 
 ## BR-007 — Inventory transfer preserves source stock
 
-**Status:** CONFIRMED (with caveat)
+**Status:** CONFIRMED
 
 **Rule:** Stock transferred from source must be decremented at source before incrementing at destination.
 
-**Evidence:** `InventoryTransactionController` decrements source before incrementing destination.
-
-**Caveat:** If the product does not exist in the destination inventory, the `increment()` call silently does nothing — stock is lost (BUG-004).
+**Evidence:** `InventoryTransactionController` decrements source and uses `firstOrCreate` on destination inventory before incrementing (fixed in REQ-005, BUG-004 resolved).
 
 ---
 
@@ -121,47 +112,47 @@ $branches = Auth::user()->hasRole('cashier')
 
 ## BR-010 — Each employee has exactly one wage record
 
-**Status:** VIOLATED (BUG-002)
+**Status:** CONFIRMED (Fixed in REQ-004)
 
 **Intended rule:** One `EmployeeWage` record per employee.
 
-**Actual behavior:** `Employee::boot()->created()` fires `EmployeeWage::create()` AND `EmployeeController::store()` explicitly creates `EmployeeWage` again. Result: two `EmployeeWage` records per employee.
+**Resolution:** Fixed in REQ-004 (BUG-002). Explicit duplicate creation removed from `EmployeeController::store()`, keeping sole creation in model boot event.
 
 ---
 
 ## BR-011 — Appointment edit uses route parameter for identification
 
-**Status:** VIOLATED (BUG-003)
+**Status:** CONFIRMED (Fixed in REQ-002)
 
 **Intended rule:** `PUT /appointments/{id}` should update the appointment identified by the route `{id}` parameter.
 
-**Actual behavior:** `AppointmentController::update()` uses `$request->id` (body parameter) instead of the route `{id}`. Any value can be injected in the body to target any appointment.
+**Resolution:** Fixed in REQ-002 (BUG-003). `AppointmentController::update()` binds route model/parameter instead of reading unsanitized `$request->id`.
 
 ---
 
 ## BR-012 — Service price_can_change allows price override at POS
 
-**Status:** VIOLATED (BUG-011)
+**Status:** CONFIRMED (Fixed in REQ-006)
 
 **Intended rule:** If `service.price_can_change = true`, the cashier may set a custom price at POS.
 
-**Actual behavior:** `processService()` always uses `$service->price` regardless of the flag.
+**Resolution:** Fixed in REQ-006 (BUG-011). `processService()` respects `$service->price_can_change` and accepts custom price overrides when set.
 
 ---
 
 ## BR-013 — Appointment routes require authentication
 
-**Status:** VIOLATED (SEC-001)
+**Status:** CONFIRMED (Fixed in REQ-001)
 
 **Intended rule:** Only authenticated, authorized users may create, update, or delete appointments.
 
-**Actual behavior:** `Route::resource('appointments', AppointmentController::class)` is placed outside the `auth` + `checkRole` middleware group. Any anonymous request can manipulate appointments.
+**Resolution:** Fixed in REQ-001 (SEC-001). Appointment routes are placed inside the `auth` and `checkRole` middleware groups.
 
 ---
 
-## BR-P001 — Appointments cannot overlap for the same provider (PROPOSED)
+## BR-P001 — Appointments cannot overlap for the same provider
 
-**Status:** PROPOSED
+**Status:** CONFIRMED (Implemented in REQ-010)
 
 **Rule:** A provider cannot be booked for two appointments whose time windows overlap when both appointments are in an active state (requested, confirmed, checked_in, in_service).
 
@@ -177,9 +168,9 @@ AND existing.status NOT IN ('cancelled', 'rejected', 'no_show', 'expired', 'comp
 
 ---
 
-## BR-P002 — Appointment end time = start time + service duration (PROPOSED)
+## BR-P002 — Appointment end time = start time + service duration
 
-**Status:** PROPOSED
+**Status:** CONFIRMED (Implemented in REQ-011)
 
 **Rule:** When booking an appointment, the system must compute `end_datetime = start_datetime + service.duration` (in minutes). Manual end time entry should not be permitted unless the override is explicitly enabled.
 
@@ -223,59 +214,57 @@ AND existing.status NOT IN ('cancelled', 'rejected', 'no_show', 'expired', 'comp
 
 ---
 
-## BR-P006 — Branch-scoped users must not access another branch's data (PROPOSED)
+## BR-P006 — Branch-scoped users must not access another branch's data
 
-**Status:** PROPOSED
+**Status:** CONFIRMED (Implemented in REQ-013, REQ-020, and GAP-001)
 
 **Rule:** A user whose linked employee belongs to Branch A must not be able to read or write data belonging to Branch B (invoices, expenses, inventory, employees).
 
 **Exception:** Users with owner/admin role may access all branches.
 
-**Depends on:** Global scope or middleware-level branch injection.
-
 **Priority:** Must Have
 
 ---
 
-## BR-P007 — Completed transactions cannot be silently modified (PROPOSED)
+## BR-P007 — Completed transactions cannot be silently modified
 
-**Status:** PROPOSED
+**Status:** CONFIRMED (Implemented in REQ-015)
 
 **Rule:** A `sales_invoice` with `status='active'` cannot be modified without going through an explicit void/cancel or refund workflow. Modification must generate an audit record.
 
-**Current state:** `update()` returns 404 — effectively enforced by absence, but the correct approach is a formal workflow.
+**Resolution:** Enforced via REQ-015 void workflow with audit trail (`voided_by`, `voided_at`, `void_reason`) and strict rollback.
 
 **Priority:** Should Have
 
 ---
 
-## BR-P008 — Service consumable products are deducted at invoice creation (PROPOSED)
+## BR-P008 — Service consumable products are deducted at invoice creation
 
-**Status:** PROPOSED
+**Status:** CONFIRMED (Implemented in REQ-014)
 
 **Rule:** When a service is sold on an invoice, all products listed in `service_products` for that service must be deducted from inventory in proportion to service quantity.
 
-**Depends on:** Inventory deduction logic extended to service consumables.
+**Resolution:** Implemented in `SalesInvoiceController` on active invoice store and draft activation via `deductServiceConsumables()`.
 
 **Priority:** Must Have
 
 ---
 
-## BR-P009 — Customer.last_service updated on invoice completion (PROPOSED)
+## BR-P009 — Customer.last_service updated on invoice completion
 
-**Status:** PROPOSED
+**Status:** CONFIRMED (Implemented in REQ-007)
 
 **Rule:** When a sales invoice with status `active` is created for a customer, `customers.last_service` must be updated to the invoice date.
 
-**Current state:** Field exists but is never written.
+**Resolution:** Implemented in REQ-007 across invoice store, activation, and void reversal.
 
 **Priority:** Must Have
 
 ---
 
-## BR-P010 — Commission calculated per service_employees configuration (PROPOSED)
+## BR-P010 — Commission calculated per service_employees configuration
 
-**Status:** PROPOSED
+**Status:** CONFIRMED (Implemented in REQ-012)
 
 **Rule:** When a service line item is created on a sales invoice, the commission amount must be calculated using the `service_employees` record for that service/provider combination, and stored on the `sales_invoice_detail` record.
 
@@ -287,13 +276,13 @@ AND existing.status NOT IN ('cancelled', 'rejected', 'no_show', 'expired', 'comp
 
 ---
 
-## BR-P011 — Draft invoices do not trigger inventory deduction (PROPOSED)
+## BR-P011 — Draft invoices do not trigger inventory deduction
 
-**Status:** PROPOSED
+**Status:** CONFIRMED (Implemented in REQ-008)
 
 **Rule:** Creating an invoice with `status='draft'` must NOT deduct inventory. Inventory deduction occurs only when the invoice transitions from `draft` to `active`.
 
-**Current state:** Both draft and active invoices trigger inventory deduction (same code path).
+**Resolution:** Implemented in REQ-008 for retail products and extended in REQ-014 for service consumables.
 
 **Priority:** Must Have
 
@@ -332,24 +321,24 @@ AND existing.status NOT IN ('cancelled', 'rejected', 'no_show', 'expired', 'comp
 | BR-003: Sufficient inventory before sale | CONFIRMED | — |
 | BR-004: FIFO product pricing | CONFIRMED | — |
 | BR-005: FIFO deposit consumption | CONFIRMED | — |
-| BR-006: Cashier restricted to own branch (partial) | CONFIRMED | — |
-| BR-007: Transfer preserves source stock (with bug) | CONFIRMED | — |
+| BR-006: Cashier restricted to own branch | CONFIRMED | Fixed (GAP-001) |
+| BR-007: Transfer preserves source stock | CONFIRMED | Fixed (REQ-005) |
 | BR-008: Branch has no auto-inventory | CONFIRMED | — |
 | BR-009: Purchase invoice upserts inventory | CONFIRMED | — |
-| BR-010: One wage per employee | **VIOLATED** | Fix: High |
-| BR-011: Appointment edit uses route param | **VIOLATED** | Fix: High |
-| BR-012: price_can_change honored at POS | **VIOLATED** | Fix: High |
-| BR-013: Appointment routes require auth | **VIOLATED** | Fix: Critical |
-| BR-P001: No provider double-booking | PROPOSED | Must Have |
-| BR-P002: End time = start + duration | PROPOSED | Must Have |
+| BR-010: One wage per employee | CONFIRMED | Fixed (REQ-004) |
+| BR-011: Appointment edit uses route param | CONFIRMED | Fixed (REQ-002) |
+| BR-012: price_can_change honored at POS | CONFIRMED | Fixed (REQ-006) |
+| BR-013: Appointment routes require auth | CONFIRMED | Fixed (REQ-001) |
+| BR-P001: No provider double-booking | CONFIRMED | Implemented (REQ-010) |
+| BR-P002: End time = start + duration | CONFIRMED | Implemented (REQ-011) |
 | BR-P003: Cancellation deposit policy | PROPOSED | Should Have |
 | BR-P004: Refund reverses commissions | PROPOSED | Should Have |
 | BR-P005: Inventory history is immutable | PROPOSED | Should Have |
-| BR-P006: Branch data isolation | PROPOSED | Must Have |
-| BR-P007: Completed invoices not modifiable | PROPOSED | Should Have |
-| BR-P008: Service consumable deduction | PROPOSED | Must Have |
-| BR-P009: last_service updated on invoice | PROPOSED | Must Have |
-| BR-P010: Commission calculated at sale | PROPOSED | Must Have |
-| BR-P011: Draft does not deduct inventory | PROPOSED | Must Have |
+| BR-P006: Branch data isolation | CONFIRMED | Implemented (REQ-013, REQ-020, GAP-001) |
+| BR-P007: Completed invoices not modifiable | CONFIRMED | Implemented (REQ-015) |
+| BR-P008: Service consumable deduction | CONFIRMED | Implemented (REQ-014) |
+| BR-P009: last_service updated on invoice | CONFIRMED | Implemented (REQ-007) |
+| BR-P010: Commission calculated at sale | CONFIRMED | Implemented (REQ-012) |
+| BR-P011: Draft does not deduct inventory | CONFIRMED | Implemented (REQ-008) |
 | BR-P012: No-show fee | PROPOSED | Could Have |
 | BR-P013: Expense balance auto-computed | PROPOSED | Should Have |

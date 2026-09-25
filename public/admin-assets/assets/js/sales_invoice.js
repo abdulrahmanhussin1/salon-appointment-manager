@@ -235,6 +235,7 @@ function handleCheckout(e) {
         ) || 0;
 
     const data = {
+        appointment_id: $("#appointment_id").val() || null,
         customer_id: $("#customer_id").val(),
         deposit: deposit,
         payment_method_id: $("#payment_method_id").val(),

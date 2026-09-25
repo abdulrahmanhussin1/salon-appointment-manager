@@ -20,7 +20,7 @@
                                 </a>
                             </li>
                         @endif
-                        {{--
+                        
                         @if (App\Traits\AppHelper::perUser('sales_invoices.create'))
                             <li class="">
                                 <a class="dropdown-item d-flex align-items-center" href="{{ route('home.calender') }}">
@@ -28,7 +28,7 @@
                                 </a>
                             </li>
                         @endif
-                        --}}
+
 
                         @if (App\Traits\AppHelper::perUser('sales_invoices.index'))
                             <li class="">
@@ -227,6 +227,16 @@
                                 href="{{ route('report.customer_deposits') }}">
                                 <i class="bi bi-wallet2"></i>
                                 <span>{{ Str::ucfirst(__('Customer Deposits Report')) }}</span>
+                            </a>
+                        </li>
+                        @endif
+
+                        @if (App\Traits\AppHelper::perUser('reports.index'))
+                        <li class="">
+                            <a class="dropdown-item d-flex align-items-center"
+                                href="{{ route('report.appointment_conversion') }}">
+                                <i class="bi bi-calendar-check"></i>
+                                <span>{{ Str::ucfirst(__('Appointment Conversion Report')) }}</span>
                             </a>
                         </li>
                         @endif

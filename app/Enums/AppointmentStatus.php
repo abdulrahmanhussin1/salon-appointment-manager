@@ -88,6 +88,8 @@ enum AppointmentStatus: string
             ],
             self::CONFIRMED => [
                 self::CHECKED_IN,
+                self::IN_SERVICE,
+                self::COMPLETED,
                 self::CANCELLED,
                 self::RESCHEDULED,
                 self::NO_SHOW,
@@ -95,6 +97,7 @@ enum AppointmentStatus: string
             ],
             self::CHECKED_IN => [
                 self::IN_SERVICE,
+                self::COMPLETED,
                 self::CANCELLED,
                 self::NO_SHOW,
             ],
