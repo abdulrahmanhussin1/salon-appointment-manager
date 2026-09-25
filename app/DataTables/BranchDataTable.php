@@ -4,35 +4,31 @@ namespace App\DataTables;
 
 use App\Models\Branch;
 use App\Traits\AppHelper;
+use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Yajra\DataTables\EloquentDataTable;
+use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\EloquentDataTable;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
-use Yajra\DataTables\Html\Builder as HtmlBuilder;
-use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 
 class BranchDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
-        if (!empty(request()->query('status'))) {
+        if (! empty(request()->query('status'))) {
             $statuses = is_array(request()->query('status')) ? request()->query('status') : explode(',', request()->query('status'));
             $query = $query->whereIn('status', $statuses);
         }
 
-        if (!empty(request()->query('created_by'))) {
+        if (! empty(request()->query('created_by'))) {
             $createdBy = is_array(request()->query('created_by')) ? request()->query('created_by') : explode(',', request()->query('created_by'));
             $query = $query->whereIn('created_by', $createdBy);
         }
-
-
 
         return (new EloquentDataTable($query))
             ->addColumn('action', function ($model) {
@@ -43,11 +39,12 @@ class BranchDataTable extends DataTable
         </button>
         <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('branches.edit')) {
-                    $html .= '<a href="' . route('branches.edit', ['branch' => $model]) . '" class="dropdown-item">Edit</a>';
+                    $html .= '<a href="'.route('branches.edit', ['branch' => $model]).'" class="dropdown-item">Edit</a>';
                 }
                 if (AppHelper::perUser('branches.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-branch" data-id="' . $model->id . '" data-url="' . route('branches.destroy', ['branch' => $model]) . '">Delete</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-branch" data-id="'.$model->id.'" data-url="'.route('branches.destroy', ['branch' => $model]).'">Delete</a></div></div>';
                 }
+
                 return $html;
             })
 
@@ -97,20 +94,20 @@ class BranchDataTable extends DataTable
             ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
             ->orderBy(0, 'desc')
             ->selectStyleSingle()
-        ->buttons([
-            Button::make('excel')->exportOptions([
-                'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
-            ]),
-            Button::make('csv')->exportOptions([
-                'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
-            ]),
-            Button::make('pdf')->exportOptions([
-                'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
-            ]),
-            Button::make('print')->exportOptions([
-                'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
-            ]),
-        ]);
+            ->buttons([
+                Button::make('excel')->exportOptions([
+                    'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
+                ]),
+                Button::make('csv')->exportOptions([
+                    'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
+                ]),
+                Button::make('pdf')->exportOptions([
+                    'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
+                ]),
+                Button::make('print')->exportOptions([
+                    'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
+                ]),
+            ]);
     }
 
     /**
@@ -142,6 +139,6 @@ class BranchDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Branch_' . date('YmdHis');
+        return 'Branch_'.date('YmdHis');
     }
 }

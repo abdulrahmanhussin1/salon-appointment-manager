@@ -18,6 +18,7 @@ class SetLocale
         $locale = $request->query('lang') ?? session('locale', config('app.locale'));
         app()->setLocale($locale);
         session(['locale' => $locale]);
+
         return $next($request);
     }
 }

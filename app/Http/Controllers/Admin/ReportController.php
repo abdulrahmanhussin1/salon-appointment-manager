@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Carbon\Carbon;
-use App\Models\Expense;
+use App\Http\Controllers\Controller;
 use App\Models\Customer;
-use App\Models\SalesInvoice;
-use Illuminate\Http\Request;
+use App\Models\CustomerTransaction;
+use App\Models\Expense;
 use App\Models\PaymentMethod;
 use App\Models\PurchaseInvoice;
-use Yajra\DataTables\DataTables;
+use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceDetail;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\CustomerTransaction;
-use App\Http\Controllers\Controller;
+use Yajra\DataTables\DataTables;
 
 class ReportController extends Controller
 {
@@ -47,12 +47,12 @@ class ReportController extends Controller
             // Aggregate sales invoice data within the date range, excluding deposits
             $data = SalesInvoice::whereBetween('invoice_date', [$fromDate, $toDate])
                 ->where('status', 'active')
-                ->selectRaw("
+                ->selectRaw('
                 SUM(invoice_tax) AS total_taxes,
                 SUM(net_total) AS total_sales,
                 SUM(paid_amount_cash) AS total_cash_revenue,
                 SUM(payment_method_value) AS total_other_payment_methods
-            ")->first();
+            ')->first();
 
             // Calculate total customer deposits within the date range
             $totalDeposits = SalesInvoice::whereBetween('invoice_date', [$fromDate, $toDate])
@@ -98,26 +98,40 @@ class ReportController extends Controller
 
         $startDate = Carbon::parse($request->start_date);
         $endDate = Carbon::parse($request->end_date);
+        $startDateStr = $startDate->toDateString();
+        $endDateStr = $endDate->toDateString();
 
         // Get all dates in range
         $dates = collect();
-        for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
             $dates->push($date->format('Y-m-d'));
         }
 
-        $data = $dates->map(function ($date) {
-            // Get sales data
-            $sales = SalesInvoice::whereDate('invoice_date', $date)
-                ->where('status', 'active')
-                ->get();
+        // Bulk load sales, expenses, and customer transactions for the date range
+        $allSales = SalesInvoice::whereBetween('invoice_date', [$startDateStr, $endDateStr])
+            ->where('status', 'active')
+            ->get()
+            ->groupBy(function ($invoice) {
+                return Carbon::parse($invoice->invoice_date)->toDateString();
+            });
 
-            // Get expenses
-            $expenses = Expense::whereDate('paid_at', $date)
-                ->where('status', 'active')
-                ->get();
+        $allExpenses = Expense::whereBetween('paid_at', [$startDate->copy()->startOfDay(), $endDate->copy()->endOfDay()])
+            ->where('status', 'active')
+            ->get()
+            ->groupBy(function ($expense) {
+                return Carbon::parse($expense->paid_at)->toDateString();
+            });
 
-            // Get customer transactions
-            $transactions = CustomerTransaction::whereDate('created_at', $date)->get();
+        $allTransactions = CustomerTransaction::whereBetween('created_at', [$startDate->copy()->startOfDay(), $endDate->copy()->endOfDay()])
+            ->get()
+            ->groupBy(function ($txn) {
+                return Carbon::parse($txn->created_at)->toDateString();
+            });
+
+        $data = $dates->map(function ($date) use ($allSales, $allExpenses, $allTransactions) {
+            $sales = $allSales->get($date, collect());
+            $expenses = $allExpenses->get($date, collect());
+            $transactions = $allTransactions->get($date, collect());
 
             return [
                 'date' => $date,
@@ -126,7 +140,7 @@ class ReportController extends Controller
                 'other_payment_methods' => $sales->sum('payment_method_value'),
                 'total_expenses' => $expenses->sum('paid_amount'),
                 'net_total' => $sales->sum('total_amount') - $expenses->sum('paid_amount'),
-                'deposits' => $transactions->where('reference_type', 'deposit')->sum('amount')
+                'deposits' => $transactions->where('reference_type', 'deposit')->sum('amount'),
             ];
         });
 
@@ -147,34 +161,46 @@ class ReportController extends Controller
 
         $startDate = Carbon::parse($request->start_date);
         $endDate = Carbon::parse($request->end_date);
+        $startDateStr = $startDate->toDateString();
+        $endDateStr = $endDate->toDateString();
 
         // Get all dates in range
         $dates = collect();
-        for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
             $dates->push($date->format('Y-m-d'));
         }
 
-        $data = $dates->map(function ($date) {
-            // Get daily sales data
-            $dailySales = SalesInvoice::whereDate('invoice_date', $date)
+        // Bulk load sales with details for the date range
+        $allSales = SalesInvoice::with('salesInvoiceDetails')
+            ->whereBetween('invoice_date', [$startDateStr, $endDateStr])
             ->where('status', 'active')
-                ->get();
+            ->get()
+            ->groupBy(function ($invoice) {
+                return Carbon::parse($invoice->invoice_date)->toDateString();
+            });
 
-            // Get daily purchases data
-            $dailyPurchases = PurchaseInvoice::whereDate('invoice_date', $date)
+        // Bulk load purchases for the date range
+        $allPurchases = PurchaseInvoice::whereBetween('invoice_date', [$startDateStr, $endDateStr])
             ->where('status', 'active')
-                ->get();
+            ->get()
+            ->groupBy(function ($invoice) {
+                return Carbon::parse($invoice->invoice_date)->toDateString();
+            });
 
-            // Get invoice details for the day
-            $invoiceIds = $dailySales->pluck('id');
-            $dailyDetails = SalesInvoiceDetail::whereIn('sales_invoice_id', $invoiceIds)
-                ->with(['provider', 'service', 'product'])
-                ->get();
-
-            $expenses = Expense::whereDate('paid_at', $date)
+        // Bulk load expenses for the date range
+        $allExpenses = Expense::whereBetween('paid_at', [$startDate->copy()->startOfDay(), $endDate->copy()->endOfDay()])
             ->where('status', 'active')
-                ->get();
+            ->get()
+            ->groupBy(function ($expense) {
+                return Carbon::parse($expense->paid_at)->toDateString();
+            });
 
+        $data = $dates->map(function ($date) use ($allSales, $allPurchases, $allExpenses) {
+            $dailySales = $allSales->get($date, collect());
+            $dailyPurchases = $allPurchases->get($date, collect());
+            $expenses = $allExpenses->get($date, collect());
+
+            $dailyDetails = $dailySales->flatMap->salesInvoiceDetails;
 
             // Separate service and product sales
             $serviceSales = $dailyDetails->whereNotNull('service_id');
@@ -182,12 +208,12 @@ class ReportController extends Controller
 
             // Calculate employee statistics (only for services)
             $employeeStats = $serviceSales->groupBy('provider_id')
-            ->map(function ($items) {
-                return [
-                    'services_count' => $items->count(),
-                    'total_amount' => $items->sum('subtotal')
-                ];
-            });
+                ->map(function ($items) {
+                    return [
+                        'services_count' => $items->count(),
+                        'total_amount' => $items->sum('subtotal'),
+                    ];
+                });
 
             // Calculate net sales (total - discount)
             $totalSalesDiscount = $dailySales->sum('invoice_discount');
@@ -207,7 +233,7 @@ class ReportController extends Controller
                 // Service related metrics
                 'services_count' => $serviceSales->count(),
                 'services_sales' => $serviceSales->sum('subtotal'),
-                'services_commissions' => $serviceSales->sum('subtotal'), // Adjust commission calculation as needed
+                'services_commissions' => $serviceSales->sum('commission_amount'),
                 // Product related metrics
                 'products_count' => $productSales->count(),
                 'products_sales' => $productSales->sum('subtotal'),
@@ -226,7 +252,7 @@ class ReportController extends Controller
                     : 0,
                 'avg_employee_productivity' => $employeeStats->count() > 0
                     ? $serviceSales->count() / $employeeStats->count()
-                    : 0
+                    : 0,
             ];
         });
 
@@ -237,7 +263,7 @@ class ReportController extends Controller
     {
         return view('admin.pages.reports.monthly_summary');
     }
-    
+
     public function monthlySummary(Request $request)
     {
         $year = $request->input('year', date('Y'));
@@ -321,13 +347,7 @@ class ReportController extends Controller
             ->pluck('total', 'month')
             ->toArray();
 
-            //get total revenue of new customers only
-
-
-
-
-
-
+        //get total revenue of new customers only
 
         // Prepare data for DataTables
         $data = [];

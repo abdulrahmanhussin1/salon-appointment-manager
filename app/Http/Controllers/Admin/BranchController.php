@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\User;
-use App\Models\Branch;
-use App\Models\Employee;
-use App\Models\Inventory;
-use Illuminate\Http\Request;
 use App\DataTables\BranchDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BranchRequest;
+use App\Models\Branch;
+use App\Models\Employee;
+use App\Models\Inventory;
+use App\Models\User;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class BranchController extends Controller
@@ -19,9 +18,10 @@ class BranchController extends Controller
      */
     public function index(BranchDataTable $dataTable)
     {
-        $managers = Employee::select('id','name')->where('status','active')->get();
+        $managers = Employee::select('id', 'name')->where('status', 'active')->get();
         $users = User::select('id', 'name')->where('status', 'active')->get();
-        return $dataTable->render('admin.pages.settings.branches.index',compact('managers','users'));
+
+        return $dataTable->render('admin.pages.settings.branches.index', compact('managers', 'users'));
     }
 
     /**
@@ -48,11 +48,12 @@ class BranchController extends Controller
         ]);
 
         Inventory::create([
-            'name'=> $branch->name .' Inventory',
+            'name' => $branch->name.' Inventory',
             'branch_id' => $branch->id,
             'created_by' => auth()->id(),
         ]);
         Alert::success(__('Success'), __('Created Successfully'));
+
         return redirect()->back();
     }
 
@@ -69,9 +70,9 @@ class BranchController extends Controller
      */
     public function edit(Branch $branch)
     {
-        $managers = Employee::select('id','name')->where('status','active')->get();
+        $managers = Employee::select('id', 'name')->where('status', 'active')->get();
 
-        return view('admin.pages.settings.branches.edit', compact('branch','managers'));
+        return view('admin.pages.settings.branches.edit', compact('branch', 'managers'));
     }
 
     /**
@@ -91,23 +92,22 @@ class BranchController extends Controller
         ]);
 
         $inventory = $branch->inventory;
-        if(!empty($inventory))
-        {
+        if (! empty($inventory)) {
             $inventory->update([
-                'name' => $branch->name . ' Inventory',
+                'name' => $branch->name.' Inventory',
                 'branch_id' => $branch->id,
                 'updated_by' => auth()->id(),
             ]);
-        }else{
+        } else {
             Inventory::create([
-                'name' => $branch->name . ' Inventory',
+                'name' => $branch->name.' Inventory',
                 'branch_id' => $branch->id,
                 'created_by' => auth()->id(),
             ]);
         }
 
-
         Alert::success(__('Success'), __('Updated Successfully'));
+
         return redirect()->route('branches.index');
     }
 
@@ -116,11 +116,10 @@ class BranchController extends Controller
      */
     public function destroy(Branch $branch)
     {
-        try{
+        try {
             $branch->delete();
             Alert::success(__('Success'), __('Deleted Successfully'));
-        }
-        catch(\Exception $e){
+        } catch (\Exception $e) {
             Alert::error(__('Error'), __('Failed to delete branch. check this branch not related with any data '));
         }
 

@@ -37,8 +37,10 @@ class CheckRole
                 || ($page === 'store' && self::perUSer($type.'.create'))
                 || ($page === 'export' && self::perUSer($type.'.export'))
                 || ($page === 'update' && self::perUSer($type.'.edit'))
-                || ($page === 'transferOut' && self::perUSer($type.'.transferOutView'))
                 || ($page === 'transfer' && self::perUSer($type.'.transferView'))
+                || ($page === 'activate' && self::perUSer($type.'.create'))
+                || ($page === 'invoice' && self::perUSer($type.'.show'))
+                || ($type === 'appointments' && in_array($page, ['confirm', 'cancel', 'check_in', 'start_service', 'complete', 'no_show', 'status']) && self::perUSer('appointments.edit'))
 
                 || ($page === 'daily_revenues' && self::perUSer('reports.index'))
                 || ($page === 'TotalDailyRevenuesPage' && self::perUSer('reports.index'))

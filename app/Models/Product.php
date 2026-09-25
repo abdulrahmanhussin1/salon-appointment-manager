@@ -3,19 +3,20 @@
 namespace App\Models;
 
 use App\Traits\HasUserActions;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
     use HasFactory,HasUserActions;
 
     protected $guarded = ['id'];
+
     protected $table = 'products';
 
     public function productCategory()
     {
-        return $this->belongsTo(ProductCategory::class,'category_id');
+        return $this->belongsTo(ProductCategory::class, 'category_id');
     }
 
     public function unit()
@@ -30,7 +31,7 @@ class Product extends Model
 
     public function supplierPrices()
     {
-        return $this->hasMany(SupplierPrice::class,'product_id');
+        return $this->hasMany(SupplierPrice::class, 'product_id');
     }
 
     public function inventoryProducts()

@@ -23,19 +23,20 @@ class UnitRequest extends FormRequest
     {
         if ($this->method() == 'PUT') {
             return [
-                'name'=>'required|string|unique:units,name,'.$this->unit->id,
-                'description'=>'nullable|string|max:500',
-                'symbol'=>'nullable|string|max:10',
-                'status'=> 'required|string|in:active,inactive',
+                'name' => 'required|string|unique:units,name,'.$this->unit->id,
+                'description' => 'nullable|string|max:500',
+                'symbol' => 'nullable|string|max:10',
+                'status' => 'required|string|in:active,inactive',
                 'branch_id' => 'required|integer|exists:branches,id',
 
             ];
         }
+
         return [
-            'name'=>'required|string|unique:units,name',
-            'symbol'=>'nullable|string|max:10',
-            'description'=>'nullable|string|max:500',
-            'status'=> 'required|string|in:active,inactive',
+            'name' => 'required|string|unique:units,name',
+            'symbol' => 'nullable|string|max:10',
+            'description' => 'nullable|string|max:500',
+            'status' => 'required|string|in:active,inactive',
             'branch_id' => 'required|integer|exists:branches,id',
 
         ];

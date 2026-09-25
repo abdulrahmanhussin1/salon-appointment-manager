@@ -2,11 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\Branch;
 use App\Models\Inventory;
 use Illuminate\Database\Seeder;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class BranchSeeder extends Seeder
 {
@@ -44,5 +42,4 @@ class BranchSeeder extends Seeder
         //     }
         // });
     }
-
 }

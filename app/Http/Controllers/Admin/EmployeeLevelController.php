@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
-use App\Models\EmployeeLevel;
-use App\Http\Controllers\Controller;
-use RealRashid\SweetAlert\Facades\Alert;
 use App\DataTables\EmployeeLevelDataTable;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\EmployeeLevelRequest;
+use App\Models\EmployeeLevel;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class EmployeeLevelController extends Controller
 {
@@ -34,13 +33,14 @@ class EmployeeLevelController extends Controller
     {
 
         EmployeeLevel::create([
-            'name'=> $request->name,
-            'description'=> $request->description,
-            'status'=> $request->status,
-            'created_by'=>auth()->id()
+            'name' => $request->name,
+            'description' => $request->description,
+            'status' => $request->status,
+            'created_by' => auth()->id(),
         ]);
 
         Alert::success(__('Success'), __('Created Successfully'));
+
         return redirect()->back();
     }
 
@@ -66,13 +66,14 @@ class EmployeeLevelController extends Controller
     public function update(EmployeeLevelRequest $request, EmployeeLevel $employeeLevel)
     {
         $employeeLevel->update([
-            'name'=> $request->name,
-            'description'=> $request->description,
-            'status'=> $request->status,
-            'updated_by'=>auth()->id()
+            'name' => $request->name,
+            'description' => $request->description,
+            'status' => $request->status,
+            'updated_by' => auth()->id(),
         ]);
 
         Alert::success(__('Success'), __('Updated Successfully'));
+
         return redirect()->route('employee_levels.index');
     }
 

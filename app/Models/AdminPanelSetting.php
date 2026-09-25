@@ -3,21 +3,21 @@
 namespace App\Models;
 
 use App\Traits\HasUserActions;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AdminPanelSetting extends Model
 {
-    use HasFactory,SoftDeletes,HasUserActions;
+    use HasFactory,HasUserActions,SoftDeletes;
 
-    protected $guarded =['id'];
+    protected $guarded = ['id'];
+
     protected $table = 'admin_panel_settings';
 
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
-
 }

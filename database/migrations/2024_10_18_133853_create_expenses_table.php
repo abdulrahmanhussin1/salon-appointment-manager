@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('expenses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('expense_type_id')->constrained('expense_types','id')->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('expense_type_id')->constrained('expense_types', 'id')->cascadeOnUpdate()->restrictOnDelete();
             $table->text('description')->nullable();
             $table->decimal('amount', 15, 2)->default(0);
             $table->timestamp('paid_at')->default(now());
@@ -22,11 +22,11 @@ return new class extends Migration
             $table->unsignedDecimal('paid_amount', 15, 2)->default(0);
             $table->decimal('balance', 15, 2)->default(0);
 
-            $table->foreignId('payment_method_id')->constrained('payment_methods','id')->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('payment_method_id')->constrained('payment_methods', 'id')->cascadeOnUpdate()->restrictOnDelete();
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->foreignId('branch_id')->constrained('branches')->default(1)->cascadeOnUpdate()->restrictOnDelete();
-            $table->foreignId('created_by')->constrained('users','id')->cascadeOnUpdate()->restrictOnDelete();
-            $table->foreignId('updated_by')->nullable()->constrained('users','id')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreignId('created_by')->constrained('users', 'id')->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('updated_by')->nullable()->constrained('users', 'id')->cascadeOnUpdate()->nullOnDelete();
             $table->timestamps();
         });
     }

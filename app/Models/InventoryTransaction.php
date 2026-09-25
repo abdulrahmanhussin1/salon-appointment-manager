@@ -3,14 +3,15 @@
 namespace App\Models;
 
 use App\Traits\HasUserActions;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class InventoryTransaction extends Model
 {
     use HasFactory, HasUserActions;
 
     protected $guarded = ['id'];
+
     protected $table = 'inventory_transactions';
 
     public function product()
@@ -25,21 +26,21 @@ class InventoryTransaction extends Model
 
     public function sourceInventory()
     {
-        return $this->belongsTo(Inventory::class,'source_inventory_id');
+        return $this->belongsTo(Inventory::class, 'source_inventory_id');
     }
 
     public function destinationInventory()
     {
-        return $this->belongsTo(Inventory::class,'destination_inventory_id');
+        return $this->belongsTo(Inventory::class, 'destination_inventory_id');
     }
 
     public function transactionDetails()
     {
         return $this->hasMany(InventoryTransactionDetail::class);
     }
+
     public function inventoryTransaction()
     {
         return $this->belongsTo(InventoryTransaction::class);
     }
-
 }

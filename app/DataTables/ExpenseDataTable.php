@@ -5,21 +5,19 @@ namespace App\DataTables;
 use App\Models\Expense;
 use App\Traits\AppHelper;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Yajra\DataTables\EloquentDataTable;
+use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\EloquentDataTable;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
-use Yajra\DataTables\Html\Builder as HtmlBuilder;
-use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 
 class ExpenseDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -59,14 +57,14 @@ class ExpenseDataTable extends DataTable
                             </button>
                             <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('expenses.edit')) {
-                    $html .= '<a href="' . route('expenses.edit', ['expense' => $model]) . '" class="dropdown-item">Edit</a>';
+                    $html .= '<a href="'.route('expenses.edit', ['expense' => $model]).'" class="dropdown-item">Edit</a>';
                 }
                 if (AppHelper::perUser('expenses.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-expense" data-id="' . $model->id . '" data-url="' . route('expenses.destroy', ['expense' => $model]) . '">Delete</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-expense" data-id="'.$model->id.'" data-url="'.route('expenses.destroy', ['expense' => $model]).'">Delete</a></div></div>';
                 }
+
                 return $html;
             })
-
 
             ->editColumn('expense_type_id', function ($model) {
                 return $model->expense_type_id ? $model->expenseType->name : 'N/A';
@@ -163,6 +161,6 @@ class ExpenseDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Expense_' . date('YmdHis');
+        return 'Expense_'.date('YmdHis');
     }
 }

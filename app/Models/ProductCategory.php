@@ -11,5 +11,6 @@ class ProductCategory extends Model
     use HasFactory,HasUserActions;
 
     protected $guarded = ['id'];
+
     protected $table = 'product_categories';
 }

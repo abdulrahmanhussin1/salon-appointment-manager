@@ -3,15 +3,15 @@
 namespace App\Models;
 
 use App\Traits\HasUserActions;
-use App\Models\SalesInvoiceDetail;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class SalesInvoice extends Model
 {
     use HasFactory, HasUserActions;
 
     protected $guarded = ['id'];
+
     protected $table = 'sales_invoices';
 
     public function customer()
@@ -28,7 +28,4 @@ class SalesInvoice extends Model
     {
         return $this->hasMany(SalesInvoiceDetail::class);
     }
-
-
-
 }

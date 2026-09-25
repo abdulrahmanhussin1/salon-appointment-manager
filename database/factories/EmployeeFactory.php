@@ -25,7 +25,7 @@ class EmployeeFactory extends Factory
             'job_title' => $this->faker->word,
             'gender' => $this->faker->randomElement(['male', 'female']),
             'status' => 'active', // Default value
-            'employee_level_id' => rand(1,3), // Assuming EmployeeLevel factory exists
+            'employee_level_id' => rand(1, 3), // Assuming EmployeeLevel factory exists
             'branch_id' => 1, // Assuming Branch
             'created_by' => 1, // Assuming a user with ID 1 exists, or replace with appropriate logic
             'updated_by' => null,

@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\DataTables\InventoryDataTable;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\InventoryRequest;
 use App\Models\Branch;
 use App\Models\Inventory;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\DataTables\InventoryDataTable;
-use App\Http\Requests\InventoryRequest;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class InventoryController extends Controller
@@ -19,7 +18,7 @@ class InventoryController extends Controller
     {
         $branches = Branch::select('id', 'name')->where('status', 'active')->get();
 
-        return $dataTable->render('admin.pages.inventories.index',compact('branches'));
+        return $dataTable->render('admin.pages.inventories.index', compact('branches'));
     }
 
     /**
@@ -44,6 +43,7 @@ class InventoryController extends Controller
         ]);
 
         Alert::success(__('Success'), __('Created Successfully'));
+
         return redirect()->back();
     }
 
@@ -60,8 +60,9 @@ class InventoryController extends Controller
      */
     public function edit(Inventory $inventory)
     {
-        $branches = Branch::select('id', 'name')->where('status','active')->get();
-        return view('admin.pages.inventories.edit',compact('inventory','branches'));
+        $branches = Branch::select('id', 'name')->where('status', 'active')->get();
+
+        return view('admin.pages.inventories.edit', compact('inventory', 'branches'));
     }
 
     /**
@@ -78,6 +79,7 @@ class InventoryController extends Controller
         ]);
 
         Alert::success(__('Success'), __('Updated Successfully'));
+
         return redirect()->route('inventories.index');
 
     }

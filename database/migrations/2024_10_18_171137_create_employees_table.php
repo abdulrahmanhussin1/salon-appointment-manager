@@ -25,7 +25,7 @@ return new class extends Migration
             $table->date('dob')->nullable();
             $table->string('finger_print_code')->nullable()->unique();
             $table->string('job_title')->nullable();
-            $table->enum('gender',['male','female'])->nullable();
+            $table->enum('gender', ['male', 'female'])->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->string('inactive_reason')->nullable();
             $table->date('termination_date')->nullable();

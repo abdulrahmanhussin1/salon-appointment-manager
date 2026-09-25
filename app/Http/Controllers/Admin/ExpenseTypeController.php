@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\ExpenseType;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\DataTables\ExpenseTypeDataTable;
-use RealRashid\SweetAlert\Facades\Alert;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\ExpenseTypeRequest;
+use App\Models\ExpenseType;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class ExpenseTypeController extends Controller
 {
@@ -36,10 +35,11 @@ class ExpenseTypeController extends Controller
             'name' => $request->name,
             'description' => $request->description,
             'status' => $request->status,
-            'created_by' => auth()->id()
+            'created_by' => auth()->id(),
         ]);
 
         Alert::success(__('Success'), __('Created Successfully'));
+
         return redirect()->back();
     }
 
@@ -68,10 +68,11 @@ class ExpenseTypeController extends Controller
             'name' => $request->name,
             'description' => $request->description,
             'status' => $request->status,
-            'updated_by' => auth()->id()
+            'updated_by' => auth()->id(),
         ]);
 
         Alert::success(__('Success'), __('Updated Successfully'));
+
         return redirect()->route('expense_types.index');
     }
 

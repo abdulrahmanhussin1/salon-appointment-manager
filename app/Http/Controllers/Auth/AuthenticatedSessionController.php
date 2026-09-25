@@ -18,8 +18,9 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
-        $adminPanelSetting = AdminPanelSetting::select('system_name','system_logo')->first();
-        return view('admin.auth.login',compact('adminPanelSetting'));
+        $adminPanelSetting = AdminPanelSetting::select('system_name', 'system_logo')->first();
+
+        return view('admin.auth.login', compact('adminPanelSetting'));
     }
 
     /**

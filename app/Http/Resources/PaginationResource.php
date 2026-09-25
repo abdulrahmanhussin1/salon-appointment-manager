@@ -2,8 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class PaginationResource extends ResourceCollection
@@ -13,18 +11,19 @@ class PaginationResource extends ResourceCollection
      *
      * @return array<string, mixed>
      */
-    protected $_className=null;
-    public function __construct($resource,$className=null)
+    protected $_className = null;
+
+    public function __construct($resource, $className = null)
     {
-        $this->_className=$className;
+        $this->_className = $className;
         parent::__construct($resource);
     }
 
     public function toArray($request): array
     {
         return [
-            'data' => $this->_className?$this->_className::collection($this->collection):$this->collection,
-            'render'=>$this->links()->render() ,
+            'data' => $this->_className ? $this->_className::collection($this->collection) : $this->collection,
+            'render' => $this->links()->render(),
             'links' => [
                 'self' => $this->url($this->currentPage()),
                 'first' => $this->url(1),

@@ -2,23 +2,21 @@
 
 namespace App\DataTables;
 
-use App\Traits\AppHelper;
 use App\Models\ProductCategory;
+use App\Traits\AppHelper;
+use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Yajra\DataTables\EloquentDataTable;
+use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\EloquentDataTable;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
-use Yajra\DataTables\Html\Builder as HtmlBuilder;
-use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 
 class ProductCategoryDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -31,11 +29,12 @@ class ProductCategoryDataTable extends DataTable
     </button>
     <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('product_categories.edit')) {
-                    $html .= '<a href="' . route('product_categories.edit', ['product_category' => $model]) . '" class="dropdown-item">Edit</a>';
+                    $html .= '<a href="'.route('product_categories.edit', ['product_category' => $model]).'" class="dropdown-item">Edit</a>';
                 }
                 if (AppHelper::perUser('product_categories.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-product_category" data-id="' . $model->id . '" data-url="' . route('product_categories.destroy', ['product_category' => $model]) . '">Delete</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-product_category" data-id="'.$model->id.'" data-url="'.route('product_categories.destroy', ['product_category' => $model]).'">Delete</a></div></div>';
                 }
+
                 return $html;
             })
 
@@ -46,8 +45,6 @@ class ProductCategoryDataTable extends DataTable
                     return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large"></i>';
                 }
             })
-
-
 
             ->editColumn('created_at', function ($model) {
                 return $model->created_at ? $model->created_at->format('Y-m-d H:i:s') : null;
@@ -81,22 +78,22 @@ class ProductCategoryDataTable extends DataTable
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
-            ->orderBy(0,'desc')
+            ->orderBy(0, 'desc')
             ->selectStyleSingle()
- ->buttons([
-            Button::make('excel')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('csv')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('pdf')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('print')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-        ]);
+            ->buttons([
+                Button::make('excel')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('csv')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('pdf')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('print')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+            ]);
     }
 
     /**
@@ -125,6 +122,6 @@ class ProductCategoryDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'ProductCategory_' . date('YmdHis');
+        return 'ProductCategory_'.date('YmdHis');
     }
 }

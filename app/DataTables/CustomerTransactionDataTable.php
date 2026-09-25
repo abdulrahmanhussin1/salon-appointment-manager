@@ -8,8 +8,6 @@ use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 class CustomerTransactionDataTable extends DataTable
@@ -17,7 +15,7 @@ class CustomerTransactionDataTable extends DataTable
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -34,18 +32,18 @@ class CustomerTransactionDataTable extends DataTable
                 return $model->updated_at ? $model->created_at->format('Y-m-d H:i:s') : null;
             })
             ->editColumn('updated_at', function ($model) {
-                return $model->updated_at? $model->updated_at->format('Y-m-d H:i:s') : null;
+                return $model->updated_at ? $model->updated_at->format('Y-m-d H:i:s') : null;
             })
             ->addColumn('reference_type', function ($model) {
                 return $model->reference_type;
             })
 
             ->addColumn('customer_id', function ($model) {
-                return $model->customer? $model->customer->name : null;
+                return $model->customer ? $model->customer->name : null;
             })
 
             ->addColumn('created_by', function ($model) {
-                return $model->createdBy? $model->createdBy->name : null;
+                return $model->createdBy ? $model->createdBy->name : null;
             })
 
             ->setRowId('id');
@@ -66,9 +64,9 @@ class CustomerTransactionDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('customertransaction-table')
-                    ->columns($this->getColumns())
-                    ->minifiedAjax()
+            ->setTableId('customertransaction-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
             ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
             ->orderBy(0, 'desc')
             ->selectStyleSingle()
@@ -116,6 +114,6 @@ class CustomerTransactionDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'CustomerTransaction_' . date('YmdHis');
+        return 'CustomerTransaction_'.date('YmdHis');
     }
 }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('supplier_id')->constrained('suppliers')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('product_id')->constrained('products')->cascadeOnUpdate()->restrictOnDelete();
-            $table->unsignedDecimal('supplier_price',10,2)->default(0);
+            $table->unsignedDecimal('supplier_price', 10, 2)->default(0);
             $table->decimal('customer_price', 10, 2)->default(0);
             $table->unsignedDecimal('discount', 10, 2)->default(0);
             $table->unsignedInteger('quantity')->default(0);

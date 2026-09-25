@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Customer;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Models\CustomerTransaction;
-use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 use App\DataTables\CustomerDataTable;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\CustomerRequest;
+use App\Models\Customer;
+use App\Models\CustomerTransaction;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class CustomerController extends Controller
@@ -85,12 +84,13 @@ class CustomerController extends Controller
 
             // Show success alert for non-AJAX requests
             Alert::success(__('Success'), __('Customer created successfully'));
+
             return redirect()->back();
         } catch (\Exception $e) {
             DB::rollBack();
 
             // Log error details for debugging
-            Log::error('Error creating customer: ' . $e->getMessage());
+            Log::error('Error creating customer: '.$e->getMessage());
 
             // Handle response for AJAX and non-AJAX requests
             if ($request->ajax()) {
@@ -104,7 +104,6 @@ class CustomerController extends Controller
             return back()->with('error', __('Failed to create customer. Please try again.'));
         }
     }
-
 
     /**
      * Display the specified resource.
@@ -140,11 +139,11 @@ class CustomerController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'address' => $request->address,
-            'updated_by' => auth()->id()
+            'updated_by' => auth()->id(),
         ]);
 
-
         Alert::success(__('Success'), __('Updated Successfully'));
+
         return redirect()->route('customers.index');
     }
 

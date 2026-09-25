@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
 use App\Models\Supplier;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +17,7 @@ class SupplierFactory extends Factory
     {
         return [
             'name' => $this->faker->company, // Random company name
-            'email' =>$this->faker->unique()->safeEmail(), // Optional and unique email
+            'email' => $this->faker->unique()->safeEmail(), // Optional and unique email
             'phone' => $this->faker->optional()->phoneNumber, // Optional phone number
             'address' => $this->faker->optional()->address, // Optional address
             'status' => 'active',

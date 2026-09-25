@@ -10,12 +10,16 @@ class SupplierTransaction extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
-    protected $table ='supplier_transactions';
+
+    protected $table = 'supplier_transactions';
 
     public const TYPE_PURCHASE = 'purchase';
+
     public const TYPE_RETURN = 'return';
+
     public const TYPE_PAYMENT = 'payment';
+
     public const TYPE_ADJUSTMENT = 'adjustment';
+
     public const TYPE_INITIAL_BALANCE = 'initial_balance';
 }
-

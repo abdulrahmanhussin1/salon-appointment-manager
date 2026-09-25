@@ -9,10 +9,11 @@ use Illuminate\View\Component;
 class FormPersonalImage extends Component
 {
     public $src;
+
     /**
      * Create a new component instance.
      */
-    public function __construct( $src = NULL)
+    public function __construct($src = null)
     {
         $this->src = $src;
     }

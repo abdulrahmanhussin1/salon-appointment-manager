@@ -10,10 +10,11 @@ class ServiceEmployee extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
-    protected $table ='service_employees';
+
+    protected $table = 'service_employees';
 
     public function services()
     {
-        return $this->belongsToMany(Service::class,'service_employees');
+        return $this->belongsToMany(Service::class, 'service_employees');
     }
 }

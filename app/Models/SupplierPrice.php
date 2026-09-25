@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class SupplierPrice extends Model
 {
-   // use HasFactory;
+    // use HasFactory;
 
-   protected $guarded = ['id'];
+    protected $guarded = ['id'];
 
-   protected $table = 'supplier_prices';
+    protected $table = 'supplier_prices';
 
     public function supplier()
     {
@@ -27,8 +27,4 @@ class SupplierPrice extends Model
     {
         return $this->belongsTo(PurchaseInvoice::class);
     }
-
-
 }
-
-

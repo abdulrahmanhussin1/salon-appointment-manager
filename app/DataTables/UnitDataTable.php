@@ -4,60 +4,56 @@ namespace App\DataTables;
 
 use App\Models\Unit;
 use App\Traits\AppHelper;
+use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Yajra\DataTables\EloquentDataTable;
+use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\EloquentDataTable;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
-use Yajra\DataTables\Html\Builder as HtmlBuilder;
-use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 
 class UnitDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-        ->addColumn('action', function ($model) {
-            $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
+            ->addColumn('action', function ($model) {
+                $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
         <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2"
         type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
            <i class="bi bi-three-dots-vertical"></i>
         </button>
         <div class="dropdown-menu dropdown-menu-end py-2">';
-            if (AppHelper::perUser('units.edit')) {
-                $html .= '<a href="' . route('units.edit', ['unit' => $model]) . '" class="dropdown-item">Edit</a>';
-            }
-            if (AppHelper::perUser('units.destroy')) {
-                $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-unit" data-id="' . $model->id . '" data-url="' . route('units.destroy', ['unit' => $model]) . '">Delete</a></div></div>';
-            }
-            return $html;
-        })
+                if (AppHelper::perUser('units.edit')) {
+                    $html .= '<a href="'.route('units.edit', ['unit' => $model]).'" class="dropdown-item">Edit</a>';
+                }
+                if (AppHelper::perUser('units.destroy')) {
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-unit" data-id="'.$model->id.'" data-url="'.route('units.destroy', ['unit' => $model]).'">Delete</a></div></div>';
+                }
 
-        ->editColumn('status', function ($model) {
-            if ($model->status == 'active') {
-                return '<i class="bi bi-check-circle-fill text-success" style="font-size:large"></i>';
-            } elseif ($model->status == 'inactive') {
-                return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large"></i>';
-            }
-        })
-        ->editColumn('created_at', function ($model) {
-            return $model->created_at ? $model->created_at->format('Y-m-d H:i:s') : null;
-        })
-        ->editColumn('updated_at', function ($model) {
-            return $model->updated_at ? $model->created_at->format('Y-m-d H:i:s') : null;
-        })
-
-        ->addColumn('created_by', function ($model) {
-            return $model->createdBy ? $model->createdBy->name : null;
-        })
-
-        ->rawColumns(['action', 'status'])
+                return $html;
+            })
+            ->editColumn('status', function ($model) {
+                if ($model->status == 'active') {
+                    return '<i class="bi bi-check-circle-fill text-success" style="font-size:large"></i>';
+                } elseif ($model->status == 'inactive') {
+                    return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large"></i>';
+                }
+            })
+            ->editColumn('created_at', function ($model) {
+                return $model->created_at ? $model->created_at->format('Y-m-d H:i:s') : null;
+            })
+            ->editColumn('updated_at', function ($model) {
+                return $model->updated_at ? $model->created_at->format('Y-m-d H:i:s') : null;
+            })
+            ->addColumn('created_by', function ($model) {
+                return $model->createdBy ? $model->createdBy->name : null;
+            })
+            ->rawColumns(['action', 'status'])
             ->setRowId('id');
     }
 
@@ -75,26 +71,26 @@ class UnitDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('unit-table')
-                    ->columns($this->getColumns())
-                    ->minifiedAjax()
-                    ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
-                    ->orderBy(0,'desc')
-                    ->selectStyleSingle()
-                     ->buttons([
-            Button::make('excel')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('csv')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('pdf')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('print')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-        ]);
+            ->setTableId('unit-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
+            ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
+            ->orderBy(0, 'desc')
+            ->selectStyleSingle()
+            ->buttons([
+                Button::make('excel')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('csv')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('pdf')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('print')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+            ]);
     }
 
     /**
@@ -124,6 +120,6 @@ class UnitDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Unit_' . date('YmdHis');
+        return 'Unit_'.date('YmdHis');
     }
 }

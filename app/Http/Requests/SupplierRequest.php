@@ -23,14 +23,15 @@ class SupplierRequest extends FormRequest
     {
         if ($this->method() == 'PUT') {
             return [
-            'name' => 'required|string|max:255|unique:suppliers,name,'.$this->supplier->id,
-            'email' => 'nullable|email|unique:suppliers,email,'.$this->supplier->id,
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
-            'initial_balance' => 'nullable|numeric',
-            'status' => 'required|in:active,inactive',
+                'name' => 'required|string|max:255|unique:suppliers,name,'.$this->supplier->id,
+                'email' => 'nullable|email|unique:suppliers,email,'.$this->supplier->id,
+                'phone' => 'nullable|string|max:20',
+                'address' => 'nullable|string|max:500',
+                'initial_balance' => 'nullable|numeric',
+                'status' => 'required|in:active,inactive',
             ];
         }
+
         return [
             'name' => 'required|string|max:255|unique:suppliers,name',
             'email' => 'nullable|email|unique:suppliers,email',

@@ -10,10 +10,11 @@ class ServiceProduct extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
-    protected $table ='service_products';
+
+    protected $table = 'service_products';
+
     public function services()
     {
-        return $this->belongsToMany(Service::class,'services_products',);
+        return $this->belongsToMany(Service::class, 'services_products');
     }
-
 }

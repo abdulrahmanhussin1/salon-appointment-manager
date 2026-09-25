@@ -3,14 +3,15 @@
 namespace App\Models;
 
 use App\Traits\HasUserActions;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class InventoryTransactionDetail extends Model
 {
     use HasFactory, HasUserActions;
 
     protected $guarded = ['id'];
+
     protected $table = 'inventory_transaction_details';
 
     public function inventoryTransaction()

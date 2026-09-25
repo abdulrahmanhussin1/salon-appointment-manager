@@ -3,14 +3,15 @@
 namespace App\Models;
 
 use App\Traits\HasUserActions;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Inventory extends Model
 {
     use HasFactory, HasUserActions;
 
     protected $guarded = ['id'];
+
     protected $table = 'inventories';
 
     public function products()
@@ -32,5 +33,4 @@ class Inventory extends Model
     {
         return $this->morphMany(InventoryTransaction::class, 'reference');
     }
-
 }

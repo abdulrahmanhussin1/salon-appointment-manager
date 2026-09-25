@@ -81,8 +81,8 @@ class EmployeeRequest extends FormRequest
             'break_time' => 'nullable|date_format:H:i|after:start_working_time',
             'branch_id' => 'required|integer|exists:branches,id',
 
-            'service_id'=>'nullable|array',
-            'service_id.*'=>'nullable|integer|exists:services,id',
+            'service_id' => 'nullable|array',
+            'service_id.*' => 'nullable|integer|exists:services,id',
 
             'is_immediate_commission' => 'nullable|array',
             'commission_type' => 'nullable|array',
@@ -94,7 +94,6 @@ class EmployeeRequest extends FormRequest
 
         ];
     }
-
 
     public function messages()
     {
@@ -127,5 +126,4 @@ class EmployeeRequest extends FormRequest
             'break_time.date_format' => 'Break time must be in the format H:i.',
         ];
     }
-
 }

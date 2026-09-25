@@ -21,27 +21,27 @@ class UserRequest extends FormRequest
      */
     public function rules(): array
     {
-       if ($this->method() == 'PUT') {
+        if ($this->method() == 'PUT') {
+
+            return [
+                'name' => 'required|string|max:100',
+                'email' => 'required|unique:users,email,'.$this->user->id,
+                'password' => 'nullable|string|min:8|confirmed',
+                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+                'status' => 'required|string|in:active,inactive',
+                'role_id' => 'required|integer|exists:roles,id',
+                'employee_id' => 'nullable|integer|exists:employees,id|unique:users,employee_id,'.$this->user->id,
+            ];
+        }
 
         return [
-            'name'=>'required|string|max:100',
-            'email'=>'required|unique:users,email,'.$this->user->id,
-            'password'=> 'nullable|string|min:8|confirmed',
-            'photo'=> 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'name' => 'required|string|max:100',
+            'email' => 'required|unique:users,email',
+            'password' => 'required|string|min:8|confirmed |max:255',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'status' => 'required|string|in:active,inactive',
-            'role_id'=> 'required|integer|exists:roles,id',
-            'employee_id'=> 'nullable|integer|exists:employees,id|unique:users,employee_id,'.$this->user->id,
-        ];
-    }
-
-    return [
-            'name'=>'required|string|max:100',
-            'email'=>'required|unique:users,email',
-            'password'=> 'required|string|min:8|confirmed |max:255',
-            'photo'=> 'nullable|image|mimes:jpeg,png,jpg,gif',
-            'status' => 'required|string|in:active,inactive',
-            'role_id'=> 'required|integer|exists:roles,id',
-            'employee_id'=> 'nullable|integer|exists:employees,id|unique:users,employee_id',
+            'role_id' => 'required|integer|exists:roles,id',
+            'employee_id' => 'nullable|integer|exists:employees,id|unique:users,employee_id',
         ];
 
     }

@@ -118,7 +118,6 @@ class AppointmentSecurityTest extends TestCase
             'provider_id',
             'service_id',
             'start_date',
-            'end_date',
         ]);
 
         // Invalid foreign keys and invalid date ordering
@@ -287,7 +286,7 @@ class AppointmentSecurityTest extends TestCase
         $invalid = $this->actingAs($user)->put("/admin/appointments/{$appointment->id}", [
             'customer_id' => 99999,
         ]);
-        $invalid->assertSessionHasErrors(['customer_id', 'provider_id', 'service_id', 'start_date', 'end_date']);
+        $invalid->assertSessionHasErrors(['customer_id', 'provider_id', 'service_id', 'start_date']);
 
         // With appointments.edit permission, valid inputs
         $success = $this->actingAs($user)->put("/admin/appointments/{$appointment->id}", [
@@ -555,5 +554,107 @@ class AppointmentSecurityTest extends TestCase
         // Destroy on non-existent route ID
         $deleteResponse = $this->actingAs($user)->delete('/admin/appointments/99999');
         $deleteResponse->assertNotFound();
+    }
+
+    public function test_store_rejects_inactive_customer_provider_and_service(): void
+    {
+        $user = $this->createAdminUser();
+        $user->givePermissionTo('appointments.create');
+
+        $branch = \App\Models\Branch::create([
+            'name' => 'Main Branch',
+            'status' => 'active',
+            'created_by' => $user->id,
+        ]);
+
+        $activeCustomer = Customer::create([
+            'name' => 'Active Customer',
+            'email' => 'active@example.com',
+            'phone' => '1111111111',
+            'status' => 'active',
+            'created_by' => $user->id,
+        ]);
+        $inactiveCustomer = Customer::create([
+            'name' => 'Inactive Customer',
+            'email' => 'inactive@example.com',
+            'phone' => '2222222222',
+            'status' => 'inactive',
+            'created_by' => $user->id,
+        ]);
+
+        $level = EmployeeLevel::create([
+            'name' => 'Senior Stylist',
+            'status' => 'active',
+            'created_by' => $user->id,
+        ]);
+        $activeProvider = Employee::create([
+            'name' => 'Active Provider',
+            'email' => 'actprov@example.com',
+            'phone' => '3333333333',
+            'employee_level_id' => $level->id,
+            'branch_id' => $branch->id,
+            'status' => 'active',
+            'created_by' => $user->id,
+        ]);
+        $inactiveProvider = Employee::create([
+            'name' => 'Inactive Provider',
+            'email' => 'inactprov@example.com',
+            'phone' => '4444444444',
+            'employee_level_id' => $level->id,
+            'branch_id' => $branch->id,
+            'status' => 'inactive',
+            'created_by' => $user->id,
+        ]);
+
+        $category = ServiceCategory::create([
+            'name' => 'Hair Services',
+            'status' => 'active',
+            'created_by' => $user->id,
+        ]);
+        $activeService = Service::create([
+            'name' => 'Active Haircut',
+            'price' => 50.00,
+            'duration' => 30,
+            'service_category_id' => $category->id,
+            'branch_id' => $branch->id,
+            'status' => 'active',
+            'created_by' => $user->id,
+        ]);
+        $inactiveService = Service::create([
+            'name' => 'Inactive Haircut',
+            'price' => 50.00,
+            'duration' => 30,
+            'service_category_id' => $category->id,
+            'branch_id' => $branch->id,
+            'status' => 'inactive',
+            'created_by' => $user->id,
+        ]);
+
+        // Inactive customer fails
+        $response1 = $this->actingAs($user)->post('/admin/appointments', [
+            'customer_id' => $inactiveCustomer->id,
+            'provider_id' => $activeProvider->id,
+            'service_id' => $activeService->id,
+            'start_date' => '2026-10-01 10:00:00',
+        ]);
+        $response1->assertSessionHasErrors(['customer_id']);
+
+        // Inactive provider fails
+        $response2 = $this->actingAs($user)->post('/admin/appointments', [
+            'customer_id' => $activeCustomer->id,
+            'provider_id' => $inactiveProvider->id,
+            'service_id' => $activeService->id,
+            'start_date' => '2026-10-01 10:00:00',
+        ]);
+        $response2->assertSessionHasErrors(['provider_id']);
+
+        // Inactive service fails
+        $response3 = $this->actingAs($user)->post('/admin/appointments', [
+            'customer_id' => $activeCustomer->id,
+            'provider_id' => $activeProvider->id,
+            'service_id' => $inactiveService->id,
+            'start_date' => '2026-10-01 10:00:00',
+        ]);
+        $response3->assertSessionHasErrors(['service_id']);
     }
 }

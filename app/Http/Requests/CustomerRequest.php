@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CustomerRequest extends FormRequest
 {
@@ -41,11 +41,11 @@ class CustomerRequest extends FormRequest
             $rules['email'] = [
                 'nullable',
                 'email',
-                Rule::unique('customers', 'email')->ignore($this->route('customer')) // Ignore the current user's email
+                Rule::unique('customers', 'email')->ignore($this->route('customer')), // Ignore the current user's email
             ];
             $rules['phone'] = [
                 'nullable',
-                Rule::unique('customers', 'phone')->ignore($this->route('customer')) // Ignore the current user's phone number
+                Rule::unique('customers', 'phone')->ignore($this->route('customer')), // Ignore the current user's phone number
             ];
         }
 

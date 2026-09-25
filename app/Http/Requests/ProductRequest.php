@@ -45,8 +45,8 @@ class ProductRequest extends FormRequest
 
         // If the request is a PUT (update), adjust the 'unique' validation rules
         if ($this->method() == 'PUT') {
-            $rules['name'] = 'required|string|max:255|unique:products,name,' . $this->product->id;
-            $rules['code'] = 'required|integer|unique:products,code,' . $this->product->id;
+            $rules['name'] = 'required|string|max:255|unique:products,name,'.$this->product->id;
+            $rules['code'] = 'required|integer|unique:products,code,'.$this->product->id;
         }
 
         return $rules;

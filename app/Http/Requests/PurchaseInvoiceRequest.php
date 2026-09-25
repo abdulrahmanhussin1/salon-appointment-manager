@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class PurchaseInvoiceRequest extends FormRequest
 {
@@ -24,7 +24,7 @@ class PurchaseInvoiceRequest extends FormRequest
     {
         return [
             'invoice_number' => [
-                $this->routeIs('purchase_invoices.update') ? 'required' :'nullable',
+                $this->routeIs('purchase_invoices.update') ? 'required' : 'nullable',
                 'string',
                 'max:20',
                 'regex:/^[a-zA-Z0-9-]+$/',
@@ -35,8 +35,8 @@ class PurchaseInvoiceRequest extends FormRequest
 
             'invoice_date' => 'required|date',
             'total_amount' => 'required|numeric|min:0.01',
-            'invoice_discount'=>'nullable|numeric|min:0',
-            'invoice_notes'=>'nullable|string|max:500',
+            'invoice_discount' => 'nullable|numeric|min:0',
+            'invoice_notes' => 'nullable|string|max:500',
             'supplier_id' => 'required|exists:suppliers,id',
             'status' => 'required|in:active,inactive,draft',
             'branch_id' => 'nullable|exists:branches,id',

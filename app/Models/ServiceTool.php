@@ -10,7 +10,8 @@ class ServiceTool extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
-    protected $table ='service_tools';
+
+    protected $table = 'service_tools';
 
     public function services()
     {

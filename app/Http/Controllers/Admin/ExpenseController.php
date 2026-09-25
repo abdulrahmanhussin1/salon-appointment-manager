@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Branch;
-use App\Models\Expense;
-use App\Models\ExpenseType;
-use Illuminate\Http\Request;
-use App\Models\PaymentMethod;
 use App\DataTables\ExpenseDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ExpenseRequest;
+use App\Models\Branch;
+use App\Models\Expense;
+use App\Models\ExpenseType;
+use App\Models\PaymentMethod;
+use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class ExpenseController extends Controller
@@ -19,10 +19,11 @@ class ExpenseController extends Controller
      */
     public function index(ExpenseDataTable $dataTable)
     {
-        $expenseTypes = ExpenseType::where('status','active')->select('id','name')->get();
-        $paymentMethods = PaymentMethod::where('status','active')->where('name','cash')->select('id','name')->get();
-        $branches = Branch::where('status','active')->select('id','name')->get();
-        return $dataTable->render('admin.pages.expenses.index',compact('expenseTypes','paymentMethods','branches'));
+        $expenseTypes = ExpenseType::where('status', 'active')->select('id', 'name')->get();
+        $paymentMethods = PaymentMethod::where('status', 'active')->where('name', 'cash')->select('id', 'name')->get();
+        $branches = Branch::where('status', 'active')->select('id', 'name')->get();
+
+        return $dataTable->render('admin.pages.expenses.index', compact('expenseTypes', 'paymentMethods', 'branches'));
     }
 
     /**
@@ -49,9 +50,10 @@ class ExpenseController extends Controller
             'payment_method_id' => $request->payment_method_id,
             'branch_id' => $request->branch_id,
             'status' => $request->status,
-            'created_by' => auth()->id()
+            'created_by' => auth()->id(),
         ]);
         Alert::success(__('Success'), __('Created Successfully'));
+
         return redirect()->back();
     }
 
@@ -71,7 +73,8 @@ class ExpenseController extends Controller
         $expenseTypes = ExpenseType::where('status', 'active')->select('id', 'name')->get();
         $paymentMethods = PaymentMethod::where('status', 'active')->where('name', 'cash')->select('id', 'name')->get();
         $branches = Branch::where('status', 'active')->select('id', 'name')->get();
-        return view('admin.pages.expenses.edit', compact('expense','paymentMethods','expenseTypes','branches'));
+
+        return view('admin.pages.expenses.edit', compact('expense', 'paymentMethods', 'expenseTypes', 'branches'));
     }
 
     /**
@@ -90,10 +93,11 @@ class ExpenseController extends Controller
             'payment_method_id' => $request->payment_method_id,
             'branch_id' => $request->branch_id,
             'status' => $request->status,
-            'updated_by' => auth()->id()
+            'updated_by' => auth()->id(),
         ]);
 
         Alert::success(__('Success'), __('Updated Successfully'));
+
         return redirect()->route('expenses.index');
     }
 

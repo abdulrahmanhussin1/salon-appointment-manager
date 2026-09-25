@@ -28,11 +28,58 @@
 
 
 
+    <div class="card mb-3 shadow-sm border-0">
+        <div class="card-body py-2">
+            <div class="d-flex flex-wrap align-items-center gap-2 small">
+                <span class="fw-bold text-muted me-1"><i class="bi bi-palette me-1"></i>{{ __('Legend') }}:</span>
+                <span class="badge" style="background-color: #ffc107; color: #212529;">{{ __('Requested') }}</span>
+                <span class="badge" style="background-color: #0d6efd; color: #ffffff;">{{ __('Confirmed') }}</span>
+                <span class="badge" style="background-color: #6f42c1; color: #ffffff;">{{ __('Checked In') }}</span>
+                <span class="badge" style="background-color: #fd7e14; color: #ffffff;">{{ __('In Service') }}</span>
+                <span class="badge" style="background-color: #198754; color: #ffffff;">{{ __('Completed') }}</span>
+                <span class="badge" style="background-color: #6c757d; color: #ffffff;">{{ __('Cancelled') }}</span>
+                <span class="badge" style="background-color: #212529; color: #ffffff;">{{ __('No Show') }}</span>
+            </div>
+        </div>
+    </div>
+
     <div id="calendar"></div>
 
     <!-- Modal -->
 
-    <x-modal id="eventModal" title="Edit Appoentment">
+    <x-modal id="eventModal" title="Appointment Details">
+
+        <div class="px-3 pt-2">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted small fw-semibold">{{ __('Current Status') }}:</span>
+                <span id="event_status_badge" class="badge"></span>
+            </div>
+            <div id="event_cancellation_info" class="alert alert-secondary d-none text-start py-2 small mb-2">
+                <strong>{{ __('Cancellation Reason') }}:</strong> <span id="event_cancelled_reason"></span>
+            </div>
+
+            <!-- Lifecycle Quick Actions -->
+            <div id="statusActionsContainer" class="d-flex flex-wrap gap-2 justify-content-center my-2 p-2 bg-light rounded border">
+                <button type="button" id="btnConfirm" class="btn btn-sm btn-primary action-btn d-none" onclick="triggerStatusAction('confirm')">
+                    <i class="bi bi-check-circle me-1"></i>{{ __('Confirm') }}
+                </button>
+                <button type="button" id="btnCheckIn" class="btn btn-sm btn-info text-white action-btn d-none" onclick="triggerStatusAction('check-in')">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>{{ __('Check In') }}
+                </button>
+                <button type="button" id="btnStartService" class="btn btn-sm btn-warning action-btn d-none" onclick="triggerStatusAction('start-service')">
+                    <i class="bi bi-play-circle me-1"></i>{{ __('Start Service') }}
+                </button>
+                <button type="button" id="btnComplete" class="btn btn-sm btn-success action-btn d-none" onclick="triggerStatusAction('complete')">
+                    <i class="bi bi-check2-all me-1"></i>{{ __('Complete') }}
+                </button>
+                <button type="button" id="btnNoShow" class="btn btn-sm btn-dark action-btn d-none" onclick="triggerStatusAction('no-show')">
+                    <i class="bi bi-person-x me-1"></i>{{ __('No Show') }}
+                </button>
+                <button type="button" id="btnCancel" class="btn btn-sm btn-outline-danger action-btn d-none" onclick="openCancelPrompt()">
+                    <i class="bi bi-x-circle me-1"></i>{{ __('Cancel') }}
+                </button>
+            </div>
+        </div>
 
         <form class="text-center" action="{{ route('appointments.update', 1) }}" method="POST" id="appoentmentFormUpdate"
             enctype="multipart/form-data">
@@ -65,8 +112,8 @@
                         <x-form-select name="service_id" id="edit_service_id" label='Service' required>
                             @foreach (App\Models\Service::all() as $branch)
                                 <option @if (old('service_id') == $branch->id) selected="selected" @endif
-                                    value="{{ $branch->id }}">
-                                    {{ $branch->name }}
+                                    value="{{ $branch->id }}" data-duration="{{ $branch->duration_minutes }}">
+                                    {{ $branch->name }} ({{ $branch->duration_minutes }} min)
                                 </option>
                             @endforeach
                         </x-form-select>
@@ -90,10 +137,10 @@
                 </div>
 
                 <div class="col-12">
-                    <label class="form-label" for="end_date">{{ __('End Date') }}</label>
+                    <label class="form-label" for="end_date">{{ __('End Date') }} <small class="text-muted">({{ __('Optional — auto-calculated from service') }})</small></label>
                     <input type="datetime-local" name="end_date"
                         class="form-control w-100  @error('end_date') is-invalid @enderror" id="edit_end_date"
-                        value="" required>
+                        value="">
                     @error('end_date')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -241,8 +288,8 @@
                         <x-form-select name="service_id" id="service_id" label='Service' required>
                             @foreach (App\Models\Service::all() as $branch)
                                 <option @if (old('service_id') == $branch->id) selected="selected" @endif
-                                    value="{{ $branch->id }}">
-                                    {{ $branch->name }}
+                                    value="{{ $branch->id }}" data-duration="{{ $branch->duration_minutes }}">
+                                    {{ $branch->name }} ({{ $branch->duration_minutes }} min)
                                 </option>
                             @endforeach
                         </x-form-select>
@@ -266,10 +313,10 @@
                 </div>
 
                 <div class="col-6">
-                    <label class="form-label" for="end_date">{{ __('End Date') }}</label>
+                    <label class="form-label" for="end_date">{{ __('End Date') }} <small class="text-muted">({{ __('Optional — auto-calculated') }})</small></label>
                     <input type="datetime-local" name="end_date"
                         class="form-control w-100  @error('end_date') is-invalid @enderror" id="end_date"
-                        value="" required>
+                        value="">
                     @error('end_date')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -295,6 +342,46 @@
 
             $("#edit_customer_id,#edit_provider_id,#edit_service_id").select2({
                 dropdownParent: $("#appoentmentFormUpdate")
+            });
+
+            function autoCalculateEndTime(startDateId, serviceSelectId, endDateId) {
+                var startVal = document.getElementById(startDateId) ? document.getElementById(startDateId).value : null;
+                var serviceSelect = document.getElementById(serviceSelectId);
+                if (!startVal || !serviceSelect) return;
+
+                var selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+                var duration = selectedOption ? parseInt(selectedOption.getAttribute('data-duration') || '30', 10) : 30;
+
+                if (duration > 0) {
+                    var startDate = new Date(startVal);
+                    if (!isNaN(startDate.getTime())) {
+                        var endDate = new Date(startDate.getTime() + duration * 60000);
+                        var year = endDate.getFullYear();
+                        var month = String(endDate.getMonth() + 1).padStart(2, '0');
+                        var day = String(endDate.getDate()).padStart(2, '0');
+                        var hours = String(endDate.getHours()).padStart(2, '0');
+                        var minutes = String(endDate.getMinutes()).padStart(2, '0');
+                        var formatted = `${year}-${month}-${day}T${hours}:${minutes}`;
+                        var endInput = document.getElementById(endDateId);
+                        if (endInput) {
+                            endInput.value = formatted;
+                        }
+                    }
+                }
+            }
+
+            $('#service_id').on('change', function() {
+                autoCalculateEndTime('start_date', 'service_id', 'end_date');
+            });
+            $('#start_date').on('change input', function() {
+                autoCalculateEndTime('start_date', 'service_id', 'end_date');
+            });
+
+            $('#edit_service_id').on('change', function() {
+                autoCalculateEndTime('edit_start_date', 'edit_service_id', 'edit_end_date');
+            });
+            $('#edit_start_date').on('change input', function() {
+                autoCalculateEndTime('edit_start_date', 'edit_service_id', 'edit_end_date');
             });
 
 
@@ -359,10 +446,121 @@
     </script>
 
     <script>
+        var currentEventId = null;
+        var calendar = null;
+
+        function updateStatusButtons(status) {
+            $('.action-btn').addClass('d-none');
+
+            if (status === 'requested') {
+                $('#btnConfirm').removeClass('d-none');
+                $('#btnCancel').removeClass('d-none');
+            } else if (status === 'confirmed') {
+                $('#btnCheckIn').removeClass('d-none');
+                $('#btnNoShow').removeClass('d-none');
+                $('#btnCancel').removeClass('d-none');
+            } else if (status === 'checked_in') {
+                $('#btnStartService').removeClass('d-none');
+                $('#btnNoShow').removeClass('d-none');
+                $('#btnCancel').removeClass('d-none');
+            } else if (status === 'in_service') {
+                $('#btnComplete').removeClass('d-none');
+                $('#btnCancel').removeClass('d-none');
+            }
+        }
+
+        function triggerStatusAction(action) {
+            if (!currentEventId) return;
+
+            Swal.fire({
+                title: '{{ __("Are you sure?") }}',
+                text: '{{ __("Transition appointment status?") }}',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '{{ __("Yes, proceed") }}'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/admin/appointments/${currentEventId}/${action}`,
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '{{ __("Success") }}',
+                                text: response.message || '{{ __("Status updated successfully") }}'
+                            });
+                            $('#eventModal').modal('hide');
+                            calendar.refetchEvents();
+                        },
+                        error: function(xhr) {
+                            const message = xhr.responseJSON?.message || '{{ __("Failed to update status.") }}';
+                            Swal.fire({
+                                icon: 'error',
+                                title: '{{ __("Error") }}',
+                                text: message
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function openCancelPrompt() {
+            if (!currentEventId) return;
+
+            Swal.fire({
+                title: '{{ __("Cancel Appointment") }}',
+                input: 'textarea',
+                inputLabel: '{{ __("Cancellation Reason") }}',
+                inputPlaceholder: '{{ __("Please enter reason for cancellation...") }}',
+                showCancelButton: true,
+                confirmButtonText: '{{ __("Confirm Cancellation") }}',
+                confirmButtonColor: '#dc3545',
+                inputValidator: (value) => {
+                    if (!value || !value.trim()) {
+                        return '{{ __("A cancellation reason is required!") }}';
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    $.ajax({
+                        url: `/admin/appointments/${currentEventId}/cancel`,
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            cancellation_reason: result.value
+                        },
+                        success: function(response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '{{ __("Cancelled") }}',
+                                text: response.message || '{{ __("Appointment cancelled successfully") }}'
+                            });
+                            $('#eventModal').modal('hide');
+                            calendar.refetchEvents();
+                        },
+                        error: function(xhr) {
+                            const message = xhr.responseJSON?.message || '{{ __("Failed to cancel appointment.") }}';
+                            Swal.fire({
+                                icon: 'error',
+                                title: '{{ __("Error") }}',
+                                text: message
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('calendar');
 
-            var calendar = new FullCalendar.Calendar(calendarEl, {
+            calendar = new FullCalendar.Calendar(calendarEl, {
                 timeZone: 'UTC',
                 initialView: 'timeGridWeek',
                 headerToolbar: {
@@ -371,9 +569,10 @@
                     right: 'timeGridWeek,timeGridDay'
                 },
                 events: '{{ route('appointments.index') }}',
-                editable: false, // Enables drag-and-drop editing
+                editable: false,
                 eventClick: function(info) {
-                    // Set form action URLs dynamically to target the clicked appointment
+                    currentEventId = info.event.id;
+
                     var updateUrl = "{{ route('appointments.update', ':id') }}".replace(':id', info.event.id);
                     document.getElementById('appoentmentFormUpdate').action = updateUrl;
 
@@ -383,31 +582,26 @@
                     document.getElementById('id').value = info.event.id;
                     document.getElementById('id_destroy').value = info.event.id;
 
-
-                    document.getElementById('edit_customer_id').value = info.event.extendedProps
-                        .customer_id;
-                    document.getElementById('edit_provider_id').value = info.event.extendedProps
-                        .provider_id;
-                    document.getElementById('edit_service_id').value = info.event.extendedProps
-                        .service_id;
-                    document.getElementById('edit_start_date').value = info.event.extendedProps
-                        .start_date;
+                    document.getElementById('edit_customer_id').value = info.event.extendedProps.customer_id;
+                    document.getElementById('edit_provider_id').value = info.event.extendedProps.provider_id;
+                    document.getElementById('edit_service_id').value = info.event.extendedProps.service_id;
+                    document.getElementById('edit_start_date').value = info.event.extendedProps.start_date;
                     document.getElementById('edit_end_date').value = info.event.extendedProps.end_date;
 
+                    var status = info.event.extendedProps.status || 'requested';
+                    var statusLabel = info.event.extendedProps.status_label || status;
+                    var statusBadge = info.event.extendedProps.status_badge || 'bg-secondary text-white';
 
-                    console.log(info.event.extendedProps.start_date, info.event.customer_id,
-                        info.event.id, info.event.extendedProps.customer);
+                    $('#event_status_badge').text(statusLabel).attr('class', 'badge ' + statusBadge);
 
+                    if (status === 'cancelled' && info.event.extendedProps.cancellation_reason) {
+                        $('#event_cancelled_reason').text(info.event.extendedProps.cancellation_reason);
+                        $('#event_cancellation_info').removeClass('d-none');
+                    } else {
+                        $('#event_cancellation_info').addClass('d-none');
+                    }
 
-                    // const saveButton = document.getElementById('saveEventButton');
-                    // saveButton.onclick = function() {
-                    //     const newTitle = document.getElementById('eventTitleInput').value;
-                    //     if (newTitle) {
-                    //         info.event.setProp('title', newTitle); // Update the event title
-                    //     }
-                    //     closeModal();
-                    // };
-
+                    updateStatusButtons(status);
                     openModal();
                 }
             });
@@ -415,18 +609,13 @@
             calendar.render();
 
             function openModal() {
-               // document.getElementById('eventModal').style.display = 'block';
                 $('#eventModal').modal('show');
-
             }
 
             function closeModal() {
                 $('#eventModal').modal('hide');
-
-                //  document.getElementById('eventModal').style.display = 'none';
             }
 
-            // Close modal on clicking outside
             window.onclick = function(event) {
                 const modal = document.getElementById('eventModal');
                 if (event.target == modal) {

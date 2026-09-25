@@ -4,22 +4,20 @@ namespace App\DataTables;
 
 use App\Models\User;
 use App\Traits\AppHelper;
-use Yajra\DataTables\Html\Button;
-use Yajra\DataTables\Html\Column;
+use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\EloquentDataTable;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
-use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
-use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Yajra\DataTables\Html\Button;
+use Yajra\DataTables\Html\Column;
+use Yajra\DataTables\Services\DataTable;
 
 class UsersDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -31,15 +29,16 @@ class UsersDataTable extends DataTable
 <i class="bi bi-three-dots-vertical"></i>         </button>
             <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('users.edit')) {
-                    $html .= '<a href="' . route('users.edit', ['user' => $model]) . '" class="dropdown-item">Edit</a>';
+                    $html .= '<a href="'.route('users.edit', ['user' => $model]).'" class="dropdown-item">Edit</a>';
                 }
                 if (AppHelper::perUser('users.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-user" data-id="' . $model->id . '" data-url="' . route('users.destroy', ['user' => $model]) . '">Delete</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-user" data-id="'.$model->id.'" data-url="'.route('users.destroy', ['user' => $model]).'">Delete</a></div></div>';
                 }
+
                 return $html;
             })
             ->addColumn('photo', function ($model) {
-                return $model->photo && Storage::exists($model->photo) ? '<img src="' . asset('storage') . '/' . $model->photo . '" alt="avatar" style="width:50px">' : '<img src="' . asset('admin-assets/assets/img/avatar.jpg') . '" alt="avatar" style="width:50px">';
+                return $model->photo && Storage::exists($model->photo) ? '<img src="'.asset('storage').'/'.$model->photo.'" alt="avatar" style="width:50px">' : '<img src="'.asset('admin-assets/assets/img/avatar.jpg').'" alt="avatar" style="width:50px">';
             })
 
             ->addColumn('employee_id', function ($model) {
@@ -48,7 +47,7 @@ class UsersDataTable extends DataTable
 
             ->addColumn('role', function (User $model) {
                 return $model->roles->map(function ($role) {
-                    return '<span style="font-size: 10pt;" class="badge bg-primary mx-1">' . __(ucwords($role->name)) . '</span>';
+                    return '<span style="font-size: 10pt;" class="badge bg-primary mx-1">'.__(ucwords($role->name)).'</span>';
                 })->implode('');
             })
 
@@ -91,22 +90,22 @@ class UsersDataTable extends DataTable
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
-            ->orderBy(0,'desc')
+            ->orderBy(0, 'desc')
             ->selectStyleSingle()
-->buttons([
-    Button::make('excel')->exportOptions([
-        'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
-    ]),
-    Button::make('csv')->exportOptions([
-        'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
-    ]),
-    Button::make('pdf')->exportOptions([
-        'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
-    ]),
-    Button::make('print')->exportOptions([
-        'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
-    ]),
-]);
+            ->buttons([
+                Button::make('excel')->exportOptions([
+                    'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
+                ]),
+                Button::make('csv')->exportOptions([
+                    'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
+                ]),
+                Button::make('pdf')->exportOptions([
+                    'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
+                ]),
+                Button::make('print')->exportOptions([
+                    'columns' => ':not(:nth-last-child(-n+3))', // Exclude the last 3 columns
+                ]),
+            ]);
 
     }
 
@@ -140,6 +139,6 @@ class UsersDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Users_' . date('YmdHis');
+        return 'Users_'.date('YmdHis');
     }
 }

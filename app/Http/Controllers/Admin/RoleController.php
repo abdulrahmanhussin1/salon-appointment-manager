@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Role;
-use Illuminate\Http\Request;
 use App\DataTables\RolesDataTable;
-use App\Http\Requests\RoleRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RoleRequest;
+use App\Models\Role;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class RoleController extends Controller
@@ -36,11 +35,12 @@ class RoleController extends Controller
         $role = Role::create([
             'name' => $request->name,
             'description' => $request->description,
-            'status'=> $request->status,
-            'created_by'=>auth()->id()
+            'status' => $request->status,
+            'created_by' => auth()->id(),
         ]);
         $role->givePermissionTo($request->permissions);
-        Alert::success(__('Success'),__('Create Successfully'));
+        Alert::success(__('Success'), __('Create Successfully'));
+
         return redirect()->back();
     }
 
@@ -68,10 +68,11 @@ class RoleController extends Controller
         $role->update([
             'name' => $request->name,
             'description' => $request->description,
-            'status'=> $request->status,
+            'status' => $request->status,
         ]);
         $role->syncPermissions($request->permissions);
         Alert::success(__('Success'), __('Update Successfully'));
+
         return redirect()->route('roles.index');
     }
 

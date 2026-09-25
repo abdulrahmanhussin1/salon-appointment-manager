@@ -4,29 +4,27 @@ namespace App\DataTables;
 
 use App\Models\Product;
 use App\Traits\AppHelper;
-use Yajra\DataTables\Html\Button;
-use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\EloquentDataTable;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
-use Yajra\DataTables\Services\DataTable;
-use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Storage;
+use Yajra\DataTables\EloquentDataTable;
+use Yajra\DataTables\Html\Builder as HtmlBuilder;
+use Yajra\DataTables\Html\Button;
+use Yajra\DataTables\Html\Column;
+use Yajra\DataTables\Services\DataTable;
 
 class ProductDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query
-        ->when(request('branch_id'), function($q){
-            $q->where('branch_id', request()->get('branch_id'));
-         })
+            ->when(request('branch_id'), function ($q) {
+                $q->where('branch_id', request()->get('branch_id'));
+            })
         ))
             ->addColumn('action', function ($model) {
                 $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
@@ -36,32 +34,34 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
 </button>
 <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('products.edit')) {
-                    $html .= '<a href="' . route('products.edit', ['product' => $model]) . '" class="dropdown-item">Edit</a>';
+                    $html .= '<a href="'.route('products.edit', ['product' => $model]).'" class="dropdown-item">Edit</a>';
                 }
 
                 if (AppHelper::perUser('products.show')) {
-                    $html .= '<a href="' . route('products.show', ['product' => $model]) . '" class="dropdown-item">Product Details</a>';
+                    $html .= '<a href="'.route('products.show', ['product' => $model]).'" class="dropdown-item">Product Details</a>';
                 }
                 if (AppHelper::perUser('products.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-product" data-id="' . $model->id . '" data-url="' . route('products.destroy', ['product' => $model]) . '">Delete</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-product" data-id="'.$model->id.'" data-url="'.route('products.destroy', ['product' => $model]).'">Delete</a></div></div>';
                 }
+
                 return $html;
             })
 
             ->editColumn('supplier_price', function ($model) {
-                return $model->supplier_price ? 'L.E ' . number_format($model->supplier_price, 2) : null;
+                return $model->supplier_price ? 'L.E '.number_format($model->supplier_price, 2) : null;
             })
             ->editColumn('customer_price', function ($model) {
-                return $model->customer_price ? 'L.E ' . number_format($model->customer_price, 2) : null;
+                return $model->customer_price ? 'L.E '.number_format($model->customer_price, 2) : null;
             })
             ->editColumn('code', function ($model) {
                 return $model->code ?? null;
             })
             ->editColumn('image', function ($model) {
                 if ($model->image && Storage::exists($model->image)) {
-                    return '<img src="' . asset('storage/' . $model->image) . '" alt="' . $model->name . '" style="max-width: 50px; max-height: 75px;">';
+                    return '<img src="'.asset('storage/'.$model->image).'" alt="'.$model->name.'" style="max-width: 50px; max-height: 75px;">';
                 }
-                return '<img src="' . asset('admin-assets/assets/img/OIP.jpeg') . '" alt="' . $model->name . '" style="max-width: 50px; max-height: 75px;">';
+
+                return '<img src="'.asset('admin-assets/assets/img/OIP.jpeg').'" alt="'.$model->name.'" style="max-width: 50px; max-height: 75px;">';
             })
 
             ->editColumn('category_id', function ($model) {
@@ -76,7 +76,7 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
 
             ->editColumn('is_target', function ($model) {
                 if ($model->is_target) {
-                    return '<span class="badge text-bg-danger">'. ucfirst('target'). '</span>';
+                    return '<span class="badge text-bg-danger">'.ucfirst('target').'</span>';
                 }
             })
 
@@ -84,17 +84,16 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                 if ($model->price_can_change) {
                     return 'Yes';
                 }
+
                 return 'No';
             })
             ->editColumn('type', function ($model) {
                 if ($model->type == 'operation') {
-                return '<span class="badge text-bg-success">' . ucfirst($model->type) . '</span>';
+                    return '<span class="badge text-bg-success">'.ucfirst($model->type).'</span>';
                 } elseif ($model->type == 'sales') {
-                return '<span class="badge text-bg-primary">' . ucfirst($model->type) . '</span>';
+                    return '<span class="badge text-bg-primary">'.ucfirst($model->type).'</span>';
                 }
             })
-
-
 
             ->editColumn('status', function ($model) {
                 if ($model->status == 'active') {
@@ -114,13 +113,11 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                 return $model->updated_at ? $model->created_at->format('Y-m-d H:i:s') : null;
             })
 
-
-
             ->addColumn('created_by', function ($model) {
                 return $model->createdBy ? $model->createdBy->name : null;
             })
 
-            ->rawColumns(['action', 'status', 'image','type','is_target'])->setRowId('id');
+            ->rawColumns(['action', 'status', 'image', 'type', 'is_target'])->setRowId('id');
     }
 
     /**
@@ -141,22 +138,22 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
-            ->orderBy(0,'desc')
+            ->orderBy(0, 'desc')
             ->selectStyleSingle()
- ->buttons([
-            Button::make('excel')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('csv')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('pdf')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('print')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-        ]);
+            ->buttons([
+                Button::make('excel')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('csv')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('pdf')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('print')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+            ]);
     }
 
     /**
@@ -197,6 +194,6 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
      */
     protected function filename(): string
     {
-        return 'Product_' . date('YmdHis');
+        return 'Product_'.date('YmdHis');
     }
 }

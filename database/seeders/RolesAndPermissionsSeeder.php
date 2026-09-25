@@ -5,9 +5,8 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Spatie\Permission\Models\Role;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -108,14 +107,12 @@ class RolesAndPermissionsSeeder extends Seeder
                 'customers.edit',
                 'customers.destroy',
 
-
                 /* branches */
                 'branches.index',
                 'branches.show',
                 'branches.create',
                 'branches.edit',
                 'branches.destroy',
-
 
                 /* expense_types */
                 'expense_types.index',
@@ -138,14 +135,12 @@ class RolesAndPermissionsSeeder extends Seeder
                 'payment_methods.edit',
                 'payment_methods.destroy',
 
-
                 /* purchase_invoices */
                 'purchase_invoices.index',
                 'purchase_invoices.show',
                 'purchase_invoices.create',
                 'purchase_invoices.edit',
                 'purchase_invoices.destroy',
-
 
                 /* sales_invoices */
                 'sales_invoices.index',
@@ -169,7 +164,6 @@ class RolesAndPermissionsSeeder extends Seeder
                 'customer_transactions.get_customer_payments',
                 'customer_transactions.store_customer_payment',
 
-
                 /* Reports */
                 'reports.index',
 
@@ -183,8 +177,8 @@ class RolesAndPermissionsSeeder extends Seeder
             ],
         ];
 
-        $insertPermissions = fn($role) => collect($permissionsByRole[$role])
-            ->map(fn($name) => DB::table(config('permission.table_names.permissions'))->insertGetId(['name' => $name, 'group' => ucfirst(explode('.', str_replace('_', ' ', $name))[0]), 'guard_name' => $gardName, 'created_at' => now(),]))
+        $insertPermissions = fn ($role) => collect($permissionsByRole[$role])
+            ->map(fn ($name) => DB::table(config('permission.table_names.permissions'))->insertGetId(['name' => $name, 'group' => ucfirst(explode('.', str_replace('_', ' ', $name))[0]), 'guard_name' => $gardName, 'created_at' => now()]))
             ->toArray();
 
         $permissionIdsByRole = [
@@ -193,18 +187,18 @@ class RolesAndPermissionsSeeder extends Seeder
 
         foreach ($permissionIdsByRole as $roleName => $permissionIds) {
             $role = Role::whereName($roleName)->first();
-            if (!$role) {
+            if (! $role) {
                 $role = Role::create([
                     'name' => $roleName,
                     'description' => 'Best for business owners and company administrators',
                     'guard_name' => $gardName,
                     'created_at' => now(),
-                    'created_by' => 1
+                    'created_by' => 1,
                 ]);
             }
             DB::table(config('permission.table_names.role_has_permissions'))
                 ->insert(
-                    collect($permissionIds)->map(fn($id) => [
+                    collect($permissionIds)->map(fn ($id) => [
                         'role_id' => $role->id,
                         'permission_id' => $id,
                     ])->toArray()
@@ -223,7 +217,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'name' => 'cashier',
             'guard_name' => $gardName,
             'created_at' => now(),
-            'created_by' => 1
+            'created_by' => 1,
         ]);
 
         //assign all permissions to cashier role
@@ -232,7 +226,6 @@ class RolesAndPermissionsSeeder extends Seeder
         $cashierPermissions->each(function ($permission) use ($cashierRole) {
             $cashierRole->givePermissionTo($permission);
         });
-
 
         //create a new user with cashier role
         User::create([

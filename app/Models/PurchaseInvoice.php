@@ -2,20 +2,19 @@
 
 namespace App\Models;
 
-use Exception;
 use App\Traits\HasUserActions;
-use Illuminate\Support\Facades\DB;
-use App\Models\PurchaseInvoiceDetail;
-use Illuminate\Database\Eloquent\Model;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class PurchaseInvoice extends Model
 {
     use HasFactory, HasUserActions;
 
     protected $guarded = ['id'];
-    protected $table = 'purchase_invoices';
 
+    protected $table = 'purchase_invoices';
 
     public function details()
     {
@@ -24,9 +23,8 @@ class PurchaseInvoice extends Model
 
     public function supplier()
     {
-        return $this->belongsTo(Supplier::class,'supplier_id');
+        return $this->belongsTo(Supplier::class, 'supplier_id');
     }
-
 
     public function supplierPrices()
     {
@@ -35,8 +33,9 @@ class PurchaseInvoice extends Model
 
     public function branch()
     {
-        return $this->belongsTo(Branch::class,'branch_id');
+        return $this->belongsTo(Branch::class, 'branch_id');
     }
+
     protected static function boot()
     {
         parent::boot();
@@ -51,19 +50,17 @@ class PurchaseInvoice extends Model
         // Get the latest invoice number
         $lastInvoice = self::latest('invoice_number')->first();
 
-        if (!$lastInvoice) {
+        if (! $lastInvoice) {
             return 1; // Start with 1 if no invoice exists
         }
 
         return $lastInvoice->invoice_number + 1;
     }
 
-
-    public function saveDetails(array $details,$request)
+    public function saveDetails(array $details, $request)
     {
         $inventoryId = $this->branch->inventory()->first()->id;
-        if(!$inventoryId)
-        {
+        if (! $inventoryId) {
             throw new Exception('Inventory not found for this branch');
         }
         $transaction = InventoryTransaction::create([
@@ -71,7 +68,7 @@ class PurchaseInvoice extends Model
             'destination_inventory_id' => $inventoryId,
             'total_before_discount' => $request['total_amount'],
             'discount' => $request['invoice_discount'] ?? 0,
-            'net_total' => $request['total_amount'] -  $request['invoice_discount'],
+            'net_total' => $request['total_amount'] - $request['invoice_discount'],
         ]);
         foreach ($details as $detail) {
             $this->details()->create([
@@ -84,28 +81,26 @@ class PurchaseInvoice extends Model
             ]);
 
             $existingProduct = DB::table('inventory_products')
-            ->where('inventory_id', $inventoryId)
-            ->where('product_id', $detail['product_id'])
-            ->first();
+                ->where('inventory_id', $inventoryId)
+                ->where('product_id', $detail['product_id'])
+                ->first();
 
             if ($existingProduct) {
                 // Update the quantity if the product exists
                 DB::table('inventory_products')
-                ->where('inventory_id', $inventoryId)
-                ->where('product_id', $detail['product_id'])
-                ->increment('quantity', $detail['quantity']);
+                    ->where('inventory_id', $inventoryId)
+                    ->where('product_id', $detail['product_id'])
+                    ->increment('quantity', $detail['quantity']);
             } else {
                 // Insert a new record if the product does not exist
                 DB::table('inventory_products')->insert([
-                    'inventory_id' =>$inventoryId,
+                    'inventory_id' => $inventoryId,
                     'product_id' => $detail['product_id'],
                     'quantity' => $detail['quantity'],
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
             }
-
-
 
             InventoryTransactionDetail::create(['transaction_type' => 'transfer',
                 'inventory_transaction_id' => $transaction->id,
@@ -117,13 +112,12 @@ class PurchaseInvoice extends Model
                 'product_id' => $detail['product_id'],
                 'supplier_id' => $this->supplier_id,
                 'supplier_price' => $detail['supplier_price'],
-                'customer_price'=> $detail['customer_price'],
-                 'discount' => $detail['discount'] ,
-                 'quantity' => $detail['quantity'],
+                'customer_price' => $detail['customer_price'],
+                'discount' => $detail['discount'],
+                'quantity' => $detail['quantity'],
                 'purchase_invoice_id' => $this->id, // Purchase Invoice ID from the current invoice
             ]);
         }
-
 
     }
 }

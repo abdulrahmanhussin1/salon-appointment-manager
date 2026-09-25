@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\DataTables\CustomerTransactionDataTable;
+use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\CustomerTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use App\Models\CustomerTransaction;
-use App\Http\Controllers\Controller;
 use RealRashid\SweetAlert\Facades\Alert;
-use App\DataTables\CustomerTransactionDataTable;
 
 class CustomerTransactionController extends Controller
 {
     public function getCustomerPayments(CustomerTransactionDataTable $dataTable)
     {
         $customers = Customer::where('status', 'active')->select('id', 'name')->get();
+
         return $dataTable->render('admin.pages.customers.transactions.payments.index', compact('customers'));
     }
 
@@ -24,7 +25,7 @@ class CustomerTransactionController extends Controller
             'customer_id' => [
                 'required',
                 'integer',
-                Rule::exists('customers', 'id')->where('status', 'active')
+                Rule::exists('customers', 'id')->where('status', 'active'),
             ],
             'amount' => 'required|numeric|min:1',
             'notes' => 'nullable|string|max:500',

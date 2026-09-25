@@ -4,22 +4,20 @@ namespace App\DataTables;
 
 use App\Models\Tool;
 use App\Traits\AppHelper;
-use Yajra\DataTables\Html\Button;
-use Yajra\DataTables\Html\Column;
+use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\EloquentDataTable;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
-use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
-use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Yajra\DataTables\Html\Button;
+use Yajra\DataTables\Html\Column;
+use Yajra\DataTables\Services\DataTable;
 
 class ToolDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -32,11 +30,12 @@ class ToolDataTable extends DataTable
         </button>
         <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('tools.edit')) {
-                    $html .= '<a href="' . route('tools.edit', ['tool' => $model]) . '" class="dropdown-item">Edit</a>';
+                    $html .= '<a href="'.route('tools.edit', ['tool' => $model]).'" class="dropdown-item">Edit</a>';
                 }
                 if (AppHelper::perUser('tools.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-tool" data-id="' . $model->id . '" data-url="' . route('tools.destroy', ['tool' => $model]) . '">Delete</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-tool" data-id="'.$model->id.'" data-url="'.route('tools.destroy', ['tool' => $model]).'">Delete</a></div></div>';
                 }
+
                 return $html;
             })
 
@@ -50,9 +49,10 @@ class ToolDataTable extends DataTable
 
             ->editColumn('image', function ($model) {
                 if ($model->image && Storage::exists($model->image)) {
-                    return '<img src="' . asset('storage/' . $model->image) . '" alt="' . $model->name . '" style="max-width: 75px; max-height: 75px;">';
+                    return '<img src="'.asset('storage/'.$model->image).'" alt="'.$model->name.'" style="max-width: 75px; max-height: 75px;">';
                 }
-                return '<img src="' . asset('admin-assets/assets/img/OIP.jpeg') . '" alt="' . $model->name . '" style="max-width: 75px; max-height: 75px;">';
+
+                return '<img src="'.asset('admin-assets/assets/img/OIP.jpeg').'" alt="'.$model->name.'" style="max-width: 75px; max-height: 75px;">';
             })
 
             ->editColumn('created_at', function ($model) {
@@ -88,22 +88,22 @@ class ToolDataTable extends DataTable
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
-            ->orderBy(0,'desc')
+            ->orderBy(0, 'desc')
             ->selectStyleSingle()
-             ->buttons([
-            Button::make('excel')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('csv')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('pdf')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('print')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-        ]);
+            ->buttons([
+                Button::make('excel')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('csv')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('pdf')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('print')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+            ]);
     }
 
     /**
@@ -134,6 +134,6 @@ class ToolDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Tool_' . date('YmdHis');
+        return 'Tool_'.date('YmdHis');
     }
 }

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
-use App\Models\ServiceCategory;
-use App\Http\Controllers\Controller;
-use RealRashid\SweetAlert\Facades\Alert;
 use App\DataTables\ServiceCategoryDataTable;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\ServiceCategoryRequest;
+use App\Models\ServiceCategory;
+use Illuminate\Http\Request;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class ServiceCategoryController extends Controller
 {
@@ -34,13 +34,14 @@ class ServiceCategoryController extends Controller
     {
 
         ServiceCategory::create([
-            'name'=> $request->name,
-            'description'=> $request->description,
-            'status'=> $request->status,
-            'created_by'=>auth()->id()
+            'name' => $request->name,
+            'description' => $request->description,
+            'status' => $request->status,
+            'created_by' => auth()->id(),
         ]);
 
-        Alert::success(__('Success'),__('Create Successfully'));
+        Alert::success(__('Success'), __('Create Successfully'));
+
         return redirect()->back();
     }
 
@@ -66,13 +67,14 @@ class ServiceCategoryController extends Controller
     public function update(Request $request, ServiceCategory $serviceCategory)
     {
         $serviceCategory->update([
-            'name'=> $request->name,
-            'description'=> $request->description,
-            'status'=> $request->status,
-            'updated_by'=>auth()->id()
+            'name' => $request->name,
+            'description' => $request->description,
+            'status' => $request->status,
+            'updated_by' => auth()->id(),
         ]);
 
-        Alert::success(__('Success'),__('Update Successfully'));
+        Alert::success(__('Success'), __('Update Successfully'));
+
         return redirect()->route('service_categories.index');
     }
 

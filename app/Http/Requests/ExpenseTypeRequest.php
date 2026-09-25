@@ -23,11 +23,12 @@ class ExpenseTypeRequest extends FormRequest
     {
         if ($this->method() == 'PUT') {
             return [
-                'name' => 'required|string|unique:expense_types,name,' . $this->expense_type->id,
+                'name' => 'required|string|unique:expense_types,name,'.$this->expense_type->id,
                 'description' => 'nullable|string|max:500',
                 'status' => 'required|string|in:active,inactive',
             ];
         }
+
         return [
             'name' => 'required|string|unique:expense_types,name',
             'description' => 'nullable|string|max:500',

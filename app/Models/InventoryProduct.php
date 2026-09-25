@@ -3,16 +3,16 @@
 namespace App\Models;
 
 use App\Traits\HasUserActions;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class InventoryProduct extends Model
 {
     use HasFactory, HasUserActions;
 
     protected $guarded = ['id'];
-    protected $table = 'inventory_products';
 
+    protected $table = 'inventory_products';
 
     public function inventory()
     {
@@ -23,5 +23,4 @@ class InventoryProduct extends Model
     {
         return $this->belongsTo(Product::class);
     }
-
 }

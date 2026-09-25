@@ -3,15 +3,16 @@
 namespace App\Models;
 
 use App\Traits\HasUserActions;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Branch extends Model
 {
     use HasFactory,HasUserActions;
 
-    protected $guarded=['id'];
-    protected $table ='branches';
+    protected $guarded = ['id'];
+
+    protected $table = 'branches';
 
     public function manager()
     {

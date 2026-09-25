@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
-use App\Models\PaymentMethod;
-use App\Http\Controllers\Controller;
-use RealRashid\SweetAlert\Facades\Alert;
 use App\DataTables\PaymentMethodDataTable;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\PaymentMethodRequest;
+use App\Models\PaymentMethod;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class PaymentMethodController extends Controller
 {
@@ -36,10 +35,11 @@ class PaymentMethodController extends Controller
             'name' => $request->name,
             'description' => $request->description,
             'status' => $request->status,
-            'created_by' =>auth()->id()
+            'created_by' => auth()->id(),
         ]);
 
         Alert::success(__('Success'), __('Created Successfully'));
+
         return redirect()->route('payment_methods.index');
     }
 
@@ -68,10 +68,11 @@ class PaymentMethodController extends Controller
             'name' => $request->name,
             'description' => $request->description,
             'status' => $request->status,
-            'updated_by'=>auth()->id()
+            'updated_by' => auth()->id(),
         ]);
 
         Alert::success(__('Success'), __('Updated Successfully'));
+
         return redirect()->route('payment_methods.index');
     }
 

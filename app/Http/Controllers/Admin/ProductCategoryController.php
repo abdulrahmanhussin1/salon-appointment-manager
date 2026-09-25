@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
-use App\Models\ProductCategory;
-use App\Http\Controllers\Controller;
-use RealRashid\SweetAlert\Facades\Alert;
 use App\DataTables\ProductCategoryDataTable;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductCategoryRequest;
+use App\Models\ProductCategory;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class ProductCategoryController extends Controller
 {
@@ -33,13 +32,14 @@ class ProductCategoryController extends Controller
     public function store(ProductCategoryRequest $request)
     {
         ProductCategory::create([
-            'name'=> $request->name,
-            'description'=> $request->description,
-            'status'=> $request->status,
-            'created_by'=>auth()->id()
+            'name' => $request->name,
+            'description' => $request->description,
+            'status' => $request->status,
+            'created_by' => auth()->id(),
         ]);
 
         Alert::success(__('Success'), __('Created Successfully'));
+
         return redirect()->back();
 
     }
@@ -66,13 +66,14 @@ class ProductCategoryController extends Controller
     public function update(ProductCategoryRequest $request, ProductCategory $productCategory)
     {
         $productCategory->update([
-            'name'=> $request->name,
-            'description'=> $request->description,
-            'status'=> $request->status,
-            'updated_by'=>auth()->id()
+            'name' => $request->name,
+            'description' => $request->description,
+            'status' => $request->status,
+            'updated_by' => auth()->id(),
         ]);
 
         Alert::success(__('Success'), __('Updated Successfully'));
+
         return redirect()->route('product_categories.index');
     }
 

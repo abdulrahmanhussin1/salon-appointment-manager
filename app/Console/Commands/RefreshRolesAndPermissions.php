@@ -2,19 +2,19 @@
 
 namespace App\Console\Commands;
 
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Database\Seeders\RolesAndPermissionsSeeder;
-use Modules\Budget\Database\Seeders\RolesAndPermissionsSeeder as BudgetRolesAndPermissionsSeeder;
 
 class RefreshRolesAndPermissions extends Command
 {
     protected $signature = 'roles:refresh';
+
     protected $description = 'Refresh roles and permissions and reseed them';
 
     public function handle()
     {
-        $this->info("Refreshing roles and permissions...");
+        $this->info('Refreshing roles and permissions...');
 
         DB::statement('SET FOREIGN_KEY_CHECKS = 0;');
 
@@ -28,5 +28,4 @@ class RefreshRolesAndPermissions extends Command
 
         $this->info('Roles and permissions refreshed successfully!');
     }
-
 }

@@ -3,15 +3,14 @@
 namespace App\Models;
 
 use App\Traits\HasUserActions;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class ExpenseType extends Model
 {
     use HasFactory, HasUserActions;
 
     protected $guarded = ['id'];
-    protected $table = 'expense_types';
 
-    
+    protected $table = 'expense_types';
 }

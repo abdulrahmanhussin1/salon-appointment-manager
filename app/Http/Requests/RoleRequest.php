@@ -21,17 +21,18 @@ class RoleRequest extends FormRequest
      */
     public function rules(): array
     {
-         if ($this->method() == 'PUT') {
+        if ($this->method() == 'PUT') {
             return [
-                'name'=>'required|unique:roles,name,'.$this->role->id,
-                'description'=>'nullable|string|max:500',
-                'status'=> 'required|string|in:active,inactive',
+                'name' => 'required|unique:roles,name,'.$this->role->id,
+                'description' => 'nullable|string|max:500',
+                'status' => 'required|string|in:active,inactive',
             ];
         }
+
         return [
-            'name'=>'required|unique:roles,name',
-            'description'=>'nullable|string|max:500',
-            'status'=> 'required|string|in:active,inactive',
+            'name' => 'required|unique:roles,name',
+            'description' => 'nullable|string|max:500',
+            'status' => 'required|string|in:active,inactive',
         ];
     }
 }

@@ -10,6 +10,7 @@ class Tool extends Model
 {
     use HasFactory,HasUserActions;
 
-    protected $guarded=['id'];
+    protected $guarded = ['id'];
+
     protected $table = 'tools';
 }

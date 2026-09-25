@@ -23,11 +23,12 @@ class PaymentMethodRequest extends FormRequest
     {
         if ($this->method() == 'PUT') {
             return [
-                'name' => 'required|string|unique:payment_methods,name,' . $this->payment_method->id,
+                'name' => 'required|string|unique:payment_methods,name,'.$this->payment_method->id,
                 'description' => 'nullable|string|max:500',
                 'status' => 'required|string|in:active,inactive',
             ];
         }
+
         return [
             'name' => 'required|string|unique:payment_methods,name',
             'description' => 'nullable|string|max:500',

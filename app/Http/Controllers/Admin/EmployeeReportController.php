@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Carbon\Carbon;
-use App\Models\Service;
-use App\Models\Employee;
-use Illuminate\Http\Request;
-use App\Models\SalesInvoiceDetail;
 use App\Http\Controllers\Controller;
+use App\Models\Employee;
+use App\Models\SalesInvoiceDetail;
+use App\Models\Service;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
 class EmployeeReportController extends Controller
@@ -16,7 +16,8 @@ class EmployeeReportController extends Controller
     {
         $employees = Employee::select('id', 'name')->where('status', 'active')->get();
         $services = Service::select('id', 'name')->where('status', 'active')->get();
-        return view('admin.pages.reports.employee_report', compact('employees','services'));
+
+        return view('admin.pages.reports.employee_report', compact('employees', 'services'));
     }
 
     public function getData(Request $request)
@@ -29,8 +30,8 @@ class EmployeeReportController extends Controller
         // Apply date filter
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('sales_invoices.invoice_date', [
-                Carbon::parse($request->start_date)->startOfDay(),
-                Carbon::parse($request->end_date)->endOfDay()
+                Carbon::parse($request->start_date)->toDateString(),
+                Carbon::parse($request->end_date)->toDateString(),
             ]);
         }
 
@@ -57,10 +58,12 @@ class EmployeeReportController extends Controller
             ->addColumn('total_amount', function ($row) {
                 return number_format($row->subtotal, 2);
             })
+            ->addColumn('commission_amount', function ($row) {
+                return number_format($row->commission_amount ?? 0, 2);
+            })
             ->rawColumns(['action'])
             ->make(true);
     }
-
 
     public function getEmployeeStats(Request $request)
     {
@@ -71,14 +74,15 @@ class EmployeeReportController extends Controller
             ->select(
                 'provider_id',
                 \DB::raw('COUNT(*) as total_services'),
-                \DB::raw('SUM(subtotal) as total_amount')
+                \DB::raw('SUM(subtotal) as total_amount'),
+                \DB::raw('SUM(commission_amount) as total_commission')
             );
 
         // Apply date filter
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('sales_invoices.invoice_date', [
-                Carbon::parse($request->start_date)->startOfDay(),
-                Carbon::parse($request->end_date)->endOfDay()
+                Carbon::parse($request->start_date)->toDateString(),
+                Carbon::parse($request->end_date)->toDateString(),
             ]);
         }
 

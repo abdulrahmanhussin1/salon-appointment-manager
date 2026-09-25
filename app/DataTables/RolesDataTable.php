@@ -3,23 +3,20 @@
 namespace App\DataTables;
 
 use App\Models\Role;
-use App\Helpers\Helpers;
 use App\Traits\AppHelper;
+use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Yajra\DataTables\EloquentDataTable;
+use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\EloquentDataTable;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
-use Yajra\DataTables\Html\Builder as HtmlBuilder;
-use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 
 class RolesDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -32,11 +29,12 @@ class RolesDataTable extends DataTable
             </button>
             <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('roles.edit')) {
-                    $html .= '<a href="' . route('roles.edit', ['role' => $model]) . '" class="dropdown-item">Edit</a>';
+                    $html .= '<a href="'.route('roles.edit', ['role' => $model]).'" class="dropdown-item">Edit</a>';
                 }
                 if (AppHelper::perUser('roles.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-role" data-id="' . $model->id . '" data-url="' . route('roles.destroy', ['role' => $model]) . '">Delete</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-role" data-id="'.$model->id.'" data-url="'.route('roles.destroy', ['role' => $model]).'">Delete</a></div></div>';
                 }
+
                 return $html;
             })
 
@@ -52,7 +50,6 @@ class RolesDataTable extends DataTable
                     return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large"></i>';
                 }
             })
-
 
             ->editColumn('created_at', function ($model) {
                 return $model->created_at ? $model->created_at->format('Y-m-d H:i:s') : null;
@@ -81,32 +78,30 @@ class RolesDataTable extends DataTable
     /**
      * Optional method if you want to use the html builder.
      */
-
-     public function html(): HtmlBuilder
-     {
-         return $this->builder()
-             ->setTableId('roles-table')
-             ->columns($this->getColumns())
-             ->minifiedAjax()
-             ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
-             ->orderBy(2,'des')
-             ->selectStyleSingle()
- ->buttons([
-            Button::make('excel')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('csv')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('pdf')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('print')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-        ]);
-     }
-
+    public function html(): HtmlBuilder
+    {
+        return $this->builder()
+            ->setTableId('roles-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
+            ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
+            ->orderBy(2, 'des')
+            ->selectStyleSingle()
+            ->buttons([
+                Button::make('excel')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('csv')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('pdf')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('print')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+            ]);
+    }
 
     /**
      * Get the dataTable columns definition.
@@ -134,6 +129,6 @@ class RolesDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Roles_' . date('YmdHis');
+        return 'Roles_'.date('YmdHis');
     }
 }

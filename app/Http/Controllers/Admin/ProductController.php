@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Unit;
-use App\Models\Branch;
-use App\Models\Product;
-use App\Models\Supplier;
-use Carbon\Traits\Units;
-use Illuminate\Http\Request;
-use App\Models\ProductCategory;
 use App\DataTables\ProductDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest;
+use App\Models\Branch;
+use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Models\Supplier;
+use App\Models\Unit;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -35,7 +33,7 @@ class ProductController extends Controller
         $productCategories = ProductCategory::where('status', 'active')->select('id', 'name')->get();
         $branches = Branch::where('status', 'active')->select('id', 'name')->get();
 
-        return view('admin.pages.products.products.create_edit', compact('suppliers', 'units', 'productCategories','branches'));
+        return view('admin.pages.products.products.create_edit', compact('suppliers', 'units', 'productCategories', 'branches'));
     }
 
     /**
@@ -43,9 +41,9 @@ class ProductController extends Controller
      */
     public function store(ProductRequest $request)
     {
-        $image = NULL;
+        $image = null;
         if ($request->hasFile('image')) {
-            $image = Storage::putFileAs("uploads/images/products", $request->image, now()->format('Y-m-d') . '_' . str_replace(' ', '_', $request->name) . '_image.' . $request->image->getClientOriginalExtension());
+            $image = Storage::putFileAs('uploads/images/products', $request->image, now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name).'_image.'.$request->image->getClientOriginalExtension());
         }
 
         Product::create([
@@ -69,6 +67,7 @@ class ProductController extends Controller
         ]);
 
         Alert::success(__(key: 'Success'), __('Created Successfully'));
+
         return redirect()->back();
     }
 
@@ -103,7 +102,7 @@ class ProductController extends Controller
             if ($product->image && Storage::exists($product->image)) {
                 Storage::delete($product->image);
             }
-            $image = Storage::putFileAs("uploads/images/products", $request->image, now()->format('Y-m-d') . '_' . str_replace(' ', '_', $request->name) . '_image.' . $request->image->getClientOriginalExtension());
+            $image = Storage::putFileAs('uploads/images/products', $request->image, now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name).'_image.'.$request->image->getClientOriginalExtension());
 
         }
 
@@ -127,6 +126,7 @@ class ProductController extends Controller
             'updated_by' => auth()->id(),
         ]);
         Alert::success(__('Success'), __('Updated Successfully'));
+
         return redirect()->route('products.index');
     }
 

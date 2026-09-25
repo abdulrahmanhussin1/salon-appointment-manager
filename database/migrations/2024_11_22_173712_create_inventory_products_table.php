@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('inventory_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->integer('quantity');
-            
+
             $table->timestamps();
 
             $table->unique(['inventory_id', 'product_id']); // To avoid duplicate entries

@@ -20,10 +20,10 @@ class BranchRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'address' => 'nullable|string',
-            'phone' => 'nullable|string|max:20|unique:branches,phone,' . $branchId,
-            'email' => 'nullable|email|max:255|unique:branches,email,' . $branchId,
+            'phone' => 'nullable|string|max:20|unique:branches,phone,'.$branchId,
+            'email' => 'nullable|email|max:255|unique:branches,email,'.$branchId,
             'status' => 'required|in:active,inactive',
-            'manger_id'=>'nullable|integer|exists:employees,id'
+            'manger_id' => 'nullable|integer|exists:employees,id',
         ];
     }
 

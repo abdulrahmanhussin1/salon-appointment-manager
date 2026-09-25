@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Supplier;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Models\SupplierTransaction;
-use App\Http\Controllers\Controller;
 use App\DataTables\SupplierDataTable;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\SupplierRequest;
+use App\Models\Supplier;
+use App\Models\SupplierTransaction;
+use Illuminate\Support\Facades\DB;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class SupplierController extends Controller
@@ -18,7 +17,7 @@ class SupplierController extends Controller
      */
     public function index(SupplierDataTable $dataTable)
     {
-        return $dataTable->render("admin.pages.suppliers.index");
+        return $dataTable->render('admin.pages.suppliers.index');
     }
 
     /**
@@ -38,8 +37,8 @@ class SupplierController extends Controller
 
             DB::beginTransaction();
             $supplier = Supplier::create([
-                "name" => $request->name,
-                "email" => $request->email,
+                'name' => $request->name,
+                'email' => $request->email,
                 'phone' => $request->phone,
                 'address' => $request->address,
                 'initial_balance' => $request->initial_balance ?? 0,
@@ -52,16 +51,18 @@ class SupplierController extends Controller
                 'reference_type' => 'initial_balance',
                 'reference_id' => 0, // Set a meaningful reference ID if applicable
                 'amount' => $supplier->initial_balance,
-                'notes' => 'Initial Balance'
+                'notes' => 'Initial Balance',
             ]);
 
             DB::commit();
 
             Alert::success(__('Success'), __('Created Successfully'));
+
             return redirect()->back();
         } catch (\Throwable $th) {
             DB::rollBack();
             Alert::error('Failure in creating supplier');
+
             return redirect()->back();
 
         }
@@ -92,8 +93,8 @@ class SupplierController extends Controller
             DB::beginTransaction();
 
             $supplier->update([
-                "name" => $request->name,
-                "email" => $request->email,
+                'name' => $request->name,
+                'email' => $request->email,
                 'phone' => $request->phone,
                 'address' => $request->address,
                 'initial_balance' => $request->initial_balance ?? 0,
@@ -108,10 +109,12 @@ class SupplierController extends Controller
 
             DB::commit();
             Alert::success(__('Success'), __('Updated Successfully'));
+
             return redirect()->route('suppliers.index');
         } catch (\Throwable $th) {
             DB::rollBack();
             Alert::error('Failure in Updating supplier');
+
             return redirect()->back();
         }
     }

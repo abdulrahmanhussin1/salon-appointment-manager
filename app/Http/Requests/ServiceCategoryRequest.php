@@ -23,15 +23,16 @@ class ServiceCategoryRequest extends FormRequest
     {
         if ($this->method() == 'PUT') {
             return [
-                'name'=>'required|string|unique:service_categories,name,'.$this->service_category->id,
-                'description'=>'nullable|string|max:500',
-                'status'=> 'required|string|in:active,inactive',
+                'name' => 'required|string|unique:service_categories,name,'.$this->service_category->id,
+                'description' => 'nullable|string|max:500',
+                'status' => 'required|string|in:active,inactive',
             ];
         }
+
         return [
-            'name'=>'required|string|unique:service_categories,name',
-            'description'=>'nullable|string|max:500',
-            'status'=> 'required|string|in:active,inactive',
+            'name' => 'required|string|unique:service_categories,name',
+            'description' => 'nullable|string|max:500',
+            'status' => 'required|string|in:active,inactive',
         ];
     }
 }

@@ -9,6 +9,7 @@ use App\Models\InventoryTransactionDetail;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class InventoryTransactionController extends Controller
@@ -21,12 +22,13 @@ class InventoryTransactionController extends Controller
         return view('admin.pages.inventories.transactions.transfer', compact('inventories', 'products'));
     }
 
-    public function Transfer(Request $request)
+    public function transfer(Request $request)
     {
         $validatedData = $request->validate([
             'invoice_date' => 'required|date',
             'source_inventory' => 'required|exists:inventories,id',
             'destination_inventory' => 'required|exists:inventories,id|different:source_inventory',
+            'products' => 'required|array|min:1',
             'products.*.product_id' => 'required|exists:products,id',
             'products.*.quantity' => 'required|numeric|min:1',
             'products.*.unit_price' => 'required|numeric|min:0',
@@ -41,24 +43,32 @@ class InventoryTransactionController extends Controller
         ]);
 
         // Check if the source inventory has enough stock for the transfer
-        $sourceInventory = Inventory::find($validatedData['source_inventory']);
-        $destinationInventory = Inventory::find($validatedData['destination_inventory']);
+        $sourceInventory = Inventory::findOrFail($validatedData['source_inventory']);
+        $destinationInventory = Inventory::findOrFail($validatedData['destination_inventory']);
 
+        // Aggregate quantities by product_id to ensure sufficient stock across line items
+        $requestedQuantities = [];
         foreach ($validatedData['products'] as $product) {
-            $sourceProduct = $sourceInventory->inventoryProducts()->where('product_id', $product['product_id'])->first();
-
-            if (empty($sourceProduct->quantity) || $sourceProduct->quantity < $product['quantity']) {
-                Alert::error('Error', 'Not enough stock in the source inventory for the selected products.')->persistent('Close');
-
-                return redirect()->route('inventory_transactions.transferView');
-            }
+            $requestedQuantities[$product['product_id']] = ($requestedQuantities[$product['product_id']] ?? 0) + $product['quantity'];
         }
 
         try {
-            DB::transaction(function () use ($validatedData) {
-                // Step 1: Create the inventory transaction
-                $transaction = InventoryTransaction::create([
+            DB::transaction(function () use ($validatedData, $requestedQuantities) {
+                // Step 1: Pessimistically lock and validate source stock inside the transaction
+                foreach ($requestedQuantities as $productId => $totalRequestedQty) {
+                    $sourceProduct = DB::table('inventory_products')
+                        ->where('inventory_id', $validatedData['source_inventory'])
+                        ->where('product_id', $productId)
+                        ->lockForUpdate()
+                        ->first();
 
+                    if (! $sourceProduct || $sourceProduct->quantity < $totalRequestedQty) {
+                        throw new \DomainException(__('Not enough stock in the source inventory for the selected products.'));
+                    }
+                }
+
+                // Step 2: Create the inventory transaction
+                $transaction = InventoryTransaction::create([
                     'transaction_type' => 'transfer',
                     'source_inventory_id' => $validatedData['source_inventory'],
                     'destination_inventory_id' => $validatedData['destination_inventory'],
@@ -71,7 +81,7 @@ class InventoryTransactionController extends Controller
                     'net_total' => $validatedData['net_total'],
                 ]);
 
-                // Step 2: Update inventory levels and log product movements
+                // Step 3: Update inventory levels and log product movements
                 foreach ($validatedData['products'] as $product) {
                     // Deduct from source inventory
                     DB::table('inventory_products')
@@ -79,45 +89,48 @@ class InventoryTransactionController extends Controller
                         ->where('product_id', $product['product_id'])
                         ->decrement('quantity', $product['quantity']);
 
-                    // Add to destination inventory
-                    DB::table('inventory_products')
+                    // Add to destination inventory - create record if it doesn't exist
+                    $destinationProduct = DB::table('inventory_products')
                         ->where('inventory_id', $validatedData['destination_inventory'])
                         ->where('product_id', $product['product_id'])
-                        ->increment('quantity', $product['quantity']);
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($destinationProduct) {
+                        DB::table('inventory_products')
+                            ->where('inventory_id', $validatedData['destination_inventory'])
+                            ->where('product_id', $product['product_id'])
+                            ->increment('quantity', $product['quantity']);
+                    } else {
+                        DB::table('inventory_products')->insert([
+                            'inventory_id' => $validatedData['destination_inventory'],
+                            'product_id' => $product['product_id'],
+                            'quantity' => $product['quantity'],
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
 
                     InventoryTransactionDetail::create([
                         'inventory_transaction_id' => $transaction->id,
                         'product_id' => $product['product_id'],
                         'quantity' => $product['quantity'],
                     ]);
-
-                    // // Optionally, log each product transfer for auditing
-                    // DB::table('inventory_product_movements')->insert([
-                    //     'transaction_id' => $transaction->id,
-                    //     'product_id' => $product['product_id'],
-                    //     'quantity' => $product['quantity'],
-                    //     'unit_price' => $product['unit_price'],
-                    //     'source_inventory_id' => $validatedData['source_inventory'],
-                    //     'destination_inventory_id' => $validatedData['destination_inventory'],
-                    //     'created_at' => now(),
-                    //     'updated_at' => now(),
-                    // ]);
                 }
             });
 
-            DB::commit();
-            Alert::success(__(key: 'Success'), __('Transfer transaction successfully stored.'));
+            Alert::success(__('Success'), __('Transfer transaction successfully stored.'));
 
             return redirect()->back();
+        } catch (\DomainException $e) {
+            Alert::error(__('Error'), $e->getMessage())->persistent(__('Close'));
 
-            // return response()->json(['message' => 'Transfer transaction successfully stored.'], 201);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Alert::success(__(key: 'Error'), __('Try Again'));
+            return redirect()->route('inventory_transactions.transferView');
+        } catch (\Throwable $e) {
+            Log::error('Transfer transaction failed: '.$e->getMessage(), ['exception' => $e]);
+            Alert::error(__('Error'), __('Transfer transaction failed, please try again.'));
 
-            return redirect()->back();
-
-            // return response()->json(['message' => 'Transfer transaction failed'], 500);
+            return redirect()->back()->withInput();
         }
     }
 }

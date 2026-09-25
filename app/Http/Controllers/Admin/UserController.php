@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\DataTables\UsersDataTable;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\UserRequest;
+use App\Models\Employee;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Employee;
-use Illuminate\Http\Request;
-use App\DataTables\UsersDataTable;
-use App\Http\Requests\UserRequest;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -23,14 +22,14 @@ class UserController extends Controller
         return $dataTable->render('admin.pages.users.index');
     }
 
-
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        $employees = Employee::where('status', 'active')->select('id','name')->get();
-        return view('admin.pages.users.create_edit',compact('employees'));
+        $employees = Employee::where('status', 'active')->select('id', 'name')->get();
+
+        return view('admin.pages.users.create_edit', compact('employees'));
     }
 
     /**
@@ -38,9 +37,9 @@ class UserController extends Controller
      */
     public function store(UserRequest $request)
     {
-        $photo = NULL;
+        $photo = null;
         if ($request->hasFile('photo')) {
-            $photo = Storage::putFileAs("uploads/images/users", $request->photo,now()->format('Y-m-d').'_'.str_replace(' ','_',$request->name).'_photo.'. $request->photo->getClientOriginalExtension());
+            $photo = Storage::putFileAs('uploads/images/users', $request->photo, now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name).'_photo.'.$request->photo->getClientOriginalExtension());
         }
 
         $user = User::create([
@@ -61,9 +60,9 @@ class UserController extends Controller
         }
 
         Alert::success(__('Success'), __('Created Successfully'));
+
         return redirect()->back();
     }
-
 
     /**
      * Display the specified resource.
@@ -78,9 +77,10 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        $roles = Role::select('id','name')->get();
-        $employees = Employee::select('id','name')->where('status','active')->get();
-        return view('admin.pages.users.create_edit', compact('user', 'roles','employees'));
+        $roles = Role::select('id', 'name')->get();
+        $employees = Employee::select('id', 'name')->where('status', 'active')->get();
+
+        return view('admin.pages.users.create_edit', compact('user', 'roles', 'employees'));
     }
 
     /**
@@ -90,17 +90,16 @@ class UserController extends Controller
     {
         $photo = $user->photo;
         if ($request->hasFile('photo')) {
-            if ($user->photo && Storage::exists($user->photo))
-            {
+            if ($user->photo && Storage::exists($user->photo)) {
                 Storage::delete($user->photo);
             }
-            $photo = Storage::putFileAs("uploads/images/users", $request->photo,now()->format('Y-m-d').'_'.str_replace(' ','_',$request->name).'_photo.'. $request->photo->getClientOriginalExtension());
+            $photo = Storage::putFileAs('uploads/images/users', $request->photo, now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name).'_photo.'.$request->photo->getClientOriginalExtension());
         }
 
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => $request->password ?  Hash::make($request->password) : $user->password,
+            'password' => $request->password ? Hash::make($request->password) : $user->password,
             'photo' => $photo,
             'status' => $request->status,
             'employee_id' => $request->employee_id,
@@ -113,6 +112,7 @@ class UserController extends Controller
             $user->syncPermissions($permissions);
         }
         Alert::success(__('Success'), __('Updated Successfully'));
+
         return redirect()->route('users.index');
     }
 

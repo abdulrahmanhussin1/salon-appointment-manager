@@ -23,15 +23,16 @@ class EmployeeLevelRequest extends FormRequest
     {
         if ($this->method() == 'PUT') {
             return [
-                'name'=>'required|string|unique:employee_levels,name,'.$this->employee_level->id,
-                'description'=>'nullable|string|max:500',
-                'status'=> 'required|string|in:active,inactive',
+                'name' => 'required|string|unique:employee_levels,name,'.$this->employee_level->id,
+                'description' => 'nullable|string|max:500',
+                'status' => 'required|string|in:active,inactive',
             ];
         }
+
         return [
-            'name'=>'required|string|unique:employee_levels,name',
-            'description'=>'nullable|string|max:500',
-            'status'=> 'required|string|in:active,inactive',
+            'name' => 'required|string|unique:employee_levels,name',
+            'description' => 'nullable|string|max:500',
+            'status' => 'required|string|in:active,inactive',
         ];
     }
 }

@@ -3,21 +3,23 @@
 namespace App\Models;
 
 use App\Traits\HasUserActions;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class CustomerTransaction extends Model
 {
     use HasFactory, HasUserActions;
 
     protected $guarded = ['id'];
+
     protected $table = 'customer_transactions';
 
     public function customer()
     {
         return $this->belongsTo(Customer::class);
     }
+
     public static function getAvailableDeposits($customerId)
     {
         return self::where('customer_id', $customerId)
@@ -35,7 +37,9 @@ class CustomerTransaction extends Model
             $usedDeposits = [];
 
             foreach ($availableDeposits as $deposit) {
-                if ($remainingAmount <= 0) break;
+                if ($remainingAmount <= 0) {
+                    break;
+                }
 
                 if ($deposit->amount <= $remainingAmount) {
                     // Use entire deposit
@@ -53,17 +57,15 @@ class CustomerTransaction extends Model
 
                 $usedDeposits[] = [
                     'amount' => $usedAmount,
-                    'deposit_id' => $deposit->id
+                    'deposit_id' => $deposit->id,
                 ];
                 $remainingAmount -= $usedAmount;
             }
 
             return [
                 'used_deposits' => $usedDeposits,
-                'remaining_to_pay' => max(0, $remainingAmount)
+                'remaining_to_pay' => max(0, $remainingAmount),
             ];
         });
     }
-
 }
-

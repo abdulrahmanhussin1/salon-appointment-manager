@@ -3,15 +3,16 @@
 namespace App\Models;
 
 use App\Traits\HasUserActions;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Supplier extends Model
 {
     use HasFactory,HasUserActions;
 
     protected $guarded = ['id'];
-    protected $table ='suppliers';
+
+    protected $table = 'suppliers';
 
     public function products()
     {

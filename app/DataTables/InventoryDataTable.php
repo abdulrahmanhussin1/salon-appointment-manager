@@ -4,50 +4,48 @@ namespace App\DataTables;
 
 use App\Models\Inventory;
 use App\Traits\AppHelper;
+use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Yajra\DataTables\EloquentDataTable;
+use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\EloquentDataTable;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
-use Yajra\DataTables\Html\Builder as HtmlBuilder;
-use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 
 class InventoryDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-        ->addColumn('action', function ($model) {
-            $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
+            ->addColumn('action', function ($model) {
+                $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
                 <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2"
                 type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
                 <i class="bi bi-three-dots-vertical"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end py-2">';
-            if (AppHelper::perUser('inventories.edit')) {
-                $html .= '<a href="' . route('inventories.edit', ['inventory' => $model]) . '" class="dropdown-item">Edit</a>';
-            }
+                if (AppHelper::perUser('inventories.edit')) {
+                    $html .= '<a href="'.route('inventories.edit', ['inventory' => $model]).'" class="dropdown-item">Edit</a>';
+                }
 
-            if (AppHelper::perUser('inventories.show')) {
-                $html .= '<a href="' . route('products.index' ). '?branch_id='.$model->branch_id . '" class="dropdown-item">inventory Details</a>';
-            }
+                if (AppHelper::perUser('inventories.show')) {
+                    $html .= '<a href="'.route('products.index').'?branch_id='.$model->branch_id.'" class="dropdown-item">inventory Details</a>';
+                }
 
-            if (AppHelper::perUser('inventories.destroy')) {
-                $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-inventory" data-id="' . $model->id . '" data-url="' . route('inventories.destroy', ['inventory' => $model]) . '">Delete</a></div></div>';
-            }
-            return $html;
-        })
+                if (AppHelper::perUser('inventories.destroy')) {
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-inventory" data-id="'.$model->id.'" data-url="'.route('inventories.destroy', ['inventory' => $model]).'">Delete</a></div></div>';
+                }
 
-            ->editColumn('branch_id', function ($model) {
-                return  $model->branch_id ? $model->branch->name : '';
+                return $html;
             })
 
+            ->editColumn('branch_id', function ($model) {
+                return $model->branch_id ? $model->branch->name : '';
+            })
 
             ->editColumn('status', function ($model) {
                 if ($model->status == 'active') {
@@ -71,7 +69,7 @@ class InventoryDataTable extends DataTable
                 return $model->createdBy ? $model->createdBy->name : null;
             })
 
-            ->rawColumns(['action', 'status' ])->setRowId('id');
+            ->rawColumns(['action', 'status'])->setRowId('id');
     }
 
     /**
@@ -88,26 +86,26 @@ class InventoryDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('inventory-table')
-                    ->columns($this->getColumns())
-                    ->minifiedAjax()
+            ->setTableId('inventory-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
             ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
             ->orderBy(0, 'desc')
             ->selectStyleSingle()
- ->buttons([
-            Button::make('excel')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('csv')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('pdf')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('print')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-        ]);
+            ->buttons([
+                Button::make('excel')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('csv')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('pdf')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('print')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+            ]);
     }
 
     /**
@@ -135,6 +133,6 @@ class InventoryDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Inventory_' . date('YmdHis');
+        return 'Inventory_'.date('YmdHis');
     }
 }

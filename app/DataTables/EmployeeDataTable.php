@@ -4,29 +4,27 @@ namespace App\DataTables;
 
 use App\Models\Employee;
 use App\Traits\AppHelper;
-use Yajra\DataTables\Html\Button;
-use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\EloquentDataTable;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
-use Yajra\DataTables\Services\DataTable;
-use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\EloquentDataTable;
+use Yajra\DataTables\Html\Builder as HtmlBuilder;
+use Yajra\DataTables\Html\Button;
+use Yajra\DataTables\Html\Column;
+use Yajra\DataTables\Services\DataTable;
 
 class EmployeeDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query
-        ->when(request('branch_id'), function($q){
-            $q->where('branch_id', request()->get('branch_id'));
-         })
+            ->when(request('branch_id'), function ($q) {
+                $q->where('branch_id', request()->get('branch_id'));
+            })
         ))
             ->addColumn('action', function ($model) {
                 $html = '<div class="font-sans-serif btn-reveal-trigger position-static">
@@ -36,14 +34,15 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
 </button>
 <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('employees.edit')) {
-                    $html .= '<a href="' . route('employees.edit', ['employee' => $model]) . '" class="dropdown-item">Edit</a>';
+                    $html .= '<a href="'.route('employees.edit', ['employee' => $model]).'" class="dropdown-item">Edit</a>';
                 }
                 if (AppHelper::perUser('employees.show')) {
-                    $html .= '<a href="' . route('employees.show', ['employee' => $model]) . '" class="dropdown-item">Employee Details</a>';
+                    $html .= '<a href="'.route('employees.show', ['employee' => $model]).'" class="dropdown-item">Employee Details</a>';
                 }
                 if (AppHelper::perUser('employees.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-employee" data-id="' . $model->id . '" data-url="' . route('employees.destroy', ['employee' => $model]) . '">Delete</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-employee" data-id="'.$model->id.'" data-url="'.route('employees.destroy', ['employee' => $model]).'">Delete</a></div></div>';
                 }
+
                 return $html;
             })
 
@@ -62,9 +61,10 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
             })
             ->editColumn('photo', function ($model) {
                 if ($model->photo && Storage::exists($model->photo)) {
-                    return '<img src="' . asset('storage/' . $model->photo) . '" alt="' . $model->name . '" style="max-width: 75px; max-height: 75px;">';
+                    return '<img src="'.asset('storage/'.$model->photo).'" alt="'.$model->name.'" style="max-width: 75px; max-height: 75px;">';
                 }
-                return '<img src="' . asset('admin-assets/assets/img/avatar.jpg') . '" alt="' . $model->name . '" style="max-width: 75px; max-height: 75px;">';
+
+                return '<img src="'.asset('admin-assets/assets/img/avatar.jpg').'" alt="'.$model->name.'" style="max-width: 75px; max-height: 75px;">';
             })
 
             ->editColumn('employee_level_id', function ($model) {
@@ -90,7 +90,7 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                 return $model->createdBy ? $model->createdBy->name : null;
             })
 
-            ->rawColumns(['action', 'status','photo'])->setRowId('id');
+            ->rawColumns(['action', 'status', 'photo'])->setRowId('id');
     }
 
     /**
@@ -111,22 +111,22 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->dom('<B><"d-flex w-100 py-2 align-items-center justify-content-between"lf>rtip')
-            ->orderBy(0,'desc')
+            ->orderBy(0, 'desc')
             ->selectStyleSingle()
- ->buttons([
-            Button::make('excel')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('csv')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('pdf')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-            Button::make('print')->exportOptions([
-                'columns' => ':not(:last-child)', // Exclude the last column (action)
-            ]),
-        ]);
+            ->buttons([
+                Button::make('excel')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('csv')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('pdf')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+                Button::make('print')->exportOptions([
+                    'columns' => ':not(:last-child)', // Exclude the last column (action)
+                ]),
+            ]);
     }
 
     /**
@@ -151,7 +151,7 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                 ->exportable(false)
                 ->printable(false)
                 ->width(60)
-                ->addClass('text-center')
+                ->addClass('text-center'),
 
         ];
     }
@@ -161,6 +161,6 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
      */
     protected function filename(): string
     {
-        return 'Employee_' . date('YmdHis');
+        return 'Employee_'.date('YmdHis');
     }
 }
