@@ -74,6 +74,7 @@ class CheckRole
 
                 || self::perUSer($this->getRoute())
                 || in_array($this->getRoute(), ['dashboard', 'sales_invoices.getItem', 'sales_invoices.getRelatedEmployees'])
+                || str_starts_with($this->getRoute() ?? '', 'dashboard.')
             ) {
                 return $next($request);
             }

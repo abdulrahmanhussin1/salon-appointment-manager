@@ -1,800 +1,141 @@
 @extends('admin.layouts.app')
-@section('title')
-{{ __('Home Page ') }}
 
+@section('title', __('Business Command Center'))
+
+@section('css')
+<style>
+    /* Modern Dashboard Styling & Design Tokens */
+    .dashboard-container {
+        font-family: inherit;
+    }
+    .kpi-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 12px;
+        background: #ffffff;
+    }
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+    }
+    .tracking-wider {
+        letter-spacing: 0.05em;
+    }
+    .very-small {
+        font-size: 0.75rem;
+    }
+    .btn-xs {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.5rem;
+    }
+    .shadow-xs {
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    .shadow-2xs {
+        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.03);
+    }
+    .hover-primary:hover {
+        color: #4154f1 !important;
+    }
+
+    /* Skeleton Loading Animation */
+    .skeleton-line {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 4px;
+    }
+    @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    /* Spinning Utility */
+    .spin-infinite {
+        display: inline-block;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Timeline styling */
+    .timeline-list {
+        border-left: 2px solid #e9ecef;
+    }
+    [dir="rtl"] .timeline-list {
+        border-left: none;
+        border-right: 2px solid #e9ecef;
+        padding-left: 0 !important;
+        padding-right: 1.5rem !important;
+    }
+    [dir="rtl"] .rtl-flip {
+        transform: scaleX(-1);
+    }
+</style>
 @endsection
+
 @section('content')
-{{-- Start breadcrumbs --}}
-    <x-breadcrumb pageName="Home">
-        <x-breadcrumb-item>{{ __('Home') }}</x-breadcrumb-item>
+<div class="dashboard-container"
+     x-data="dashboardData({
+         userRole: '{{ auth()->user()->roles->first()?->name ?? '' }}',
+         canSelectAllBranches: {{ $canSelectAllBranches ? 'true' : 'false' }},
+         effectiveBranchId: {{ $effectiveBranchId ? $effectiveBranchId : 'null' }}
+     })">
+
+    {{-- Breadcrumbs --}}
+    <x-breadcrumb pageName="{{ __('Command Center') }}">
+        <x-breadcrumb-item active>{{ __('Dashboard') }}</x-breadcrumb-item>
     </x-breadcrumb>
-{{-- End breadcrumbs --}}
-    <section class="section dashboard">
-      <div class="row">
 
-        <!-- Left side columns -->
-        <div class="col-lg-12">
-          <div class="row">
+    {{-- Zone 1: Header --}}
+    @include('admin.components.dashboard.header')
 
-            <!-- Sales credit Card -->
-            <div class="col-xxl-4 col-md-6">
-              <div class="card info-card sales-credit-card">
-                <div class="card-body">
-                  <h5 class="card-title">{{ __('Sales with Credit Card') }} <span>| {{ __('Today') }}</span></h5>
+    {{-- Zone 2: Filters Bar --}}
+    @include('admin.components.dashboard.filters')
 
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-opacity-10 bg-primary">
-                      <i class="bi bi-cart" style="color: #4154f1"></i>
-                    </div>
-                    <div class="ps-3">
-                      <h6>{{ __('EGP') }} {{ $creditCardSales ?? 0 }}</h6>
-                    </div>
-                  </div>
-                </div>
+    {{-- Zone 3: Quick Actions & Mobile FAB --}}
+    @include('admin.components.dashboard.quick-actions')
 
-              </div>
-            </div><!-- End Sales Card -->
-
-            <!-- Sales Cash Card -->
-            <div class="col-xxl-4 col-md-6">
-              <div class="card info-card sales-cash-card">
-                <div class="card-body">
-                  <h5 class="card-title">{{ __('Sales in Cash') }} <span>| {{ __('Today') }}</span></h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center " style="background-color: #e0f8e9">
-                      <i class="bi bi-currency-dollar" style="color:#2eca6a"></i>
-                    </div>
-                    <div class="ps-3">
-                      <h6>{{ __('EGP') }} {{ $cashSales ?? 0 }}</h6>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div><!-- End Revenue Card -->
-
-            <!-- Expense Card -->
-            <div class="col-xxl-4 col-xl-12">
-              <div class="card info-card expense-card">
-                <div class="card-body">
-                  <h5 class="card-title">{{ __('Expenses') }} <span>| {{ __('Today') }}</span></h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-danger-light">
-                      <i class="bi bi-receipt" style="color:#DC3545"></i>
-                    </div>
-                    <div class="ps-3">
-                      <h6>{{ __('EGP') }} {{ $expenseAmount ?? 0 }}</h6>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-            </div><!-- End Customers Card -->
-
-            <div class="col-xxl-4 col-md-6">
-                <div class="card info-card sales-cash-card">
-                  <div class="card-body">
-                    <h5 class="card-title">{{ __('Net Profit') }} <span>| {{ __('Today') }}</span></h5>
-
-                    <div class="d-flex align-items-center">
-                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center " style="background-color: #e0f8e9">
-                        <i class="bi bi-currency-dollar" style="color:#2eca6a"></i>
-                      </div>
-                      <div class="ps-3">
-                        <h6>{{ __('EGP') }} {{ $net_profit ?? 0 }}</h6>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-            </div>
-            <!-- End Revenue Card -->
-
-            <div class="col-xxl-4 col-md-6">
-                <div class="card info-card sales-cash-card">
-                  <div class="card-body">
-                    <h5 class="card-title">{{ __('Customers') }} <span>| {{ __('Today') }}</span></h5>
-
-                    <div class="d-flex align-items-center">
-                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center " style="background-color: #e0f8e9">
-                        <i class="bi bi-cart" style="color: #4154f1"></i>
-                    </div>
-                      <div class="ps-3">
-                        <h6>{{ $total_customers_today ?? 0 }}</h6>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-            </div>
-            <!-- End Revenue Card -->
-
-            <div class="col-xxl-4 col-md-6">
-                <div class="card info-card sales-cash-card">
-                  <div class="card-body">
-                    <h5 class="card-title">{{ __('All Customers') }}</h5>
-
-                    <div class="d-flex align-items-center">
-                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center " style="background-color: #e0f8e9">
-                        <i class="bi bi-cart" style="color: #4154f1"></i>
-                    </div>
-                      <div class="ps-3">
-                        <h6>{{ $total_customers ?? 0 }}</h6>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-            </div>
-
-            <div class="col-xxl-4 col-md-6">
-                <div class="card info-card sales-cash-card">
-                  <div class="card-body">
-                    <h5 class="card-title">{{ __('Top Provider') }} <span>| {{ __('Today') }}</span></h5>
-
-                    <div class="d-flex align-items-center">
-                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center " style="background-color: #e0f8e9">
-                        <i class="bi bi-receipt" style="color:#DC3545"></i>
-                    </div>
-                      <div class="ps-3">
-                        <h6>{{ $get_biggest_provider_that_have_orders_today_name ?? '' }}</h6>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-            </div>
-
-            <div class="col-xxl-4 col-md-6">
-                <div class="card info-card sales-cash-card">
-                  <div class="card-body">
-                    <h5 class="card-title">{{ __('Top Service') }} <span>| {{ __('Today') }}</span></h5>
-
-                    <div class="d-flex align-items-center">
-                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center " style="background-color: #e0f8e9">
-                        <i class="bi bi-receipt" style="color:#DC3545"></i>
-                    </div>
-                      <div class="ps-3">
-                        <h6>{{ $get_biggest_service_that_have_orders_today_name ?? '' }}</h6>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-            </div>
-
-
-{{-- <hr> --}}
-
-
-{{--
-            <!-- Sales Card -->
-            <div class="col-xxl-4 col-md-6">
-              <div class="card info-card sales-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
-                <div class="card-body">
-                  <h5 class="card-title">Sales <span>| Today</span></h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-cart"></i>
-                    </div>
-                    <div class="ps-3">
-                      <h6>145</h6>
-                      <span class="text-success small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">increase</span>
-
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div><!-- End Sales Card -->
-
-            <!-- Revenue Card -->
-            <div class="col-xxl-4 col-md-6">
-              <div class="card info-card revenue-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
-                <div class="card-body">
-                  <h5 class="card-title">Revenue <span>| This Month</span></h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-currency-dollar"></i>
-                    </div>
-                    <div class="ps-3">
-                      <h6>$3,264</h6>
-                      <span class="text-success small pt-1 fw-bold">8%</span> <span class="text-muted small pt-2 ps-1">increase</span>
-
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div><!-- End Revenue Card -->
-
-            <!-- Customers Card -->
-            <div class="col-xxl-4 col-xl-12">
-
-              <div class="card info-card customers-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
-                <div class="card-body">
-                  <h5 class="card-title">Customers <span>| This Year</span></h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-people"></i>
-                    </div>
-                    <div class="ps-3">
-                      <h6>1244</h6>
-                      <span class="text-danger small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">decrease</span>
-
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-            </div><!-- End Customers Card --> --}}
-
-            <!-- Reports -->
-            {{-- <div class="col-12">
-              <div class="card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
-                <div class="card-body">
-                  <h5 class="card-title">Reports <span>/Today</span></h5>
-
-                  <!-- Line Chart -->
-                  <div id="reportsChart"></div>
-
-                  <script>
-                    document.addEventListener("DOMContentLoaded", () => {
-                      new ApexCharts(document.querySelector("#reportsChart"), {
-                        series: [{
-                          name: 'Sales',
-                          data: [31, 40, 28, 51, 42, 82, 56],
-                        }, {
-                          name: 'Revenue',
-                          data: [11, 32, 45, 32, 34, 52, 41]
-                        }, {
-                          name: 'Customers',
-                          data: [15, 11, 32, 18, 9, 24, 11]
-                        }],
-                        chart: {
-                          height: 350,
-                          type: 'area',
-                          toolbar: {
-                            show: false
-                          },
-                        },
-                        markers: {
-                          size: 4
-                        },
-                        colors: ['#4154f1', '#2eca6a', '#ff771d'],
-                        fill: {
-                          type: "gradient",
-                          gradient: {
-                            shadeIntensity: 1,
-                            opacityFrom: 0.3,
-                            opacityTo: 0.4,
-                            stops: [0, 90, 100]
-                          }
-                        },
-                        dataLabels: {
-                          enabled: false
-                        },
-                        stroke: {
-                          curve: 'smooth',
-                          width: 2
-                        },
-                        xaxis: {
-                          type: 'datetime',
-                          categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
-                        },
-                        tooltip: {
-                          x: {
-                            format: 'dd/MM/yy HH:mm'
-                          },
-                        }
-                      }).render();
-                    });
-                  </script>
-                  <!-- End Line Chart -->
-
-                </div>
-
-              </div>
-            </div><!-- End Reports --> --}}
-
-            <!-- Recent Sales -->
-            {{-- <div class="col-12">
-              <div class="card recent-sales overflow-auto">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
-                <div class="card-body">
-                  <h5 class="card-title">Recent Sales <span>| Today</span></h5>
-
-                  <table class="table table-borderless datatable">
-                    <thead>
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Customer</th>
-                        <th scope="col">Product</th>
-                        <th scope="col">Price</th>
-                        <th scope="col">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th scope="row"><a href="#">#2457</a></th>
-                        <td>Brandon Jacob</td>
-                        <td><a href="#" class="text-primary">At praesentium minu</a></td>
-                        <td>$64</td>
-                        <td><span class="badge bg-success">Approved</span></td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#">#2147</a></th>
-                        <td>Bridie Kessler</td>
-                        <td><a href="#" class="text-primary">Blanditiis dolor omnis similique</a></td>
-                        <td>$47</td>
-                        <td><span class="badge bg-warning">Pending</span></td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#">#2049</a></th>
-                        <td>Ashleigh Langosh</td>
-                        <td><a href="#" class="text-primary">At recusandae consectetur</a></td>
-                        <td>$147</td>
-                        <td><span class="badge bg-success">Approved</span></td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#">#2644</a></th>
-                        <td>Angus Grady</td>
-                        <td><a href="#" class="text-primar">Ut voluptatem id earum et</a></td>
-                        <td>$67</td>
-                        <td><span class="badge bg-danger">Rejected</span></td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#">#2644</a></th>
-                        <td>Raheem Lehner</td>
-                        <td><a href="#" class="text-primary">Sunt similique distinctio</a></td>
-                        <td>$165</td>
-                        <td><span class="badge bg-success">Approved</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
-
-                </div>
-
-              </div>
-            </div><!-- End Recent Sales --> --}}
-
-
-
-          </div>
-        </div><!-- End Left side columns -->
-
-        <!-- Right side columns -->
-        <div class="col-lg-4">
-            <!-- Top Selling -->
-            <div class="col-12">
-                {{-- <div class="card top-selling overflow-auto">
-
-                  <div class="filter">
-                    <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                      <li class="dropdown-header text-start">
-                        <h6>Filter</h6>
-                      </li>
-
-                      <li><a class="dropdown-item" href="#">Today</a></li>
-                      <li><a class="dropdown-item" href="#">This Month</a></li>
-                      <li><a class="dropdown-item" href="#">This Year</a></li>
-                    </ul>
-                  </div>
-
-                  <div class="card-body pb-0">
-                    <h5 class="card-title">Top Selling <span>| Today</span></h5>
-
-                    <table class="table table-borderless">
-                      <thead>
-                        <tr>
-                          <th scope="col">Preview</th>
-                          <th scope="col">Product</th>
-                          <th scope="col">Price</th>
-                          <th scope="col">Sold</th>
-                          <th scope="col">Revenue</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <th scope="row"><a href="#"><img src="assets/img/product-1.jpg" alt=""></a></th>
-                          <td><a href="#" class="text-primary fw-bold">Ut inventore ipsa voluptas nulla</a></td>
-                          <td>$64</td>
-                          <td class="fw-bold">124</td>
-                          <td>$5,828</td>
-                        </tr>
-                        <tr>
-                          <th scope="row"><a href="#"><img src="assets/img/product-2.jpg" alt=""></a></th>
-                          <td><a href="#" class="text-primary fw-bold">Exercitationem similique doloremque</a></td>
-                          <td>$46</td>
-                          <td class="fw-bold">98</td>
-                          <td>$4,508</td>
-                        </tr>
-                        <tr>
-                          <th scope="row"><a href="#"><img src="assets/img/product-3.jpg" alt=""></a></th>
-                          <td><a href="#" class="text-primary fw-bold">Doloribus nisi exercitationem</a></td>
-                          <td>$59</td>
-                          <td class="fw-bold">74</td>
-                          <td>$4,366</td>
-                        </tr>
-                        <tr>
-                          <th scope="row"><a href="#"><img src="assets/img/product-4.jpg" alt=""></a></th>
-                          <td><a href="#" class="text-primary fw-bold">Officiis quaerat sint rerum error</a></td>
-                          <td>$32</td>
-                          <td class="fw-bold">63</td>
-                          <td>$2,016</td>
-                        </tr>
-                        <tr>
-                          <th scope="row"><a href="#"><img src="assets/img/product-5.jpg" alt=""></a></th>
-                          <td><a href="#" class="text-primary fw-bold">Sit unde debitis delectus repellendus</a></td>
-                          <td>$79</td>
-                          <td class="fw-bold">41</td>
-                          <td>$3,239</td>
-                        </tr>
-                      </tbody>
-                    </table>
-
-                  </div>
-
-                </div> --}}
-              </div><!-- End Top Selling -->
-          <!-- Recent Activity -->
-        {{--   <div class="card">
-            <div class="filter">
-              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-              </ul>
-            </div>
-
-            <div class="card-body">
-              <h5 class="card-title">Recent Activity <span>| Today</span></h5>
-
-              <div class="activity">
-
-                <div class="activity-item d-flex">
-                  <div class="activite-label">32 min</div>
-                  <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
-                  <div class="activity-content">
-                    Quia quae rerum <a href="#" class="fw-bold text-dark">explicabo officiis</a> beatae
-                  </div>
-                </div><!-- End activity item-->
-
-                <div class="activity-item d-flex">
-                  <div class="activite-label">56 min</div>
-                  <i class='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
-                  <div class="activity-content">
-                    Voluptatem blanditiis blanditiis eveniet
-                  </div>
-                </div><!-- End activity item-->
-
-                <div class="activity-item d-flex">
-                  <div class="activite-label">2 hrs</div>
-                  <i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
-                  <div class="activity-content">
-                    Voluptates corrupti molestias voluptatem
-                  </div>
-                </div><!-- End activity item-->
-
-                <div class="activity-item d-flex">
-                  <div class="activite-label">1 day</div>
-                  <i class='bi bi-circle-fill activity-badge text-info align-self-start'></i>
-                  <div class="activity-content">
-                    Tempore autem saepe <a href="#" class="fw-bold text-dark">occaecati voluptatem</a> tempore
-                  </div>
-                </div><!-- End activity item-->
-
-                <div class="activity-item d-flex">
-                  <div class="activite-label">2 days</div>
-                  <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
-                  <div class="activity-content">
-                    Est sit eum reiciendis exercitationem
-                  </div>
-                </div><!-- End activity item-->
-
-                <div class="activity-item d-flex">
-                  <div class="activite-label">4 weeks</div>
-                  <i class='bi bi-circle-fill activity-badge text-muted align-self-start'></i>
-                  <div class="activity-content">
-                    Dicta dolorem harum nulla eius. Ut quidem quidem sit quas
-                  </div>
-                </div><!-- End activity item-->
-
-              </div>
-
-            </div>
-          </div><!-- End Recent Activity -->
-
-          <!-- Budget Report -->
-          <div class="card">
-            <div class="filter">
-              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-              </ul>
-            </div>
-
-            <div class="card-body pb-0">
-              <h5 class="card-title">Budget Report <span>| This Month</span></h5>
-
-              <div id="budgetChart" style="min-height: 400px;" class="echart"></div>
-
-              <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                  var budgetChart = echarts.init(document.querySelector("#budgetChart")).setOption({
-                    legend: {
-                      data: ['Allocated Budget', 'Actual Spending']
-                    },
-                    radar: {
-                      // shape: 'circle',
-                      indicator: [{
-                          name: 'Sales',
-                          max: 6500
-                        },
-                        {
-                          name: 'Administration',
-                          max: 16000
-                        },
-                        {
-                          name: 'Information Technology',
-                          max: 30000
-                        },
-                        {
-                          name: 'Customer Support',
-                          max: 38000
-                        },
-                        {
-                          name: 'Development',
-                          max: 52000
-                        },
-                        {
-                          name: 'Marketing',
-                          max: 25000
-                        }
-                      ]
-                    },
-                    series: [{
-                      name: 'Budget vs spending',
-                      type: 'radar',
-                      data: [{
-                          value: [4200, 3000, 20000, 35000, 50000, 18000],
-                          name: 'Allocated Budget'
-                        },
-                        {
-                          value: [5000, 14000, 28000, 26000, 42000, 21000],
-                          name: 'Actual Spending'
-                        }
-                      ]
-                    }]
-                  });
-                });
-              </script>
-
-            </div>
-          </div><!-- End Budget Report -->
-
-          <!-- Website Traffic -->
-          <div class="card">
-            <div class="filter">
-              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-              </ul>
-            </div>
-
-            <div class="card-body pb-0">
-              <h5 class="card-title">Website Traffic <span>| Today</span></h5>
-
-              <div id="trafficChart" style="min-height: 400px;" class="echart"></div>
-
-              <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                  echarts.init(document.querySelector("#trafficChart")).setOption({
-                    tooltip: {
-                      trigger: 'item'
-                    },
-                    legend: {
-                      top: '5%',
-                      left: 'center'
-                    },
-                    series: [{
-                      name: 'Access From',
-                      type: 'pie',
-                      radius: ['40%', '70%'],
-                      avoidLabelOverlap: false,
-                      label: {
-                        show: false,
-                        position: 'center'
-                      },
-                      emphasis: {
-                        label: {
-                          show: true,
-                          fontSize: '18',
-                          fontWeight: 'bold'
-                        }
-                      },
-                      labelLine: {
-                        show: false
-                      },
-                      data: [{
-                          value: 1048,
-                          name: 'Search Engine'
-                        },
-                        {
-                          value: 735,
-                          name: 'Direct'
-                        },
-                        {
-                          value: 580,
-                          name: 'Email'
-                        },
-                        {
-                          value: 484,
-                          name: 'Union Ads'
-                        },
-                        {
-                          value: 300,
-                          name: 'Video Ads'
-                        }
-                      ]
-                    }]
-                  });
-                });
-              </script>
-
-            </div>
-          </div><!-- End Website Traffic -->
-
-          <!-- News & Updates Traffic -->
-          <div class="card">
-            <div class="filter">
-              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-              </ul>
-            </div>
-
-            <div class="card-body pb-0">
-              <h5 class="card-title">News &amp; Updates <span>| Today</span></h5>
-
-              <div class="news">
-                <div class="post-item clearfix">
-                  <img src="assets/img/news-1.jpg" alt="">
-                  <h4><a href="#">Nihil blanditiis at in nihil autem</a></h4>
-                  <p>Sit recusandae non aspernatur laboriosam. Quia enim eligendi sed ut harum...</p>
-                </div>
-
-                <div class="post-item clearfix">
-                  <img src="assets/img/news-2.jpg" alt="">
-                  <h4><a href="#">Quidem autem et impedit</a></h4>
-                  <p>Illo nemo neque maiores vitae officiis cum eum turos elan dries werona nande...</p>
-                </div>
-
-                <div class="post-item clearfix">
-                  <img src="assets/img/news-3.jpg" alt="">
-                  <h4><a href="#">Id quia et et ut maxime similique occaecati ut</a></h4>
-                  <p>Fugiat voluptas vero eaque accusantium eos. Consequuntur sed ipsam et totam...</p>
-                </div>
-
-                <div class="post-item clearfix">
-                  <img src="assets/img/news-4.jpg" alt="">
-                  <h4><a href="#">Laborum corporis quo dara net para</a></h4>
-                  <p>Qui enim quia optio. Eligendi aut asperiores enim repellendusvel rerum cuder...</p>
-                </div>
-
-                <div class="post-item clearfix">
-                  <img src="assets/img/news-5.jpg" alt="">
-                  <h4><a href="#">Et dolores corrupti quae illo quod dolor</a></h4>
-                  <p>Odit ut eveniet modi reiciendis. Atque cupiditate libero beatae dignissimos eius...</p>
-                </div>
-
-              </div><!-- End sidebar recent posts-->
-
-            </div>
-          </div><!-- End News & Updates -->
- --}}
-        </div><!-- End Right side columns -->
-
-      </div>
+    {{-- Zone 4: Key Performance Indicators (KPIs) --}}
+    <section aria-label="{{ __('Key Performance Indicators') }}" aria-live="polite">
+        @include('admin.components.dashboard.kpi-grid')
     </section>
+
+    {{-- Zone 5: Operational Status & Today's Appointments --}}
+    <section aria-label="{{ __('Operational Status') }}">
+        @include('admin.components.dashboard.operational-status')
+    </section>
+
+    {{-- Zone 6: Revenue Trend Line Chart --}}
+    @include('admin.components.dashboard.revenue-trend')
+
+    {{-- Zone 7: Branch & Expense Profitability Analysis (Role-gated) --}}
+    @include('admin.components.dashboard.branch-expense')
+
+    {{-- Zone 8: Staff Performance Table --}}
+    @include('admin.components.dashboard.staff-performance')
+
+    {{-- Zone 9: Critical Stock Alerts & Action Required --}}
+    @include('admin.components.dashboard.alerts-inventory')
+
+    {{-- Zone 10: Recent Activity Feed --}}
+    @include('admin.components.dashboard.recent-activity')
+
+</div>
+@endsection
+
+@section('js')
+<script src="{{ asset('admin-assets/assets/vendor/alpinejs/alpine.min.js') }}" defer></script>
+<script src="{{ asset('admin-assets/assets/js/dashboard.js') }}"></script>
+<script>
+    // Live Clock Updater
+    function updateDashboardClock() {
+        const el = document.getElementById('dashboard-live-clock');
+        if (!el) return;
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        el.textContent = now.toLocaleDateString('{{ app()->getLocale() === 'ar' ? 'ar-EG' : 'en-US' }}', options);
+    }
+    setInterval(updateDashboardClock, 60000);
+</script>
 @endsection

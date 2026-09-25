@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AppointmentController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\CustomerTransactionController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\EmployeeLevelController;
 use App\Http\Controllers\Admin\EmployeeReportController;
@@ -70,9 +71,16 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::post('appointments/{id}/no-show', [AppointmentController::class, 'noShow'])->name('appointments.no_show');
     Route::post('appointments/{id}/status', [AppointmentController::class, 'changeStatus'])->name('appointments.status');
 
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::prefix('dashboard')->name('dashboard.')->group(function () {
+        Route::get('/summary', [DashboardController::class, 'summary'])->name('summary');
+        Route::get('/revenue', [DashboardController::class, 'revenue'])->name('revenue');
+        Route::get('/appointments', [DashboardController::class, 'appointments'])->name('appointments');
+        Route::get('/staff', [DashboardController::class, 'staff'])->name('staff');
+        Route::get('/inventory-alerts', [DashboardController::class, 'inventoryAlerts'])->name('inventory_alerts');
+        Route::get('/expenses', [DashboardController::class, 'expenses'])->name('expenses');
+        Route::get('/activity', [DashboardController::class, 'activity'])->name('activity');
+        Route::get('/alerts', [DashboardController::class, 'alerts'])->name('alerts');
+    });
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
 
