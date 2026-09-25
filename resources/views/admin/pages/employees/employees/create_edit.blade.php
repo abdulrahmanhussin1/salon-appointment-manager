@@ -471,25 +471,23 @@
                                         @if (isset($employee) && $employee->services)
                                             @foreach ($employee->services as $service)
                                                 <div class="service-details" data-service-id="{{ $service->id }}">
-                                                    <h6>Commission for Service: {{ $service->name }}</h6>
+                                                    <h6>{{ __('Commission for Service') }}: {{ $service->name }}</h6>
                                                     <div class="row">
                                                         <div class="col-md-4">
-                                                            <label for="commission_type_{{ $service->id }}">Commission
-                                                                Type</label>
+                                                            <label for="commission_type_{{ $service->id }}">{{ __('Commission Type') }}</label>
                                                             <select name="commission_type[{{ $service->id }}]"
                                                                 id="commission_type_{{ $service->id }}"
                                                                 class="form-control">
                                                                 <option value="percentage"
                                                                     {{ $service->pivot->commission_type === 'percentage' ? 'selected' : '' }}>
-                                                                    Percentage</option>
+                                                                    {{ __('Percentage') }}</option>
                                                                 <option value="value"
                                                                     {{ $service->pivot->commission_type === 'value' ? 'selected' : '' }}>
-                                                                    Value</option>
+                                                                    {{ __('Value') }}</option>
                                                             </select>
                                                         </div>
                                                         <div class="col-md-4">
-                                                            <label for="commission_value_{{ $service->id }}">Commission
-                                                                Value</label>
+                                                            <label for="commission_value_{{ $service->id }}">{{ __('Commission Value') }}</label>
                                                             <input type="number" min="0"
                                                                 name="commission_value[{{ $service->id }}]"
                                                                 id="commission_value_{{ $service->id }}"
@@ -498,17 +496,16 @@
                                                         </div>
 
                                                         <div class="col-md-4">
-                                                            <label for="is_immediate_{{ $service->id }}">Immediate
-                                                                Commission</label>
+                                                            <label for="is_immediate_{{ $service->id }}">{{ __('Immediate Commission') }}</label>
                                                             <select name="is_immediate_commission[{{ $service->id }}]"
                                                                 id="is_immediate_{{ $service->id }}"
                                                                 class="form-control">
                                                                 <option value="1"
                                                                     {{ $service->pivot->is_immediate_commission ? 'selected' : '' }}>
-                                                                    Yes</option>
+                                                                    {{ __('Yes') }}</option>
                                                                 <option value="0"
                                                                     {{ !$service->pivot->is_immediate_commission ? 'selected' : '' }}>
-                                                                    No</option>
+                                                                    {{ __('No') }}</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -552,28 +549,27 @@
                     // Generate inputs dynamically
                     const html = `
                     <div class="service-details" data-service-id="${serviceId}">
-                        <h6>Commission for Service: ${service.name}</h6>
+                        <h6>{{ __('Commission for Service') }}: ${service.name}</h6>
                         <div class="row">
                             <div class="col-md-4">
-                                <label for="commission_type_${serviceId}">Commission Type</label>
+                                <label for="commission_type_${serviceId}">{{ __('Commission Type') }}</label>
                                 <select name="commission_type[${serviceId}]" id="commission_type_${serviceId}" class="form-control">
-                                    <option value="percentage">Percentage</option>
-                                    <option value="value">Value</option>
+                                    <option value="percentage">{{ __('Percentage') }}</option>
+                                    <option value="value">{{ __('Value') }}</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label for="commission_value_${serviceId}">Commission Value</label>
+                                <label for="commission_value_${serviceId}">{{ __('Commission Value') }}</label>
                                 <input type="number" name="commission_value[${serviceId}]" min="0" id="commission_value_${serviceId}" class="form-control">
                             </div>
                            <div class="col-md-4">
-                                  <label for="is_immediate_${serviceId}">Immediate Commission</label>
+                                  <label for="is_immediate_${serviceId}">{{ __('Immediate Commission') }}</label>
                                 <select name="is_immediate_commission[${serviceId}]" id="is_immediate_${serviceId}" class="form-control">
-                                                                        <option value="0">No</option>
-
-                                    <option value="1">Yes</option>
+                                    <option value="0">{{ __('No') }}</option>
+                                    <option value="1">{{ __('Yes') }}</option>
                                 </select>
                             </div>
-                                                    </div>
+                        </div>
 
                         <hr>
                     </div>

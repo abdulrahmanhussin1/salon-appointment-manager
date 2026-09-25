@@ -29,7 +29,7 @@ class InventoryDataTable extends DataTable
                 </button>
                 <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('inventories.edit')) {
-                    $html .= '<a href="'.route('inventories.edit', ['inventory' => $model]).'" class="dropdown-item">Edit</a>';
+                    $html .= '<a href="'.route('inventories.edit', ['inventory' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
 
                 if (AppHelper::perUser('inventories.show')) {
@@ -37,7 +37,7 @@ class InventoryDataTable extends DataTable
                 }
 
                 if (AppHelper::perUser('inventories.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-inventory" data-id="'.$model->id.'" data-url="'.route('inventories.destroy', ['inventory' => $model]).'">Delete</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-inventory" data-id="'.$model->id.'" data-url="'.route('inventories.destroy', ['inventory' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
                 }
 
                 return $html;
@@ -114,13 +114,13 @@ class InventoryDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id')->addClass('text-center'),
-            Column::make('name')->addClass('text-center'),
-            Column::make('branch_id')->addClass('text-center')->title('Branch'),
-            Column::make('created_by')->addClass('text-center'),
-            Column::make('created_at')->addClass('text-center'),
-            Column::make('updated_at')->addClass('text-center'),
-            Column::computed('action')
+            Column::make('id')->addClass('text-center')->title(__('ID')),
+            Column::make('name')->addClass('text-center')->title(__('Name')),
+            Column::make('branch_id')->addClass('text-center')->title(__('Branch')),
+            Column::make('created_by')->addClass('text-center')->title(__('Created By')),
+            Column::make('created_at')->addClass('text-center')->title(__('Created At')),
+            Column::make('updated_at')->addClass('text-center')->title(__('Updated At')),
+            Column::computed('action')->title(__('Action'))
                 ->exportable(false)
                 ->printable(false)
                 ->width(60)

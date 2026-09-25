@@ -5,7 +5,7 @@
 
 
     <div class="col-3 my-3">
-            <label for="invoice_number" class="form-label">InvoiceNumber</label>
+            <label for="invoice_number" class="form-label">{{ __('Invoice Number') }}</label>
             <input type="text" name="invoice_number" id="invoice_number"
                    class="form-control bg-light form-control-sm" readonly
                    value="{{ isset($invoice) ? $invoice->invoice_number : '' }}"
@@ -16,9 +16,9 @@
     <!-- Supplier Selection -->
     <div class="row mb-3">
         <div class="col-4 mb-3">
-            <label for="branch_id" class="form-label">Branch</label>
+            <label for="branch_id" class="form-label">{{ __('Branch') }}</label>
             <select class="form-select select2" id="branch_id" name="branch_id" required>
-                <option value="">Select Branch</option>
+                <option value="">{{ __('Select Branch') }}</option>
                 @foreach ($branches as $branch)
                     <option value="{{ $branch->id }}"
                         @if (isset($invoice) && $invoice->branch_id == $branch->id) selected @endif
@@ -30,9 +30,9 @@
         </div>
 
         <div class="col-4 mb-3">
-            <label for="supplier_id" class="form-label">Supplier</label>
+            <label for="supplier_id" class="form-label">{{ __('Supplier') }}</label>
             <select class="form-select select2" id="supplier_id" name="supplier_id" required>
-                <option value="">Select Supplier</option>
+                <option value="">{{ __('Select Supplier') }}</option>
                 @foreach ($suppliers as $supplier)
                     <option value="{{ $supplier->id }}" @if(isset($invoice) && $invoice->supplier_id == $supplier->id) selected @endif>
                         {{ $supplier->name }}
@@ -42,28 +42,26 @@
         </div>
 
         <div class="col-4 mb-3">
-            <label for="status" class="form-label">Status</label>
+            <label for="status" class="form-label">{{ __('Status') }}</label>
             <select class="form-select select2" id="status" name="status" required>
-                <option value="active" @if(isset($invoice) && $invoice->status == 'active') selected @endif>Active</option>
-                {{-- <option value="inactive" @if(isset($invoice) && $invoice->status == 'inactive') selected @endif>Inactive</option>
-                <option value="draft" @if(isset($invoice) && $invoice->status == 'draft') selected @endif>Draft</option> --}}
+                <option value="active" @if(isset($invoice) && $invoice->status == 'active') selected @endif>{{ __('Active') }}</option>
             </select>
         </div>
 
         <div class="col-6">
-            <label for="invoice_date" class="form-label">Invoice Date</label>
+            <label for="invoice_date" class="form-label">{{ __('Invoice Date') }}</label>
             <input type="date" class="form-control form-control-sm" id="invoice_date" name="invoice_date"
                    value="{{ isset($invoice) ? $invoice->invoice_date : old('invoice_date', date('Y-m-d'))}}"  required>
         </div>
 
         <div class="col-6">
-            <label for="total_amount" class="form-label">Total Amount</label>
+            <label for="total_amount" class="form-label">{{ __('Total Amount') }}</label>
             <input type="text" class="form-control bg-light form-control-sm" id="total_amount" name="total_amount"
                    placeholder="0.00" readonly value="{{ isset($invoice) ? $invoice->total_amount : '' }}">
         </div>
 
         <div class="col-6 mt-3">
-            <label for="invoice_discount" class="form-label">Invoice Discount (Amount)</label>
+            <label for="invoice_discount" class="form-label">{{ __('Invoice Discount (Amount)') }}</label>
             <input type="text" name="invoice_discount" id="invoice_discount"
                    class="form-control bg-light form-control-sm" placeholder="0.00"
                    value="{{ isset($invoice) ? $invoice->invoice_discount : '' }}"
@@ -71,13 +69,13 @@
         </div>
 
         <div class="col-6 mt-3">
-            <label for="net_amount" class="form-label">Net Amount (After Discount)</label>
+            <label for="net_amount" class="form-label">{{ __('Net Amount (After Discount)') }}</label>
             <input type="text" class="form-control bg-light form-control-sm" id="net_amount"
                    name="net_amount" placeholder="0.00" readonly value="{{ isset($invoice) ? $invoice->net_amount : '' }}">
         </div>
 
         <div class="form-group mt-3">
-            <label for="invoice_notes">Notes</label>
+            <label for="invoice_notes">{{ __('Notes') }}</label>
             <textarea name="invoice_notes" id="invoice_notes" class="form-control">{{ isset($invoice) ? $invoice->notes : '' }}</textarea>
         </div>
     </div>
@@ -85,19 +83,19 @@
 
     <!-- Products Table -->
     <div class="card-title">
-        <h5>Invoice Details</h5>
+        <h5>{{ __('Invoice Details') }}</h5>
     </div>
     <table class="table table-bordered table-striped" id="details-table">
         <thead class="table-light">
             <tr>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Supplier Price</th>
-                <th>Customer Price</th>
-                <th>Discount (%)</th>
-                <th>Subtotal</th>
-                <th>Notes</th>
-                <th>Action</th>
+                <th>{{ __('Product') }}</th>
+                <th>{{ __('Quantity') }}</th>
+                <th>{{ __('Supplier Price') }}</th>
+                <th>{{ __('Customer Price') }}</th>
+                <th>{{ __('Discount (%)') }}</th>
+                <th>{{ __('Subtotal') }}</th>
+                <th>{{ __('Notes') }}</th>
+                <th>{{ __('Action') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -106,7 +104,7 @@
                     <tr data-row-id="{{ $key }}">
                         <td>
                             <select name="details[{{ $key }}][product_id]" class="form-control select2 bg-white" required>
-                                <option value="">Select Product</option>
+                                <option value="">{{ __('Select Product') }}</option>
                                 @foreach($products as $product)
                                     <option value="{{ $product->id }}" @if($product->id == $detail->product_id) selected @endif>
                                         {{ $product->name }}
@@ -126,9 +124,9 @@
             @endif
         </tbody>
     </table>
-    <button type="button" id="addRow" class="btn btn-success btn-sm"><i class="bi bi-plus-circle me-2"></i> Product</button>
+    <button type="button" id="addRow" class="btn btn-success btn-sm"><i class="bi bi-plus-circle me-2"></i> {{ __('Product') }}</button>
 
     <div class="d-flex justify-content-end mt-4">
-        <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> {{ isset($invoice) ? 'Update' : 'Create' }} Invoice</button>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> {{ isset($invoice) ? __('Update Invoice') : __('Create Invoice') }}</button>
     </div>
 </form>

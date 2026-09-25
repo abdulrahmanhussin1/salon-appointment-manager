@@ -20,10 +20,10 @@
     <div class="container mt-4">
         <div class="card shadow">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h4>Daily Cash Revenue Analysis</h4>
+                <h4>{{ __('Daily Cash Revenue Analysis') }}</h4>
                 <div>
-                    <button class="btn btn-sm btn-dark" id="printButton">Print</button>
-                    <button type="submit" class="btn btn-sm btn-primary ">Refresh</button>
+                    <button class="btn btn-sm btn-dark" id="printButton">{{ __('Print') }}</button>
+                    <button type="submit" class="btn btn-sm btn-primary ">{{ __('Refresh') }}</button>
                 </div>
             </div>
             <div class="card-body">
@@ -31,10 +31,10 @@
                 <form id="dateFilterForm" method="GET" action="{{ route('report.daily_revenues') }}">
                     <div class="row mb-4">
                         <div class="col-md-3">
-                            <label for="branch_id">Branch</label>
+                            <label for="branch_id">{{ __('Branch') }}</label>
                             <select id="branch_id" name="branch_id" class="form-control" {{ ! ($canSelectAll ?? true) ? 'disabled' : '' }}>
                                 @if($canSelectAll ?? true)
-                                    <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>All Branches</option>
+                                    <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>{{ __('All Branches') }}</option>
                                 @endif
                                 @foreach($branches ?? [] as $branch)
                                     <option value="{{ $branch->id }}" {{ ($effectiveBranchId ?? null) == $branch->id ? 'selected' : '' }}>
@@ -44,11 +44,11 @@
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label for="from_date">From Date</label>
+                            <label for="from_date">{{ __('From Date') }}</label>
                             <input type="date" id="from_date" name="from_date" class="form-control">
                         </div>
                         <div class="col-md-3">
-                            <label for="to_date">To Date</label>
+                            <label for="to_date">{{ __('To Date') }}</label>
                             <input type="date" id="to_date" name="to_date" class="form-control">
                         </div>
                     </div>
@@ -58,7 +58,7 @@
 
                 <div id="printableArea">
                     <div class="card-title text-center">
-                        <h5>Daily Cash Revenue Analysis</h5>
+                        <h5>{{ __('Daily Cash Revenue Analysis') }}</h5>
                     </div>
                     <!-- Selected Date Range Section -->
                     <div id="selectedDateRange" class="mb-4"></div>
@@ -68,63 +68,55 @@
                     <table class="table table-bordered">
                         <thead class="table-light">
                             <tr>
-                                <th>Details</th>
-                                <th>Amount (EGP)</th>
+                                <th>{{ __('Details') }}</th>
+                                <th>{{ __('Amount (EGP)') }}</th>
                             </tr>
                         </thead>
                         <tbody id="reportTableBody">
-                            {{-- <tr>
-                                <td>Total Services Revenue</td>
-                                <td class="text-success" id="total-services">0.00</td>
-                            </tr>
                             <tr>
-                                <td>Total Products Revenue</td>
-                                <td class="text-success" id="total-products">0.00</td>
-                            </tr> --}}
-                            <tr>
-                                <td>Total Sales</td>
+                                <td>{{ __('Total Sales') }}</td>
                                 <td class="text-success" id="total-sales">0.00</td>
                             </tr>
                             <tr>
-                                <td>Total Taxes</td>
+                                <td>{{ __('Total Taxes') }}</td>
                                 <td class="text-success" id="total-tax-sales">0.00</td>
                             </tr>
                             <tr class="table-primary">
-                                <td><strong>Total Revenue (After Tax)</strong></td>
+                                <td><strong>{{ __('Total Revenue (After Tax)') }}</strong></td>
                                 <td><strong class="text-primary" id="total-revenue">0.00</strong></td>
                             </tr>
                             <tr>
-                                <td>Cash Payments for Deposits</td>
+                                <td>{{ __('Cash Payments for Deposits') }}</td>
                                 <td id="total-cash-payments">0.00</td>
                             </tr>
                             <tr>
-                                <td>Other Payment Methods Revenue</td>
+                                <td>{{ __('Other Payment Methods Revenue') }}</td>
                                 <td id="total-other-payments">0.00</td>
                             </tr>
                             <tr class="table-success">
-                                <td><strong>Total Cash Revenue</strong></td>
+                                <td><strong>{{ __('Total Cash Revenue') }}</strong></td>
                                 <td><strong class="text-success" id="total-cash">0.00</strong></td>
                             </tr>
                             <tr class="table-danger">
-                                <td><strong>Total Expenses</strong></td>
+                                <td><strong>{{ __('Total Expenses') }}</strong></td>
                                 <td><strong class="text-danger" id="total-expenses">0.00</strong></td>
                             </tr>
                             <tr>
-                                <td class="ps-4 text-muted"><small>• Cash Expenses</small></td>
+                                <td class="ps-4 text-muted"><small>• {{ __('Cash Expenses') }}</small></td>
                                 <td class="text-muted" id="total-cash-expenses">0.00</td>
                             </tr>
                             <tr>
-                                <td class="ps-4 text-muted"><small>• Non-Cash Expenses</small></td>
+                                <td class="ps-4 text-muted"><small>• {{ __('Non-Cash Expenses') }}</small></td>
                                 <td class="text-muted" id="total-non-cash-expenses">0.00</td>
                             </tr>
                             <tr class="table-net-cash-total">
-                                <td><strong>Net Cash Revenue (Total Cash Revenue - Total Cash Payments):</strong></td>
+                                <td><strong>{{ __('Net Cash Revenue (Total Cash Revenue - Total Cash Payments):') }}</strong></td>
                                 <td><strong class="text-net-cash-total text-warning" id="net-cash-revenue">0.00</strong>
                                 </td>
 
                             </tr>
                             <tr class="table-warning">
-                                <td><strong>Net Income</strong></td>
+                                <td><strong>{{ __('Net Income') }}</strong></td>
                                 <td><strong class="text-warning" id="net-income">0.00</strong></td>
                             </tr>
                         </tbody>
@@ -133,27 +125,21 @@
                     <!-- Summary Section -->
                     <div class="mt-4">
                         <div class="row">
-                            {{-- <div class="col-3">
-                                <div class="">
-                                    <strong>Net Income (Total Revenue - Total Expenses):</strong>
-                                    <p id="net-income" class="text-success">0.00</p>
-                                </div>
-                            </div> --}}
                             <div class="col-3">
                                 <div class=" ">
-                                    <strong>Cash Payments Deduction (Total Deposits):</strong>
+                                    <strong>{{ __('Cash Payments Deduction (Total Deposits):') }}</strong>
                                     <p id="cash-deduction" class="text-danger">0.00</p>
                                 </div>
                             </div>
                             <div class="col-3">
                                 <div class="">
-                                    <strong>Other Expenses Deduction:</strong>
+                                    <strong>{{ __('Other Expenses Deduction:') }}</strong>
                                     <p id="other-deduction" class="text-danger">0.00</p>
                                 </div>
                             </div>
                             <div class="col-3">
                                 <div class="">
-                                    <strong>Other Payment Methods Revenue:</strong>
+                                    <strong>{{ __('Other Payment Methods Revenue:') }}</strong>
                                     <p id="other-payments" class="text-primary">0.00</p>
                                 </div>
                             </div>

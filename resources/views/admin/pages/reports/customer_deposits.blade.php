@@ -251,27 +251,27 @@
                 {
                     extend: 'copy',
                     className: 'btn btn-sm btn-secondary',
-                    text: '<i class="bi bi-clipboard me-1"></i> Copy'
+                    text: '<i class="bi bi-clipboard me-1"></i> {{ __("Copy") }}'
                 },
                 {
                     extend: 'excel',
                     className: 'btn btn-sm btn-success',
-                    text: '<i class="bi bi-file-earmark-excel me-1"></i> Excel'
+                    text: '<i class="bi bi-file-earmark-excel me-1"></i> {{ __("Excel") }}'
                 },
                 {
                     extend: 'csv',
                     className: 'btn btn-sm btn-info text-white',
-                    text: '<i class="bi bi-filetype-csv me-1"></i> CSV'
+                    text: '<i class="bi bi-filetype-csv me-1"></i> {{ __("CSV") }}'
                 },
                 {
                     extend: 'pdf',
                     className: 'btn btn-sm btn-danger',
-                    text: '<i class="bi bi-file-earmark-pdf me-1"></i> PDF'
+                    text: '<i class="bi bi-file-earmark-pdf me-1"></i> {{ __("PDF") }}'
                 },
                 {
                     extend: 'print',
                     className: 'btn btn-sm btn-dark',
-                    text: '<i class="bi bi-printer me-1"></i> Print'
+                    text: '<i class="bi bi-printer me-1"></i> {{ __("Print") }}'
                 }
             ],
             ajax: {
@@ -295,7 +295,7 @@
             ],
             language: {
                 emptyTable: "{{ __('No customer deposit records found') }}",
-                processing: '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>'
+                processing: '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">{{ __("Loading...") }}</span></div>'
             }
         });
 

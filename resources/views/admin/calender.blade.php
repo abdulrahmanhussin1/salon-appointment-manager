@@ -6,21 +6,21 @@
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 
-    <x-breadcrumb pageName="Home">
+    <x-breadcrumb :pageName="__('Home')">
         <x-breadcrumb-item>{{ __('Home') }}</x-breadcrumb-item>
     </x-breadcrumb>
     <div class="ms-2 row">
-        <div class="card-title col-8">Customer Details</div>
+        <div class="card-title col-8">{{ __('Customer Details') }}</div>
         <div class="col-4 text-end mt-3 pe-4">
             @if (App\Traits\AppHelper::perUSer('customers.create'))
-                <x-modal-button title="Customer" target="customerModal"><i class="bi bi-plus-lg me-2"></i></x-modal-button>
+                <x-modal-button :title="__('Customer')" target="customerModal"><i class="bi bi-plus-lg me-2"></i></x-modal-button>
             @endif
         </div>
     </div>
     <div class="ms-2 row">
-        <div class="card-title col-8">Appoentment Details</div>
+        <div class="card-title col-8">{{ __('Appointment Details') }}</div>
         <div class="col-4 text-end mt-3 pe-4">
-            <x-modal-button title="Appoentment" target="appoentmentModal"><i
+            <x-modal-button :title="__('Appointment')" target="appoentmentModal"><i
                     class="bi bi-plus-lg me-2"></i></x-modal-button>
         </div>
     </div>
@@ -47,7 +47,7 @@
 
     <!-- Modal -->
 
-    <x-modal id="eventModal" title="Appointment Details">
+    <x-modal id="eventModal" :title="__('Appointment Details')">
 
         <div class="px-3 pt-2">
             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -155,7 +155,7 @@
                 </div>
 
             </div>
-            <Button type="submit" class="btn btn-success">Update</Button>
+            <Button type="submit" class="btn btn-success">{{ __('Update') }}</Button>
         </form>
 
         <form class="text-center my-3"  action="{{ route('appointments.destroy', 1) }}" method="POST" id="appoentmentFormDelete"
@@ -163,13 +163,13 @@
             @csrf
             @method('DELETE')
             <input type="hidden" name="id" id="id_destroy">
-            <button type="submit" class="btn btn-danger">Delete</button>
+            <button type="submit" class="btn btn-danger">{{ __('Delete') }}</button>
         </form>
 
     </x-modal>
 
 
-    <x-modal id="customerModal" title="Create Customer">
+    <x-modal id="customerModal" :title="__('Create Customer')">
         <form action="{{ route('customers.store') }}" method="POST" id="customerForm" enctype="multipart/form-data">
             @csrf
             <div class="modal-body">
@@ -241,7 +241,7 @@
                         </x-form-select>
                     </div>
                     <div class="col-12">
-                        <x-form-select name='added_from' id="added_from" label="added from">
+                        <x-form-select name='added_from' id="added_from" label="Added From">
                             <option @if (old('added_from') == 'direct') selected @endif value="direct">
                                 {{ __('Direct') }}</option>
                             <option @if (old('added_from') == 'online') selected @endif value="online">
@@ -251,7 +251,7 @@
                             <option @if (old('added_from') == 'referral') selected @endif value="referral">
                                 {{ __('Referral') }}</option>
                             <option @if (old('added_from') == 'walk_in') selected @endif value="walk_in">
-                                {{ __('walk_in') }}</option>
+                                {{ __('Walk in') }}</option>
 
                         </x-form-select>
                     </div>
@@ -264,7 +264,7 @@
 
 
 
-    <x-modal id="appoentmentModal" title="Create Appointment ">
+    <x-modal id="appoentmentModal" :title="__('Create Appointment')">
         <form action="{{ route('appointments.store') }}" method="POST" id="appoentmentForm"
             enctype="multipart/form-data">
             @csrf
@@ -427,24 +427,25 @@
                             $('#customerModal').modal('hide');
 
                             // Display a success message or perform other actions
+                            // Display a success message or perform other actions
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Success',
-                                text: 'Customer saved successfully!'
+                                title: '{{ __('Success') }}',
+                                text: '{{ __('Customer saved successfully!') }}'
                             });
                             $('#customerForm')[0].reset();
 
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Error',
-                                text: 'Error saving customer: ' + response.message
+                                title: '{{ __('Error') }}',
+                                text: '{{ __('Error saving customer:') }} ' + response.message
                             });
                         }
                     },
                     error: function() {
                         // Handle AJAX request errors
-                        alert('An error occurred while saving the customer.');
+                        alert('{{ __('An error occurred while saving the customer.') }}');
                     }
                 });
             });
@@ -579,6 +580,8 @@
             var calendarEl = document.getElementById('calendar');
 
             calendar = new FullCalendar.Calendar(calendarEl, {
+                direction: '{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}',
+                locale: '{{ app()->getLocale() }}',
                 timeZone: 'UTC',
                 initialView: 'timeGridWeek',
                 headerToolbar: {

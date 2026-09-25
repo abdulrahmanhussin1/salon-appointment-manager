@@ -1,5 +1,5 @@
 @extends('admin.layouts.app')
-@section('title', 'Edit Purchase Invoice')
+@section('title', __('Edit Purchase Invoice'))
 @section('content')
     {{-- Breadcrumbs --}}
     <x-breadcrumb pageName="Edit Invoice">

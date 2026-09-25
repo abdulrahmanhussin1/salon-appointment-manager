@@ -13,17 +13,17 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-            <h4 class="card-title">Employee Services Report</h4>
+            <h4 class="card-title">{{ __('Employee Services Report') }}</h4>
         </div>
         <div class="card-body">
             <!-- Filters -->
             <div class="row mb-4">
                 <div class="col-md-2">
                     <div class="form-group">
-                        <label>Branch</label>
+                        <label>{{ __('Branch') }}</label>
                         <select class="form-control" id="branch_filter" {{ ! ($canSelectAll ?? true) ? 'disabled' : '' }}>
                             @if($canSelectAll ?? true)
-                                <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>All Branches</option>
+                                <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>{{ __('All Branches') }}</option>
                             @endif
                             @foreach ($branches ?? [] as $branch)
                                 <option value="{{ $branch->id }}" {{ ($effectiveBranchId ?? null) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
@@ -33,23 +33,23 @@
                 </div>
                 <div class="col-md-2">
                     <div class="form-group">
-                        <label>From Date</label>
+                        <label>{{ __('From Date') }}</label>
                         <input type="date" class="form-control" id="start_date" name="start_date"
                             value="{{ date('Y-m-d') }}">
                     </div>
                 </div>
                 <div class="col-md-2">
                     <div class="form-group">
-                        <label>To Date</label>
+                        <label>{{ __('To Date') }}</label>
                         <input type="date" class="form-control" id="end_date" name="end_date"
                             value="{{ date('Y-m-d') }}">
                     </div>
                 </div>
                 <div class="col-md-2">
                     <div class="form-group">
-                        <label>Employee</label>
+                        <label>{{ __('Employee') }}</label>
                         <select class="form-control" id="employee_filter">
-                            <option value="">All Employees</option>
+                            <option value="">{{ __('All Employees') }}</option>
                             @foreach ($employees as $employee)
                                 <option value="{{ $employee->id }}">{{ $employee->name }}</option>
                             @endforeach
@@ -58,9 +58,9 @@
                 </div>
                 <div class="col-md-2">
                     <div class="form-group">
-                        <label>Service</label>
+                        <label>{{ __('Service') }}</label>
                         <select class="form-control" id="service_filter">
-                            <option value="">All Services</option>
+                            <option value="">{{ __('All Services') }}</option>
                             @foreach ($services as $service)
                                 <option value="{{ $service->id }}">{{ $service->name }}</option>
                             @endforeach
@@ -70,7 +70,7 @@
                 <div class="col-md-2">
                     <div class="form-group">
                         <label>&nbsp;</label>
-                        <button class="btn btn-primary btn-sm btn-block mt-4" id="filter_button">Filters</button>
+                        <button class="btn btn-primary btn-sm btn-block mt-4" id="filter_button">{{ __('Filter') }}</button>
                     </div>
                 </div>
             </div>
@@ -80,11 +80,11 @@
                 <table class="table table-bordered" id="employees-table">
                     <thead>
                         <tr>
-                            <th>Employee</th>
-                            <th>Service / Product</th>
-                            <th>Date</th>
-                            <th>Services Count</th>
-                            <th>Amount</th>
+                            <th>{{ __('Employee') }}</th>
+                            <th>{{ __('Service / Product') }}</th>
+                            <th>{{ __('Date') }}</th>
+                            <th>{{ __('Services Count') }}</th>
+                            <th>{{ __('Amount') }}</th>
                         </tr>
                     </thead>
                 </table>

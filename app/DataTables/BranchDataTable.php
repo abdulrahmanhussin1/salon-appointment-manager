@@ -39,10 +39,10 @@ class BranchDataTable extends DataTable
         </button>
         <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('branches.edit')) {
-                    $html .= '<a href="'.route('branches.edit', ['branch' => $model]).'" class="dropdown-item">Edit</a>';
+                    $html .= '<a href="'.route('branches.edit', ['branch' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
                 if (AppHelper::perUser('branches.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-branch" data-id="'.$model->id.'" data-url="'.route('branches.destroy', ['branch' => $model]).'">Delete</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-branch" data-id="'.$model->id.'" data-url="'.route('branches.destroy', ['branch' => $model]).'">'.__('Delete').'</a></div></div>';
                 }
 
                 return $html;
@@ -50,9 +50,9 @@ class BranchDataTable extends DataTable
 
             ->editColumn('status', function ($model) {
                 if ($model->status == 'active') {
-                    return '<i class="bi bi-check-circle-fill text-success" style="font-size:large">Active</i>';
+                    return '<i class="bi bi-check-circle-fill text-success" style="font-size:large">'.__('Active').'</i>';
                 } elseif ($model->status == 'inactive') {
-                    return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large">Inactive</i>';
+                    return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large">'.__('Inactive').'</i>';
                 }
             })
             ->editColumn('created_at', function ($model) {
@@ -116,17 +116,17 @@ class BranchDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id')->addClass('text-center'),
-            Column::make('name')->addClass('text-center'),
-            Column::make('manager_id')->addClass('text-center')->title('Manager'),
-            Column::make('phone')->addClass('text-center'),
-            Column::make('email')->addClass('text-center'),
-            Column::make('address')->addClass('text-center'),
-            Column::make('status')->addClass('text-center'),
-            Column::make('created_by')->addClass('text-center'),
-            Column::make('created_at')->addClass('text-center'),
-            Column::make('updated_at')->addClass('text-center'),
-            Column::computed('action')
+            Column::make('id')->addClass('text-center')->title(__('ID')),
+            Column::make('name')->addClass('text-center')->title(__('Name')),
+            Column::make('manager_id')->addClass('text-center')->title(__('Manager')),
+            Column::make('phone')->addClass('text-center')->title(__('Phone')),
+            Column::make('email')->addClass('text-center')->title(__('Email')),
+            Column::make('address')->addClass('text-center')->title(__('Address')),
+            Column::make('status')->addClass('text-center')->title(__('Status')),
+            Column::make('created_by')->addClass('text-center')->title(__('Created By')),
+            Column::make('created_at')->addClass('text-center')->title(__('Created At')),
+            Column::make('updated_at')->addClass('text-center')->title(__('Updated At')),
+            Column::computed('action')->title(__('Action'))
                 ->exportable(false)
                 ->printable(false)
                 ->width(60)

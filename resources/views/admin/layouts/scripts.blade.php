@@ -27,7 +27,38 @@
   <script src="{{ asset('admin-assets/assets/vendor/select2-4.1.0-rc.0/dist/js/select2.full.min.js') }}"></script>
   <script src="{{ asset('vendor/sweetalert/sweetalert.all.js') }}"></script>
   <script>
+    window.__translations = @json(app()->getLocale() === 'ar' && file_exists(resource_path('lang/ar.json')) ? (json_decode(file_get_contents(resource_path('lang/ar.json')), true) ?? (object)[]) : (object)[]);
+    window.__ = function(key) {
+        return (window.__translations && window.__translations[key]) ? window.__translations[key] : key;
+    };
     $(document).ready(function() {
+        @if(app()->getLocale() === 'ar')
+        if (typeof $.fn.select2 !== 'undefined') {
+            $.fn.select2.defaults.set('dir', 'rtl');
+        }
+        if (typeof $.fn.dataTable !== 'undefined') {
+            $.extend(true, $.fn.dataTable.defaults, {
+                language: {
+                    sEmptyTable: "ليست هناك بيانات متاحة في الجدول",
+                    sLoadingRecords: "جارٍ التحميل...",
+                    sProcessing: "جارٍ التحميل...",
+                    sLengthMenu: "أظهر _MENU_ مدخلات",
+                    sZeroRecords: "لم يعثر على أية سجلات",
+                    sInfo: "إظهار _START_ إلى _END_ من أصل _TOTAL_ مدخل",
+                    sInfoEmpty: "يعرض 0 إلى 0 من أصل 0 سجل",
+                    sInfoFiltered: "(منتقاة من مجموع _MAX_ مُدخل)",
+                    sSearch: "ابحث:",
+                    oPaginate: {
+                        sFirst: "الأول",
+                        sPrevious: "السابق",
+                        sNext: "التالي",
+                        sLast: "الأخير"
+                    }
+                }
+            });
+        }
+        @endif
+
         $('.js-example-basic-single').select2();
         $('.js-example-basic-multiple').select2();
     });
@@ -37,10 +68,13 @@
 
       document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'dayGridWeek'
-        });
-        calendar.render();
+        if (calendarEl) {
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+              initialView: 'dayGridWeek',
+              locale: '{{ app()->getLocale() }}'
+            });
+            calendar.render();
+        }
       });
 
     </script>

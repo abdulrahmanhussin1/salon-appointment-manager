@@ -14,17 +14,17 @@
     <div class="container-fluid">
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">On Hand Stock List</h3>
+            <h3 class="card-title">{{ __('On Hand Stock List') }}</h3>
         </div>
         <div class="card-body">
             <!-- Filters -->
             <div class="row mb-3">
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label for="branch_id">Branch</label>
+                        <label for="branch_id">{{ __('Branch') }}</label>
                         <select class="form-control" id="branch_id" name="branch_id" {{ ! ($canSelectAll ?? true) ? 'disabled' : '' }}>
                             @if($canSelectAll ?? true)
-                                <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>All Branches</option>
+                                <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>{{ __('All Branches') }}</option>
                             @endif
                             @foreach($branches ?? [] as $branch)
                                 <option value="{{ $branch->id }}" {{ ($effectiveBranchId ?? null) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
@@ -34,9 +34,9 @@
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label for="inventory_id">Inventory</label>
+                        <label for="inventory_id">{{ __('Inventory') }}</label>
                         <select class="form-control" id="inventory_id" name="inventory_id">
-                            <option value="">All Inventories</option>
+                            <option value="">{{ __('All Inventories') }}</option>
                             @foreach($inventories as $inventory)
                                 <option value="{{ $inventory->id }}">{{ $inventory->name }}</option>
                             @endforeach
@@ -44,8 +44,8 @@
                     </div>
                 </div>
                 <div class="col-md-3 mt-4">
-                    <button class="btn btn-primary" id="filter-btn">Apply Filter</button>
-                    <button class="btn btn-secondary" id="reset-btn">Reset</button>
+                    <button class="btn btn-primary" id="filter-btn">{{ __('Apply Filter') }}</button>
+                    <button class="btn btn-secondary" id="reset-btn">{{ __('Reset') }}</button>
                 </div>
             </div>
 
@@ -54,17 +54,17 @@
                 <table class="table table-bordered" id="stock-table">
                     <thead>
                         <tr>
-                            <th>Item Description</th>
-                            <th>Quantity</th>
-                            <th>Value</th>
-                            <th>Avg Cost Price</th>
-                            <th>Can Be Sold</th>
-                            <th>Remarks</th>
+                            <th>{{ __('Item Description') }}</th>
+                            <th>{{ __('Quantity') }}</th>
+                            <th>{{ __('Value') }}</th>
+                            <th>{{ __('Avg Cost Price') }}</th>
+                            <th>{{ __('Can Be Sold') }}</th>
+                            <th>{{ __('Remarks') }}</th>
                         </tr>
                     </thead>
                     <tfoot>
                         <tr>
-                            <th>Total:</th>
+                            <th>{{ __('Total:') }}</th>
                             <th></th>
                             <th></th>
                             <th></th>

@@ -247,25 +247,25 @@
             // Generate inputs dynamically
             const html = `
             <div class="employee-details" data-employee-id="${employeeId}">
-                <h6>Commission for Employee: ${employee.name}</h6>
+                <h6>{{ __('Commission for Employee') }}: ${employee.name}</h6>
                 <div class="row">
                     <div class="col-md-4">
-                        <label for="commission_type_${employeeId}">Commission Type</label>
+                        <label for="commission_type_${employeeId}">{{ __('Commission Type') }}</label>
                         <select name="commission_type[${employeeId}]" id="commission_type_${employeeId}" class="form-control">
-                            <option value="percentage" ${commissionType === 'percentage' ? 'selected' : ''}>Percentage</option>
-                            <option value="value" ${commissionType === 'value' ? 'selected' : ''}>Value</option>
+                            <option value="percentage" ${commissionType === 'percentage' ? 'selected' : ''}>{{ __('Percentage') }}</option>
+                            <option value="value" ${commissionType === 'value' ? 'selected' : ''}>{{ __('Value') }}</option>
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label for="commission_value_${employeeId}">Commission Value</label>
+                        <label for="commission_value_${employeeId}">{{ __('Commission Value') }}</label>
                         <input type="number" name="commission_value[${employeeId}]" id="commission_value_${employeeId}" class="form-control" value="${commissionValue}">
                     </div>
 
                     <div class="col-md-4">
-                        <label for="is_immediate_${employeeId}">Immediate Commission</label>
+                        <label for="is_immediate_${employeeId}">{{ __('Immediate Commission') }}</label>
                         <select name="is_immediate_commission[${employeeId}]" id="is_immediate_${employeeId}" class="form-control">
-                            <option value="1" ${isImmediate == 1 ? 'selected' : ''}>Yes</option>
-                            <option value="0" ${isImmediate == 0 ? 'selected' : ''}>No</option>
+                            <option value="1" ${isImmediate == 1 ? 'selected' : ''}>{{ __('Yes') }}</option>
+                            <option value="0" ${isImmediate == 0 ? 'selected' : ''}>{{ __('No') }}</option>
                         </select>
                     </div>
                 </div>

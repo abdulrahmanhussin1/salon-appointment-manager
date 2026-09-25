@@ -24,7 +24,7 @@
                     </x-modal-button>
                 @endif
 
-                <x-modal id="editAdminPanalSettingsModal" title="Edit Admin Panal Settings">
+                <x-modal id="editAdminPanalSettingsModal" :title="__('Edit Admin Panel Settings')">
                     <form action="{{ route('admin_panel_settings.update', ['id' => $setting->id]) }}" method="POST" id="adminPanalSettingsForm"
                         enctype="multipart/form-data">
                         @method('PUT') @csrf
@@ -44,7 +44,7 @@
                             <x-form-description value="{{ $setting->system_address }}"
                                 label=" Address" name='system_address' placeholder=' Address' />
                                 <div class="mb-3">
-                                    <label for="formFile" class="form-label">Logo</label>
+                                    <label for="formFile" class="form-label">{{ __('Logo') }}</label>
                                     <input class="form-control" name="system_logo" type="file" id="systemLogo">
                                 </div>
                                 <div class="mb-3 form-check form-switch">

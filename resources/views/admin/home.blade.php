@@ -19,31 +19,15 @@
             <!-- Sales credit Card -->
             <div class="col-xxl-4 col-md-6">
               <div class="card info-card sales-credit-card">
-
-                {{-- <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-                    
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div> --}}
-
                 <div class="card-body">
-                  <h5 class="card-title">Sales with Credit Card <span>| Today</span></h5>
+                  <h5 class="card-title">{{ __('Sales with Credit Card') }} <span>| {{ __('Today') }}</span></h5>
 
                   <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-opacity-10 bg-primary">
                       <i class="bi bi-cart" style="color: #4154f1"></i>
                     </div>
                     <div class="ps-3">
-                      <h6>L.E {{ $creditCardSales ?? 0 }}</h6>
-                      {{-- <span class="text-success small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">increase</span> --}}
-
+                      <h6>{{ __('EGP') }} {{ $creditCardSales ?? 0 }}</h6>
                     </div>
                   </div>
                 </div>
@@ -54,31 +38,15 @@
             <!-- Sales Cash Card -->
             <div class="col-xxl-4 col-md-6">
               <div class="card info-card sales-cash-card">
-
-                {{-- <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div> --}}
-
                 <div class="card-body">
-                  <h5 class="card-title">Sales In Cash <span>| This Today</span></h5>
+                  <h5 class="card-title">{{ __('Sales in Cash') }} <span>| {{ __('Today') }}</span></h5>
 
                   <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center " style="background-color: #e0f8e9">
                       <i class="bi bi-currency-dollar" style="color:#2eca6a"></i>
                     </div>
                     <div class="ps-3">
-                      <h6>L.E {{ $cashSales ?? 0 }}</h6>
-                      {{-- <span class="text-success small pt-1 fw-bold">8%</span> <span class="text-muted small pt-2 ps-1">increase</span> --}}
-
+                      <h6>{{ __('EGP') }} {{ $cashSales ?? 0 }}</h6>
                     </div>
                   </div>
                 </div>
@@ -88,33 +56,16 @@
 
             <!-- Expense Card -->
             <div class="col-xxl-4 col-xl-12">
-
               <div class="card info-card expense-card">
-
-                {{-- <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div> --}}
-
                 <div class="card-body">
-                  <h5 class="card-title">Expenses<span>| This Today</span></h5>
+                  <h5 class="card-title">{{ __('Expenses') }} <span>| {{ __('Today') }}</span></h5>
 
                   <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-danger-light">
                       <i class="bi bi-receipt" style="color:#DC3545"></i>
                     </div>
                     <div class="ps-3">
-                      <h6>L.E {{ $expenseAmount ?? 0 }}</h6>
-                      {{-- <span class="text-danger small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">decrease</span> --}}
-
+                      <h6>{{ __('EGP') }} {{ $expenseAmount ?? 0 }}</h6>
                     </div>
                   </div>
 
@@ -123,19 +74,17 @@
 
             </div><!-- End Customers Card -->
 
-
             <div class="col-xxl-4 col-md-6">
                 <div class="card info-card sales-cash-card">
-
                   <div class="card-body">
-                    <h5 class="card-title"> Net Profit <span>| today</span></h5>
+                    <h5 class="card-title">{{ __('Net Profit') }} <span>| {{ __('Today') }}</span></h5>
 
                     <div class="d-flex align-items-center">
                       <div class="card-icon rounded-circle d-flex align-items-center justify-content-center " style="background-color: #e0f8e9">
                         <i class="bi bi-currency-dollar" style="color:#2eca6a"></i>
                       </div>
                       <div class="ps-3">
-                        <h6>L.E {{ $net_profit ?? 0 }}</h6>
+                        <h6>{{ __('EGP') }} {{ $net_profit ?? 0 }}</h6>
                       </div>
                     </div>
                   </div>
@@ -144,12 +93,10 @@
             </div>
             <!-- End Revenue Card -->
 
-
             <div class="col-xxl-4 col-md-6">
                 <div class="card info-card sales-cash-card">
-
                   <div class="card-body">
-                    <h5 class="card-title"> Customers  <span>| today</span></h5>
+                    <h5 class="card-title">{{ __('Customers') }} <span>| {{ __('Today') }}</span></h5>
 
                     <div class="d-flex align-items-center">
                       <div class="card-icon rounded-circle d-flex align-items-center justify-content-center " style="background-color: #e0f8e9">
@@ -164,18 +111,18 @@
                 </div>
             </div>
             <!-- End Revenue Card -->
+
             <div class="col-xxl-4 col-md-6">
                 <div class="card info-card sales-cash-card">
-
                   <div class="card-body">
-                    <h5 class="card-title"> Customers  <span></span></h5>
+                    <h5 class="card-title">{{ __('All Customers') }}</h5>
 
                     <div class="d-flex align-items-center">
                       <div class="card-icon rounded-circle d-flex align-items-center justify-content-center " style="background-color: #e0f8e9">
                         <i class="bi bi-cart" style="color: #4154f1"></i>
                     </div>
                       <div class="ps-3">
-                        <h6>L.E {{ $total_customers ?? 0 }}</h6>
+                        <h6>{{ $total_customers ?? 0 }}</h6>
                       </div>
                     </div>
                   </div>
@@ -185,16 +132,15 @@
 
             <div class="col-xxl-4 col-md-6">
                 <div class="card info-card sales-cash-card">
-
                   <div class="card-body">
-                    <h5 class="card-title"> Provider  <span>| today</span></h5>
+                    <h5 class="card-title">{{ __('Top Provider') }} <span>| {{ __('Today') }}</span></h5>
 
                     <div class="d-flex align-items-center">
                       <div class="card-icon rounded-circle d-flex align-items-center justify-content-center " style="background-color: #e0f8e9">
                         <i class="bi bi-receipt" style="color:#DC3545"></i>
                     </div>
                       <div class="ps-3">
-                        <h6> {{ $get_biggest_provider_that_have_orders_today_name ?? '' }}</h6>
+                        <h6>{{ $get_biggest_provider_that_have_orders_today_name ?? '' }}</h6>
                       </div>
                     </div>
                   </div>
@@ -204,16 +150,15 @@
 
             <div class="col-xxl-4 col-md-6">
                 <div class="card info-card sales-cash-card">
-
                   <div class="card-body">
-                    <h5 class="card-title"> Service  <span>| today</span></h5>
+                    <h5 class="card-title">{{ __('Top Service') }} <span>| {{ __('Today') }}</span></h5>
 
                     <div class="d-flex align-items-center">
                       <div class="card-icon rounded-circle d-flex align-items-center justify-content-center " style="background-color: #e0f8e9">
                         <i class="bi bi-receipt" style="color:#DC3545"></i>
                     </div>
                       <div class="ps-3">
-                        <h6> {{ $get_biggest_service_that_have_orders_today_name ?? '' }}</h6>
+                        <h6>{{ $get_biggest_service_that_have_orders_today_name ?? '' }}</h6>
                       </div>
                     </div>
                   </div>

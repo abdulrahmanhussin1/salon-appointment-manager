@@ -1,7 +1,7 @@
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
     <div class="copyright mt-3">
-        &copy; Copyright <strong><span>Salon Management System</span></strong>. All Rights Reserved
+        &copy; {{ date('Y') }} <strong><span>{{ $adminPanelSetting?->system_name ?? __('Salon Management System') }}</span></strong>. {{ __('All Rights Reserved') }}
       </div>
       <div class="credits" >
         <!-- All the links in the footer should remain intact. -->

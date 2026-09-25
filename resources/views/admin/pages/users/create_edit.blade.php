@@ -131,12 +131,12 @@
                         </div>
                         <div class="col-6">
                             <x-form-select name="role_id" id="role_id" label='Role' required>
+                                <option value="">{{ __('Select one Role') }}</option>
                                 @foreach (\Spatie\Permission\Models\Role::where('status', 'active')->pluck('name', 'id')->toArray() as $id => $name)
-                                   e <option value="">Select one Role</option>
-                                <option
+                                    <option
                                         @if (isset($user) && in_array($id, $user->roles()->pluck('id')->toArray())) selected="selected"
-                            @elseif(old('role_id') && in_array($id, old('role_id'))) selected="selected" @endif
-                                        value="{{ $id }}">{{ $name }}</option>
+                                        @elseif(old('role_id') && in_array($id, old('role_id'))) selected="selected" @endif
+                                        value="{{ $id }}">{{ __($name) }}</option>
                                 @endforeach
                             </x-form-select>
                         </div>

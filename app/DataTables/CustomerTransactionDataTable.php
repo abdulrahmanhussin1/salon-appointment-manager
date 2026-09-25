@@ -92,16 +92,16 @@ class CustomerTransactionDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id')->addClass('text-center'),
-            Column::make('customer_id')->addClass('text-center')->title('Customer'),
-            Column::make('reference_type')->addClass('text-center')->title('Reference'),
-            //Column::make('reference_id')->addClass('text-center'),,
-            Column::make('amount')->addClass('text-center'),
-            Column::make('notes')->addClass('text-center'),
-            Column::make('created_by')->addClass('text-center'),
-            Column::make('created_at')->addClass('text-center'),
-            Column::make('updated_at')->addClass('text-center'),
-            // Column::computed('action')
+            Column::make('id')->addClass('text-center')->title(__('ID')),
+            Column::make('customer_id')->addClass('text-center')->title(__('Customer')),
+            Column::make('reference_type')->addClass('text-center')->title(__('Reference Type')),
+            //Column::make('reference_id')->addClass('text-center')->title(__('Reference ID')),,
+            Column::make('amount')->addClass('text-center')->title(__('Amount')),
+            Column::make('notes')->addClass('text-center')->title(__('Notes')),
+            Column::make('created_by')->addClass('text-center')->title(__('Created By')),
+            Column::make('created_at')->addClass('text-center')->title(__('Created At')),
+            Column::make('updated_at')->addClass('text-center')->title(__('Updated At')),
+            // Column::computed('action')->title(__('Action'))
             //     ->exportable(false)
             //     ->printable(false)
             //     ->width(60)

@@ -15,9 +15,19 @@ class SetLocale
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $locale = $request->query('lang') ?? session('locale', config('app.locale'));
+        $allowedLocales = ['en', 'ar'];
+
+        if ($request->has('lang') && in_array($request->query('lang'), $allowedLocales, true)) {
+            $locale = (string) $request->query('lang');
+            session(['locale' => $locale]);
+        } else {
+            $locale = session('locale', config('app.locale', 'en'));
+            if (! in_array($locale, $allowedLocales, true)) {
+                $locale = config('app.locale', 'en');
+            }
+        }
+
         app()->setLocale($locale);
-        session(['locale' => $locale]);
 
         return $next($request);
     }

@@ -318,13 +318,13 @@
                     const qty = res.quantity !== undefined ? parseInt(res.quantity) : 0;
                     row.find('.current-stock-val').val(qty);
                     row.find('.current-stock-badge')
-                        .text(qty + ' in stock')
+                        .text(qty + ' ' + "{{ __('in stock') }}")
                         .removeClass('bg-secondary bg-danger bg-success')
                         .addClass(qty > 0 ? 'bg-info text-dark' : 'bg-secondary');
                     recalcRowPreview(row);
                 },
                 error: function() {
-                    row.find('.current-stock-badge').text('0 in stock').addClass('bg-secondary');
+                    row.find('.current-stock-badge').text('0 ' + "{{ __('in stock') }}").addClass('bg-secondary');
                     row.find('.current-stock-val').val(0);
                     recalcRowPreview(row);
                 }
@@ -356,7 +356,7 @@
 
             if (resulting < 0) {
                 badge.addClass('bg-danger text-white');
-                badge.text(resulting + ' (Insufficient!)');
+                badge.text(resulting + ' ' + "({{ __('Insufficient!') }})");
             } else if (isIncrease) {
                 badge.addClass('bg-success text-white');
             } else {

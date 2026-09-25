@@ -116,7 +116,7 @@
 @endsection
 @section('content')
     {{-- Start breadcrumbs --}}
-    <x-breadcrumb pageName="Sales Invoice">
+    <x-breadcrumb :pageName="__('Sales Invoice')">
         <x-breadcrumb-item>
             <a class="active" href="{{ route('home.index') }}">{{ __('Home') }}</a>
         </x-breadcrumb-item>
@@ -177,28 +177,28 @@
                 {{ $adminPanelSetting->system_name }}
             </p>
             <p style="margin: 15px auto; font-weight: bold ">
-                Invoice No: {{ $invoice->id }}<br>
+                {{ __('Invoice No') }}: {{ $invoice->id }}<br>
 
             </p>
             <p>
-                Thank You For Visiting Us
+                {{ __('Thank You For Visiting Us') }}
             </p>
 
             <p>
-                <b>Name: </b> {{ $invoice->customer->name }}
+                <b>{{ __('Name') }}: </b> {{ $invoice->customer->name }}
             </p>
             <hr style="border: 1px dashed rgb(131, 131, 131); margin: 25px auto">
         </div>
         <table style="width: 100%; table-layout: fixed">
             <thead>
                 <tr>
-                    <th style="width: 40px; padding-left: 0;">Sn.</th>
-                    <th style="width: 180px;">Item Name</th>
-                    <th>QTY</th>
-                    <th>Price</th>
+                    <th style="width: 40px; padding-left: 0;">{{ __('Sn.') }}</th>
+                    <th style="width: 180px;">{{ __('Item Name') }}</th>
+                    <th>{{ __('QTY') }}</th>
+                    <th>{{ __('Price') }}</th>
                     {{-- <th>Tax</th>
                     <th>Discount</th> --}}
-                    <th>SubTotal</th>
+                    <th>{{ __('SubTotal') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -237,8 +237,8 @@
               border-radius: 4px;">
             <thead>
                 <tr>
-                    <th>Total</th>
-                    <th style="text-align: center;">Item ({{ $invoice->salesInvoiceDetails->count() }})</th>
+                    <th>{{ __('Total') }}</th>
+                    <th style="text-align: center;">{{ __('Item') }} ({{ $invoice->salesInvoiceDetails->count() }})</th>
                     <th>&nbsp;</th>
                     <th style="text-align: right;">{{ $total }}</th>
 
@@ -254,16 +254,16 @@
               border-radius: 3px;">
             <thead>
                 <tr>
-                    <td>Total Saving In : </td>
+                    <td>{{ __('Total Saving In') }}: </td>
                     <td style="text-align: right;">{{ $invoice->invoice_discount }}</td>
                 </tr>
                 <tr>
-                    <td>Tax: </td>
+                    <td>{{ __('Tax') }}: </td>
                     <td style="text-align: right;">{{ $invoice->invoice_tax }}</td>
                 </tr>
 
                 <tr>
-                    <td>Total : </td>
+                    <td>{{ __('Total') }}: </td>
                     <td style="text-align: right;">{{ $invoice->net_total }}</td>
                 </tr>
 
@@ -275,7 +275,7 @@
     </section>
 
     <div style="width: 450px; margin: auto">
-        <button onclick="printInvoice()" class="btn btn-success btn-sm mt-3 w-100">Print</button>
+        <button onclick="printInvoice()" class="btn btn-success btn-sm mt-3 w-100">{{ __('Print') }}</button>
 
         @if ($invoice->status === 'active' && ($invoice->refund_status ?? 'none') !== 'full' && (\App\Traits\AppHelper::perUser('refunds.create') || \App\Traits\AppHelper::perUser('sales_invoices.create')))
             <a href="{{ route('refunds.create', ['invoice_id' => $invoice->id]) }}" class="btn btn-outline-warning btn-sm mt-2 w-100 text-dark fw-bold">

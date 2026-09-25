@@ -57,10 +57,10 @@ class ExpenseDataTable extends DataTable
                             </button>
                             <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('expenses.edit')) {
-                    $html .= '<a href="'.route('expenses.edit', ['expense' => $model]).'" class="dropdown-item">Edit</a>';
+                    $html .= '<a href="'.route('expenses.edit', ['expense' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
                 if (AppHelper::perUser('expenses.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-expense" data-id="'.$model->id.'" data-url="'.route('expenses.destroy', ['expense' => $model]).'">Delete</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-expense" data-id="'.$model->id.'" data-url="'.route('expenses.destroy', ['expense' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
                 }
 
                 return $html;
@@ -134,21 +134,21 @@ class ExpenseDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id')->addClass('text-center'),
-            Column::make('expense_type_id')->addClass('text-center')->title('Expense'),
-            Column::make('description')->addClass('text-center'),
-            Column::make('amount')->addClass('text-center'),
-            Column::make('payment_method_id')->addClass('text-center')->title('Payment Method'),
-            Column::make('paid_at')->addClass('text-center'),
-            Column::make('paid_amount')->addClass('text-center'),
-            Column::make('balance')->addClass('text-center'),
-            Column::make('invoice_number')->addClass('text-center'),
-            Column::make('branch_id')->addClass('text-center')->title('Branch'),
-            Column::make('status')->addClass('text-center'),
-            Column::make('created_by')->addClass('text-center'),
-            Column::make('created_at')->addClass('text-center'),
-            Column::make('updated_at')->addClass('text-center'),
-            Column::computed('action')
+            Column::make('id')->addClass('text-center')->title(__('ID')),
+            Column::make('expense_type_id')->addClass('text-center')->title(__('Expense Type')),
+            Column::make('description')->addClass('text-center')->title(__('Description')),
+            Column::make('amount')->addClass('text-center')->title(__('Amount')),
+            Column::make('payment_method_id')->addClass('text-center')->title(__('Payment Method')),
+            Column::make('paid_at')->addClass('text-center')->title(__('Paid At')),
+            Column::make('paid_amount')->addClass('text-center')->title(__('Paid Amount')),
+            Column::make('balance')->addClass('text-center')->title(__('Balance')),
+            Column::make('invoice_number')->addClass('text-center')->title(__('Invoice Number')),
+            Column::make('branch_id')->addClass('text-center')->title(__('Branch')),
+            Column::make('status')->addClass('text-center')->title(__('Status')),
+            Column::make('created_by')->addClass('text-center')->title(__('Created By')),
+            Column::make('created_at')->addClass('text-center')->title(__('Created At')),
+            Column::make('updated_at')->addClass('text-center')->title(__('Updated At')),
+            Column::computed('action')->title(__('Action'))
                 ->exportable(false)
                 ->printable(false)
                 ->width(60)

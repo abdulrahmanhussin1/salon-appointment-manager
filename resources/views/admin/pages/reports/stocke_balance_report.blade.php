@@ -14,9 +14,9 @@
    <div class="container-fluid">
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Store Balance Details</h3>
+            <h3 class="card-title">{{ __('Store Balance Details') }}</h3>
             <div class="text-muted">
-                As Of: {{ now()->format('d/m/Y') }} - Main Branch - Month {{ now()->format('m') }} - Year {{ now()->format('Y') }}
+                {{ __('As Of') }}: {{ now()->format('d/m/Y') }} - {{ __('Main Branch') }} - {{ __('Month') }} {{ now()->format('m') }} - {{ __('Year') }} {{ now()->format('Y') }}
             </div>
         </div>
         <div class="card-body">
@@ -24,10 +24,10 @@
             <div class="row mb-3">
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label for="branch_id">Branch</label>
+                        <label for="branch_id">{{ __('Branch') }}</label>
                         <select class="form-control" id="branch_id" name="branch_id" {{ ! ($canSelectAll ?? true) ? 'disabled' : '' }}>
                             @if($canSelectAll ?? true)
-                                <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>All Branches</option>
+                                <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>{{ __('All Branches') }}</option>
                             @endif
                             @foreach($branches ?? [] as $branch)
                                 <option value="{{ $branch->id }}" {{ ($effectiveBranchId ?? null) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
@@ -37,9 +37,9 @@
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label for="inventory_id">Inventory</label>
+                        <label for="inventory_id">{{ __('Inventory') }}</label>
                         <select class="form-control" id="inventory_id" name="inventory_id">
-                            <option value="">ALL</option>
+                            <option value="">{{ __('All') }}</option>
                             @foreach($inventories as $inventory)
                                 <option value="{{ $inventory->id }}">{{ $inventory->name }}</option>
                             @endforeach
@@ -47,8 +47,8 @@
                     </div>
                 </div>
                 <div class="col-md-3 mt-4">
-                    <button class="btn btn-primary" id="filter-btn"> Filter</button>
-                    <button class="btn btn-secondary" id="reset-btn">Reset</button>
+                    <button class="btn btn-primary" id="filter-btn"><i class="fa fa-filter"></i> {{ __('Filter') }}</button>
+                    <button class="btn btn-secondary" id="reset-btn">{{ __('Reset') }}</button>
                 </div>
             </div>
 
@@ -57,28 +57,28 @@
                 <table class="table table-bordered table-striped" id="balance-table">
                     <thead>
                         <tr>
-                            <th rowspan="2">Item</th>
-                            <th colspan="1">Unit Cost</th>
-                            <th colspan="2">Beginning</th>
-                            <th colspan="2">In</th>
-                            <th colspan="2">Out</th>
-                            <th colspan="2">Onhand</th>
+                            <th rowspan="2">{{ __('Item') }}</th>
+                            <th colspan="1">{{ __('Unit Cost') }}</th>
+                            <th colspan="2">{{ __('Beginning') }}</th>
+                            <th colspan="2">{{ __('In') }}</th>
+                            <th colspan="2">{{ __('Out') }}</th>
+                            <th colspan="2">{{ __('Onhand') }}</th>
                         </tr>
                         <tr>
-                            <th>L.E</th>
-                            <th>QTY</th>
-                            <th>L.E</th>
-                            <th>QTY</th>
-                            <th>L.E</th>
-                            <th>QTY</th>
-                            <th>L.E</th>
-                            <th>QTY</th>
-                            <th>L.E</th>
+                            <th>{{ __('L.E') }}</th>
+                            <th>{{ __('QTY') }}</th>
+                            <th>{{ __('L.E') }}</th>
+                            <th>{{ __('QTY') }}</th>
+                            <th>{{ __('L.E') }}</th>
+                            <th>{{ __('QTY') }}</th>
+                            <th>{{ __('L.E') }}</th>
+                            <th>{{ __('QTY') }}</th>
+                            <th>{{ __('L.E') }}</th>
                         </tr>
                     </thead>
                     <tfoot>
                         <tr>
-                            <th>Total:</th>
+                            <th>{{ __('Total') }}:</th>
                             <th></th>
                             <th></th>
                             <th></th>

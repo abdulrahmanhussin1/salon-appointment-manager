@@ -29,10 +29,10 @@ class CustomerDataTable extends DataTable
         </button>
         <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('customers.edit')) {
-                    $html .= '<a href="'.route('customers.edit', ['customer' => $model]).'" class="dropdown-item">Edit</a>';
+                    $html .= '<a href="'.route('customers.edit', ['customer' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
                 if (AppHelper::perUser('customers.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-customer" data-id="'.$model->id.'" data-url="'.route('customers.destroy', ['customer' => $model]).'">Delete</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-customer" data-id="'.$model->id.'" data-url="'.route('customers.destroy', ['customer' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
                 }
 
                 return $html;
@@ -129,21 +129,21 @@ class CustomerDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id')->addClass('text-center'),
-            Column::make('name')->addClass('text-center'),
-            Column::make('phone')->addClass('text-center'),
-            Column::make('email')->addClass('text-center'),
-            Column::make('status')->addClass('text-center'),
-            Column::make('address')->addClass('text-center'),
-            Column::make('notes')->addClass('text-center'),
-            Column::make('is_vip')->addClass('text-center')->title('Vip'),
-            Column::make('dob')->addClass('text-center'),
-            Column::make('gender')->addClass('text-center'),
-            Column::make('last_service')->addClass('text-center'),
-            Column::make('created_by')->addClass('text-center'),
-            Column::make('created_at')->addClass('text-center'),
-            Column::make('updated_at')->addClass('text-center'),
-            Column::computed('action')
+            Column::make('id')->addClass('text-center')->title(__('ID')),
+            Column::make('name')->addClass('text-center')->title(__('Name')),
+            Column::make('phone')->addClass('text-center')->title(__('Phone')),
+            Column::make('email')->addClass('text-center')->title(__('Email')),
+            Column::make('status')->addClass('text-center')->title(__('Status')),
+            Column::make('address')->addClass('text-center')->title(__('Address')),
+            Column::make('notes')->addClass('text-center')->title(__('Notes')),
+            Column::make('is_vip')->addClass('text-center')->title(__('VIP')),
+            Column::make('dob')->addClass('text-center')->title(__('Date of Birth')),
+            Column::make('gender')->addClass('text-center')->title(__('Gender')),
+            Column::make('last_service')->addClass('text-center')->title(__('Last Service')),
+            Column::make('created_by')->addClass('text-center')->title(__('Created By')),
+            Column::make('created_at')->addClass('text-center')->title(__('Created At')),
+            Column::make('updated_at')->addClass('text-center')->title(__('Updated At')),
+            Column::computed('action')->title(__('Action'))
                 ->exportable(false)
                 ->printable(false)
                 ->width(60)

@@ -25,6 +25,13 @@
                                 </a>
                             </div><!-- End Logo -->
 
+                            <div class="d-flex justify-content-end mb-2">
+                                <div class="btn-group btn-group-sm shadow-sm" role="group">
+                                    <a href="{{ route('lang.switch', 'en') }}" class="btn {{ app()->getLocale() === 'en' ? 'btn-primary' : 'btn-outline-secondary' }}">🇬🇧 English</a>
+                                    <a href="{{ route('lang.switch', 'ar') }}" class="btn {{ app()->getLocale() === 'ar' ? 'btn-primary' : 'btn-outline-secondary' }}">🇸🇦 العربية</a>
+                                </div>
+                            </div>
+
                             <div class="card mb-3">
 
                                 <div class="card-body">

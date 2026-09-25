@@ -1,3 +1,5 @@
+const __ = window.__ || function(t) { return t; };
+
 // Configure API endpoints
 const API_ENDPOINTS = {
     CATEGORIES: "/admin/categories",
@@ -12,7 +14,7 @@ const notifications = {
     error: (message) => {
         Swal.fire({
             icon: "error",
-            title: "Error",
+            title: __("Error"),
             text: message,
             confirmButtonColor: "#dc3545",
         });
@@ -21,7 +23,7 @@ const notifications = {
     success: (message) => {
         Swal.fire({
             icon: "success",
-            title: "Success",
+            title: __("Success"),
             text: message,
             confirmButtonColor: "#28a745",
         });
@@ -30,19 +32,19 @@ const notifications = {
     confirm: (message) => {
         return Swal.fire({
             icon: "question",
-            title: "Confirm",
+            title: __("Confirm"),
             text: message,
             showCancelButton: true,
             confirmButtonColor: "#28a745",
             cancelButtonColor: "#dc3545",
-            confirmButtonText: "Yes",
-            cancelButtonText: "No",
+            confirmButtonText: __("Yes"),
+            cancelButtonText: __("No"),
         });
     },
 
     loading: () => {
         Swal.fire({
-            title: "Processing...",
+            title: __("Processing..."),
             allowOutsideClick: false,
             didOpen: () => {
                 Swal.showLoading();
@@ -60,10 +62,10 @@ const handleAjaxError = (xhr, status, error) => {
         let errorMessages = Object.values(validationErrors).flat().join("\n");
 
         notifications.error(
-            errorMessages || "Validation failed. Please check your inputs."
+            errorMessages || __("Validation failed. Please check your inputs.")
         );
     } else {
-        notifications.error("An unexpected error occurred. Please try again.");
+        notifications.error(__("An unexpected error occurred. Please try again."));
     }
 };
 
@@ -180,7 +182,7 @@ function loadCategories(type) {
     $category
         .prop("disabled", true)
         .html(
-            '<option value="" selected disabled>Loading categories...</option>'
+            '<option value="" selected disabled>' + __("Loading categories...") + '</option>'
         );
 
     $.ajax({
@@ -191,7 +193,7 @@ function loadCategories(type) {
         success: function (response) {
             Swal.close();
             $category.html(
-                '<option value="" selected disabled>Select Category</option>'
+                '<option value="" selected disabled>' + __("Select Category") + '</option>'
             );
             response.forEach((category) => {
                 $category.append(new Option(category.name, category.id));
@@ -210,7 +212,7 @@ function handleCheckout(e) {
     $checkoutButton.prop("disabled", true);
 
     if (invoiceItemsStore.items.length === 0) {
-        notifications.error("Please add at least one item to the invoice");
+        notifications.error(__("Please add at least one item to the invoice"));
         return;
     }
 
@@ -266,18 +268,18 @@ function handleCheckout(e) {
         success: function (response) {
             const hasWarnings = response.warnings && response.warnings.length > 0;
             const messageText = hasWarnings
-                ? response.warnings.join("\n") + "\n\nWhat would you like to do next?"
-                : "What would you like to do next?";
+                ? response.warnings.join("\n") + "\n\n" + __("What would you like to do next?")
+                : __("What would you like to do next?");
 
             Swal.fire({
                 icon: hasWarnings ? "warning" : "success",
-                title: hasWarnings ? "Invoice Created with Warnings" : "Invoice Created Successfully",
+                title: hasWarnings ? __("Invoice Created with Warnings") : __("Invoice Created Successfully"),
                 text: messageText,
                 //showDenyButton: true,
                 showCancelButton: true,
-                confirmButtonText: "Print Invoice",
+                confirmButtonText: __("Print Invoice"),
                // denyButtonText: "Create New Invoice",
-                cancelButtonText: "Stay Here",
+                cancelButtonText: __("Stay Here"),
             })
                 .then((result) => {
                     if (result.isConfirmed) {
@@ -309,7 +311,7 @@ function loadItems(type, categoryId) {
     const $item = $("#item");
     $item
         .prop("disabled", true)
-        .html('<option value="" selected disabled>Loading items...</option>');
+        .html('<option value="" selected disabled>' + __("Loading items...") + '</option>');
 
     $.ajax({
         url: API_ENDPOINTS.ITEMS,
@@ -320,7 +322,7 @@ function loadItems(type, categoryId) {
         },
         success: function (response) {
             $item.html(
-                '<option value="" selected disabled>Select Item</option>'
+                '<option value="" selected disabled>' + __("Select Item") + '</option>'
             );
             response.forEach((item) => {
                 const option = new Option(item.name, item.id);
@@ -331,7 +333,7 @@ function loadItems(type, categoryId) {
         },
         error: function (xhr, status, error) {
             console.error("Error loading items:", error);
-            notifications.error("Failed to load items");
+            notifications.error(__("Failed to load items"));
         },
     });
 }
@@ -351,7 +353,7 @@ function loadItemDetails(type, itemId) {
         },
         error: function (xhr, status, error) {
             console.error("Error loading item details:", error);
-            notifications.error("Failed to load item details");
+            notifications.error(__("Failed to load item details"));
         },
     });
 }
@@ -361,7 +363,7 @@ function loadProviders(type, itemId) {
     $provider
         .prop("disabled", true)
         .html(
-            '<option value="" selected disabled>Loading providers...</option>'
+            '<option value="" selected disabled>' + __("Loading providers...") + '</option>'
         );
 
     $.ajax({
@@ -373,7 +375,7 @@ function loadProviders(type, itemId) {
         },
         success: function (data) {
             $provider.html(
-                '<option value="" selected disabled>Select Provider</option>'
+                '<option value="" selected disabled>' + __("Select Provider") + '</option>'
             );
             data.forEach((employee) => {
                 $provider.append(new Option(employee.name, employee.id));
@@ -382,7 +384,7 @@ function loadProviders(type, itemId) {
         },
         error: function (xhr, status, error) {
             console.error("Error loading providers:", error);
-            notifications.error("Failed to load providers");
+            notifications.error(__("Failed to load providers"));
         },
     });
 }
@@ -404,13 +406,13 @@ function calculateDue() {
 function resetDependentFields() {
     $("#category")
         .prop("disabled", true)
-        .html('<option value="" selected disabled>Select Category</option>');
+        .html('<option value="" selected disabled>' + __("Select Category") + '</option>');
     $("#item")
         .prop("disabled", true)
-        .html('<option value="" selected disabled>Select Item</option>');
+        .html('<option value="" selected disabled>' + __("Select Item") + '</option>');
     $("#provider")
         .prop("disabled", true)
-        .html('<option value="" selected disabled>Select Provider</option>');
+        .html('<option value="" selected disabled>' + __("Select Provider") + '</option>');
     $("#price").val("").prop("readonly", true);
 }
 
@@ -428,41 +430,41 @@ function resetForm() {
 
 function validateItemForm() {
     const requiredFields = [
-        { id: "item-type", name: "Item Type" },
-        { id: "category", name: "Category" },
-        { id: "item", name: "Item" },
-        { id: "provider", name: "Provider" },
-        { id: "quantity", name: "Quantity" },
-        { id: "price", name: "Price" },
+        { id: "item-type", name: __("Item Type") },
+        { id: "category", name: __("Category") },
+        { id: "item", name: __("Item") },
+        { id: "provider", name: __("Provider") },
+        { id: "quantity", name: __("Quantity") },
+        { id: "price", name: __("Price") },
     ];
 
     for (const field of requiredFields) {
         const value = $(`#${field.id}`).val();
         if (!value || value.trim() === "") {
-            notifications.error(`${field.name} is required`);
+            notifications.error(`${field.name} ` + __("is required"));
             return false;
         }
     }
 
     if (parseFloat($("#quantity").val()) <= 0) {
-        notifications.error("Quantity must be greater than 0");
+        notifications.error(__("Quantity must be greater than 0"));
         return false;
     }
 
     if (parseFloat($("#price").val()) <= 0) {
-        notifications.error("Price must be greater than 0");
+        notifications.error(__("Price must be greater than 0"));
         return false;
     }
 
     const discount = parseFloat($("#discount").val());
     if (discount < 0 || discount > 100) {
-        notifications.error("Discount must be between 0 and 100");
+        notifications.error(__("Discount must be between 0 and 100"));
         return false;
     }
 
     const tax = parseFloat($("#tax").val());
     if (tax < 0 || tax > 100) {
-        notifications.error("Tax must be between 0 and 100");
+        notifications.error(__("Tax must be between 0 and 100"));
         return false;
     }
 
@@ -497,7 +499,7 @@ $(document).ready(function () {
     $(document).on("click", ".delete-item", function () {
         const index = $(this).data("index");
         notifications
-            .confirm("Are you sure you want to remove this item?")
+            .confirm(__("Are you sure you want to remove this item?"))
             .then((result) => {
                 if (result.isConfirmed) {
                     invoiceItemsStore.removeItem(index);
@@ -738,7 +740,7 @@ $(document).ready(function () {
         // Validate total payments
         const totalPayments = cashValue + paymentMethodValue;
         if (Math.abs(totalPayments - netTotal) > 0.01) {
-            notifications.error("Total payments must equal net total");
+            notifications.error(__("Total payments must equal net total"));
             return;
         }
 

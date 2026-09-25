@@ -37,7 +37,7 @@
 @endsection
 @section('content')
     {{-- Start breadcrumbs --}}
-    <x-breadcrumb pageName="Sales Invoice">
+    <x-breadcrumb :pageName="__('Sales Invoice')">
         <x-breadcrumb-item>
             <a class="active" href="{{ route('home.index') }}">{{ __('Home') }}</a>
         </x-breadcrumb-item>
@@ -56,10 +56,10 @@
                 {{-- Customer Details --}}
                 <div class="card mb-3">
                     <div class="ms-2 row">
-                        <div class="card-title col-8"> Customer Details</div>
+                        <div class="card-title col-8">{{ __('Customer Details') }}</div>
                         <div class="col-4 text-end mt-3 pe-4">
                             @if (App\Traits\AppHelper::perUSer('customers.create'))
-                                <x-modal-button title="Customer" target="customerModal"><i
+                                <x-modal-button :title="__('Customer')" target="customerModal"><i
                                         class="bi bi-plus-lg me-2"></i></x-modal-button>
                             @endif
                         </div>
@@ -98,7 +98,7 @@
                                     </x-form-select>
                                 </div>
                                 <div class="col-6">
-                                    <x-form-select name='status' id="status" label="status" required>
+                                    <x-form-select name='status' id="status" label="Status" required>
                                         <option @if (old('status') == 'active') selected @endif value="active">
                                              {{ __('Active') }}</option>
                                         <option @if (old('status') == 'inactive') selected @endif value="inactive">
@@ -125,7 +125,7 @@
 
 
                                 <div class="col-6 mb-3">
-                                    <label for="invoice_date" class="form-label">Invoice Date:</label>
+                                    <label for="invoice_date" class="form-label">{{ __('Invoice Date') }}:</label>
                                     <input type="date" id="invoice_date" name="invoice_date"
                                         class="form-control form-control-sm @error('invoice_date') is-invalid @enderror"
                                         value="{{ old('invoice_date', date('Y-m-d')) }}">
@@ -135,19 +135,19 @@
                                 <table class="table table-sm col-12 table-bordered">
                                     <tr>
                                         <td id="customer-since" class="text-center">
-                                            <h5>Customer Since</h5>
+                                            <h5>{{ __('Customer Since') }}</h5>
                                             <p></p>
                                         </td>
                                         <td id="last-visit" class="text-center">
-                                            <h5>Last Visit</h5>
+                                            <h5>{{ __('Last Visit') }}</h5>
                                             <p></p>
                                         </td>
                                         <td id="dob" class="text-center">
-                                            <h5>Birthday</h5>
+                                            <h5>{{ __('Birthday') }}</h5>
                                             <p></p>
                                         </td>
                                         <td id="is_vip" class="text-center">
-                                            <h5>VIP</h5>
+                                            <h5>{{ __('VIP') }}</h5>
                                             <p></p>
                                         </td>
                                     </tr>
@@ -164,44 +164,44 @@
         <div class="col-4 ">
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">Payment Summary</div>
+                    <div class="card-title">{{ __('Payment Summary') }}</div>
                 </div>
                 <div class="card-body">
                     <table class="table table-sm">
                         <tr>
-                            <th>Services</th>
-                            <td id="services-total" class="text-end">$0.00</td>
+                            <th>{{ __('Services') }}</th>
+                            <td id="services-total" class="text-end">__('$') 0.00</td>
                         </tr>
                         <tr>
-                            <th>Products</th>
-                            <td id="products-total" class="text-end">$0.00</td>
+                            <th>{{ __('Products') }}</th>
+                            <td id="products-total" class="text-end">__('$') 0.00</td>
                         </tr>
                         <tr>
-                            <th>Discount</th>
-                            <td id="discount-total" class="text-end">- $0.00</td>
+                            <th>{{ __('Discount') }}</th>
+                            <td id="discount-total" class="text-end">- __('$') 0.00</td>
                         </tr>
                         <tr>
-                            <th>Tax</th>
-                            <td id="tax-total" class="text-end">$0.00</td>
+                            <th>{{ __('Tax') }}</th>
+                            <td id="tax-total" class="text-end">__('$') 0.00</td>
                         </tr>
 
                         <tr>
-                            <th>Grand Total</th>
-                            <td id="grand-total" class="text-end">$0.00</td>
+                            <th>{{ __('Grand Total') }}</th>
+                            <td id="grand-total" class="text-end">__('$') 0.00</td>
                         </tr>
                         <tr>
-                            <th>Deposit</th>
+                            <th>{{ __('Deposit') }}</th>
                             <td>
                                 <input type="text" id="deposit-input" class="form-control form-control-sm text-end"
                                     readonly value="0.00" oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')">
                             </td>
                         </tr>
                         <tr>
-                            <th>Net Total</th>
-                            <td id="net-total" class="text-end">$0.00</td>
+                            <th>{{ __('Net Total') }}</th>
+                            <td id="net-total" class="text-end">__('$') 0.00</td>
                         </tr>
                         <tr>
-                            <th style="width: 10%; text-align: left;">Payment Method</th>
+                            <th style="width: 10%;">{{ __('Payment Method') }}</th>
                             <td style="width: 80%;" class="text-end align-middle">
                                 <div class="d-flex gap-1">
                                     <select id="payment_method_id" name="payment_method_id"
@@ -219,7 +219,7 @@
 
 
                         <tr>
-                            <th>Cash</th>
+                            <th>{{ __('Cash') }}</th>
                             <td class="text-end">
                                 <input type="text" id="cash-value" class="form-control form-control-sm text-end"
                                     value="0.00" oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')">
@@ -228,12 +228,12 @@
                         </tr>
                         {{-- <tr>
                             <th>Balance</th>
-                            <td id="balance-value">$0.00</td>
+                            <td id="balance-value">__('$') 0.00</td>
                         </tr> --}}
                     </table>
                 </div>
                 <div class="card-footer text-end">
-                    <button class="btn btn-sm btn-success" id="checkout">Checkout</button>
+                    <button class="btn btn-sm btn-success" id="checkout">{{ __('Checkout') }}</button>
                     {{-- <button onclick="window.print()" class="btn btn-primary ms-3">Print Only</button> --}}
 
                 </div>
@@ -243,13 +243,13 @@
     </div>
 
 
-    <x-modal id="customerModal" title="Create Customer">
+    <x-modal id="customerModal" :title="__('Create Customer')">
         <form action="{{ route('customers.store') }}" method="POST" id="customerForm" enctype="multipart/form-data">
             @csrf
             <div class="modal-body">
                 <div class="row">
                     <div class="col-2">
-                        <x-form-select name='salutation' id="salutation" label="salutation">
+                        <x-form-select name='salutation' id="salutation" label="Salutation">
                             <option @if (old('salutation') == 'Mr') selected @endif value="Mr">
                                 {{ __('Mr') }}</option>
                             <option @if (old('salutation') == 'Ms') selected @endif value="Ms">
@@ -281,7 +281,7 @@
                 </div>
                 <x-input type="email" value="{{ old('email') }}" label="Email" name='email'
                     placeholder='Example@gmail.com' id="email" oninput="{{ null }}" />
-                <x-input type="text" value="{{ old('phone') }}" label="phone" id="phone" name='phone'
+                <x-input type="text" value="{{ old('phone') }}" label="Phone" id="phone" name='phone'
                     placeholder="phone  Ex: 010xxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9+]/g, '')"
                     required />
 
@@ -296,9 +296,9 @@
                         </span>
                     @enderror
                 </div>
-                <x-form-description value="{{ old('address') }}" label="address" name='address'
+                <x-form-description value="{{ old('address') }}" label="Address" name='address'
                     placeholder='Customer Address' />
-                <x-form-description value="{{ old('notes') }}" label="notes" name='notes' placeholder='Notes' />
+                <x-form-description value="{{ old('notes') }}" label="Notes" name='notes' placeholder='Notes' />
                 <div class="row">
                     <div class="col-6">
                         <label class="form-label" for="customer-deposit">{{ __('Deposit') }}</label>
@@ -307,7 +307,7 @@
                             oninput="this.value = this.value.replace(/[^0-9+-/]/g, '')">
                     </div>
                     <div class="col-6">
-                        <x-form-select name='gender' id="gender" label="gender" required>
+                        <x-form-select name='gender' id="gender" label="Gender" required>
                             <option @if (old('gender') == 'male') selected @endif value="male">
                                 {{ __('Male') }}</option>
                             <option @if (old('gender') == 'female') selected @endif value="female">
@@ -315,7 +315,7 @@
                         </x-form-select>
                     </div>
                     <div class="col-12">
-                        <x-form-select name='added_from' id="added_from" label="added from">
+                        <x-form-select name='added_from' id="added_from" label="Added From">
                             <option @if (old('added_from') == 'direct') selected @endif value="direct">
                                 {{ __('Direct') }}</option>
                             <option @if (old('added_from') == 'online') selected @endif value="online">
@@ -325,7 +325,7 @@
                             <option @if (old('added_from') == 'referral') selected @endif value="referral">
                                 {{ __('Referral') }}</option>
                             <option @if (old('added_from') == 'walk_in') selected @endif value="walk_in">
-                                {{ __('walk_in') }}</option>
+                                {{ __('Walk in') }}</option>
 
                         </x-form-select>
                     </div>
@@ -385,22 +385,22 @@
                             // Display a success message or perform other actions
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Success',
-                                text: 'Customer saved successfully!'
+                                title: '{{ __('Success') }}',
+                                text: '{{ __('Customer saved successfully!') }}'
                             });
                             $('#customerForm')[0].reset();
 
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Error',
-                                text: 'Error saving customer: ' + response.message
+                                title: '{{ __('Error') }}',
+                                text: '{{ __('Error saving customer:') }} ' + response.message
                             });
                         }
                     },
                     error: function() {
                         // Handle AJAX request errors
-                        alert('An error occurred while saving the customer.');
+                        alert('{{ __('An error occurred while saving the customer.') }}');
                     }
                 });
             });
@@ -422,15 +422,15 @@
                 if (selectedCustomer) {
                     // Update the customer information on the page
                     $('#customer-since p').text(selectedCustomer.created_at ? new Date(selectedCustomer
-                        .created_at).toLocaleDateString() : 'N/A');
+                        .created_at).toLocaleDateString() : '{{ __('N/A') }}');
                     $('#last-visit p').text(selectedCustomer.last_service ? new Date(selectedCustomer
-                        .last_service).toLocaleDateString() : 'N/A');
+                        .last_service).toLocaleDateString() : '{{ __('N/A') }}');
                     $('#dob p').text(selectedCustomer.dob ? new Date(selectedCustomer.dob)
-                        .toLocaleDateString() : 'N/A');
+                        .toLocaleDateString() : '{{ __('N/A') }}');
                     $('#is_vip p').html(
                         selectedCustomer.is_vip ?
-                        '<i class="bi bi-star-fill" style="color:#D38E29;font-size: x-large;"></i> Yes' :
-                        '<i class="bi bi-star-fill" style="color:#D9DCE1;font-size: x-large;"></i> No'
+                        '<i class="bi bi-star-fill" style="color:#D38E29;font-size: x-large;"></i> {{ __('Yes') }}' :
+                        '<i class="bi bi-star-fill" style="color:#D9DCE1;font-size: x-large;"></i> {{ __('No') }}'
                     );
                     $('#deposit-input').val(parseFloat(selectedCustomer.deposit ?? 0).toFixed(2) || 0);
                 } else {

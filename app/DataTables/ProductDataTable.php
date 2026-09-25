@@ -34,14 +34,14 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
 </button>
 <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('products.edit')) {
-                    $html .= '<a href="'.route('products.edit', ['product' => $model]).'" class="dropdown-item">Edit</a>';
+                    $html .= '<a href="'.route('products.edit', ['product' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
 
                 if (AppHelper::perUser('products.show')) {
                     $html .= '<a href="'.route('products.show', ['product' => $model]).'" class="dropdown-item">Product Details</a>';
                 }
                 if (AppHelper::perUser('products.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-product" data-id="'.$model->id.'" data-url="'.route('products.destroy', ['product' => $model]).'">Delete</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-product" data-id="'.$model->id.'" data-url="'.route('products.destroy', ['product' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
                 }
 
                 return $html;
@@ -162,26 +162,26 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
     public function getColumns(): array
     {
         return [
-            Column::make('id')->addClass('text-center'),
-            Column::make('image')->addClass('text-center'),
-            Column::make('name')->addClass('text-center'),
-            Column::make('code')->addClass('text-center'),
+            Column::make('id')->addClass('text-center')->title(__('ID')),
+            Column::make('image')->addClass('text-center')->title(__('Image')),
+            Column::make('name')->addClass('text-center')->title(__('Name')),
+            Column::make('code')->addClass('text-center')->title(__('Code')),
 
-            Column::make('supplier_price')->addClass('text-center')->title('Purchasing Price'),
-            Column::make('customer_price')->addClass('text-center')->title('Selling Price'),
-            Column::make('category_id')->addClass('text-center')->title('Category'),
-            Column::make('supplier_id')->addClass('text-center')->title('Supplier'),
-            Column::make('unit_id')->addClass('text-center')->title('Unit'),
-            Column::make('is_target')->addClass('text-center')->title('Target'),
-            Column::make('price_can_change')->addClass('text-center')->title('Price change in invoice'),
+            Column::make('supplier_price')->addClass('text-center')->title(__('Purchasing Price')),
+            Column::make('customer_price')->addClass('text-center')->title(__('Selling Price')),
+            Column::make('category_id')->addClass('text-center')->title(__('Category')),
+            Column::make('supplier_id')->addClass('text-center')->title(__('Supplier')),
+            Column::make('unit_id')->addClass('text-center')->title(__('Unit')),
+            Column::make('is_target')->addClass('text-center')->title(__('Target')),
+            Column::make('price_can_change')->addClass('text-center')->title(__('Price change in invoice')),
 
-            Column::make('type')->addClass('text-center'),
-            Column::make('status')->addClass('text-center'),
+            Column::make('type')->addClass('text-center')->title(__('Type')),
+            Column::make('status')->addClass('text-center')->title(__('Status')),
 
-            Column::make('created_by')->addClass('text-center'),
-            Column::make('created_at')->addClass('text-center'),
-            Column::make('updated_at')->addClass('text-center'),
-            Column::computed('action')
+            Column::make('created_by')->addClass('text-center')->title(__('Created By')),
+            Column::make('created_at')->addClass('text-center')->title(__('Created At')),
+            Column::make('updated_at')->addClass('text-center')->title(__('Updated At')),
+            Column::computed('action')->title(__('Action'))
                 ->exportable(false)
                 ->printable(false)
                 ->width(60)

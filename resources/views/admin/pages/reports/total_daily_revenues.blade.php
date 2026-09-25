@@ -5,17 +5,17 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-            <h4 class="text-dark">Daily Financial Report</h4>
+            <h4 class="text-dark">{{ __('Daily Financial Report') }}</h4>
         </div>
 
         <div class="card-body">
             <div class="row mb-4">
                 <div class="col-md-4">
                     <div class="input-group">
-                        <span class="input-group-text">Branch</span>
+                        <span class="input-group-text">{{ __('Branch') }}</span>
                         <select id="branch_id" class="form-select" {{ ! ($canSelectAll ?? true) ? 'disabled' : '' }}>
                             @if($canSelectAll ?? true)
-                                <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>All Branches</option>
+                                <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>{{ __('All Branches') }}</option>
                             @endif
                             @foreach($branches ?? [] as $branch)
                                 <option value="{{ $branch->id }}" {{ ($effectiveBranchId ?? null) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
@@ -25,10 +25,10 @@
                 </div>
                 <div class="col-md-6">
                     <div class="input-group">
-                        <span class="input-group-text">Date Range</span>
+                        <span class="input-group-text">{{ __('Date Range') }}</span>
                         <input type="date" id="start_date" class="form-control">
                         <input type="date" id="end_date" class="form-control">
-                        <button id="filter" class="btn btn-primary">Filter</button>
+                        <button id="filter" class="btn btn-primary">{{ __('Filter') }}</button>
                     </div>
                 </div>
             </div>
@@ -36,19 +36,19 @@
             <table class="table table-bordered table-striped" id="report-table">
                 <thead>
                     <tr>
-                        <th>Date</th>
-                        <th>Total</th>
-                        <th>Cash</th>
-                        <th>Deposits</th>
+                        <th>{{ __('Date') }}</th>
+                        <th>{{ __('Total') }}</th>
+                        <th>{{ __('Cash') }}</th>
+                        <th>{{ __('Deposits') }}</th>
 
-                        <th>Other payment Methods</th>
-                        <th>Expenses</th>
-                        <th>Net Total</th>
+                        <th>{{ __('Other Payment Methods') }}</th>
+                        <th>{{ __('Expenses') }}</th>
+                        <th>{{ __('Net Total') }}</th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <th>Total:</th>
+                        <th>{{ __('Total:') }}</th>
                         <th></th>
                         <th></th>
                         <th></th>

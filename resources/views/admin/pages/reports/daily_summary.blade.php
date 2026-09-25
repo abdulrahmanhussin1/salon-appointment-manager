@@ -5,17 +5,17 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-            <h4>Daily Summary Report</h4>
+            <h4>{{ __('Daily Summary Report') }}</h4>
         </div>
 
         <div class="card-body">
             <div class="row mb-4">
                 <div class="col-md-4">
                     <div class="input-group">
-                        <span class="input-group-text">Branch</span>
+                        <span class="input-group-text">{{ __('Branch') }}</span>
                         <select id="branch_id" class="form-select" {{ ! ($canSelectAll ?? true) ? 'disabled' : '' }}>
                             @if($canSelectAll ?? true)
-                                <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>All Branches</option>
+                                <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>{{ __('All Branches') }}</option>
                             @endif
                             @foreach($branches ?? [] as $branch)
                                 <option value="{{ $branch->id }}" {{ ($effectiveBranchId ?? null) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
@@ -25,10 +25,10 @@
                 </div>
                 <div class="col-md-6">
                     <div class="input-group">
-                        <span class="input-group-text">Date Range</span>
+                        <span class="input-group-text">{{ __('Date Range') }}</span>
                         <input type="date" id="start_date" class="form-control">
                         <input type="date" id="end_date" class="form-control">
-                        <button id="filter" class="btn btn-primary">Filter</button>
+                        <button id="filter" class="btn btn-primary">{{ __('Filter') }}</button>
                     </div>
                 </div>
             </div>
@@ -36,34 +36,34 @@
             <table class="table table-bordered table-striped" id="summary-table">
                 <thead>
                     <tr>
-                        <th rowspan="2">Date</th>
-                        <th rowspan="2">Customers</th>
-                        <th rowspan="2">Staff</th>
-                        <th rowspan="2">Expenses</th>
-                        <th colspan="3" class="text-center bg-light">Services</th>
-                        <th colspan="2" class="text-center bg-light">Products</th>
-                        <th colspan="4" class="text-center bg-warning">Purchases</th>
-                        <th colspan="4" class="text-center bg-info">Sales Summary</th>
+                        <th rowspan="2">{{ __('Date') }}</th>
+                        <th rowspan="2">{{ __('Customers') }}</th>
+                        <th rowspan="2">{{ __('Staff') }}</th>
+                        <th rowspan="2">{{ __('Expenses') }}</th>
+                        <th colspan="3" class="text-center bg-light">{{ __('Services') }}</th>
+                        <th colspan="2" class="text-center bg-light">{{ __('Products') }}</th>
+                        <th colspan="4" class="text-center bg-warning">{{ __('Purchases') }}</th>
+                        <th colspan="4" class="text-center bg-info">{{ __('Sales Summary') }}</th>
                     </tr>
                     <tr>
-                        <th>Count</th>
-                        <th>Sales</th>
-                        <th>Commission</th>
-                        <th>Count</th>
-                        <th>Sales</th>
-                        <th>Count</th>
-                        <th>Amount</th>
-                        <th>Discount</th>
-                        <th>Net</th>
-                        <th>Gross</th>
-                        <th>Discount</th>
-                        <th>Net</th>
-                        <th>Avg/Customer</th>
+                        <th>{{ __('Count') }}</th>
+                        <th>{{ __('Sales') }}</th>
+                        <th>{{ __('Commission') }}</th>
+                        <th>{{ __('Count') }}</th>
+                        <th>{{ __('Sales') }}</th>
+                        <th>{{ __('Count') }}</th>
+                        <th>{{ __('Amount') }}</th>
+                        <th>{{ __('Discount') }}</th>
+                        <th>{{ __('Net') }}</th>
+                        <th>{{ __('Gross') }}</th>
+                        <th>{{ __('Discount') }}</th>
+                        <th>{{ __('Net') }}</th>
+                        <th>{{ __('Avg/Customer') }}</th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <th>Total/Average:</th>
+                        <th>{{ __('Total/Average:') }}</th>
                         <th></th>
                         <th></th>
                         <th></th>

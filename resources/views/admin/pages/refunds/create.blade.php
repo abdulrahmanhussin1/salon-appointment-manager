@@ -183,11 +183,11 @@
                                                     </td>
                                                     <td class="text-center">
                                                         @if ($remQty > 0)
-                                                            <input type="number" 
-                                                                name="items[{{ $idx }}][quantity]" 
-                                                                class="form-control form-control-sm text-center item-qty-input" 
-                                                                value="0" 
-                                                                min="0" 
+                                                            <input type="number"
+                                                                name="items[{{ $idx }}][quantity]"
+                                                                class="form-control form-control-sm text-center item-qty-input"
+                                                                value="0"
+                                                                min="0"
                                                                 max="{{ $remQty }}"
                                                                 data-price="{{ $netPrice }}"
                                                                 data-is-service="{{ $isService ? '1' : '0' }}"
@@ -198,7 +198,7 @@
                                                         @endif
                                                     </td>
                                                     <td class="text-end fw-bold line-refund-total">
-                                                        $0.00
+                                                        __('$') 0.00
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -259,11 +259,11 @@
                             <div class="bg-light p-3 rounded mb-3">
                                 <div class="d-flex justify-content-between mb-1">
                                     <span class="text-muted small">{{ __('Total Refund Amount:') }}</span>
-                                    <span class="fw-bold fs-6 text-danger" id="summaryTotalRefund">$0.00</span>
+                                    <span class="fw-bold fs-6 text-danger" id="summaryTotalRefund">__('$') 0.00</span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-1">
                                     <span class="text-muted small">{{ __('Commission Reversed:') }}</span>
-                                    <span class="fw-bold text-dark" id="summaryCommissionReversed">$0.00</span>
+                                    <span class="fw-bold text-dark" id="summaryCommissionReversed">__('$') 0.00</span>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-muted small">{{ __('Restocked Products:') }}</span>
@@ -395,7 +395,7 @@
                         invSelect += '</select></div>';
                     }
 
-                    var qtyInput = remQty > 0 
+                    var qtyInput = remQty > 0
                         ? '<input type="number" name="items[' + idx + '][quantity]" class="form-control form-control-sm text-center item-qty-input" value="0" min="0" max="' + remQty + '" data-price="' + item.net_unit_price + '" data-is-service="' + (isService ? '1' : '0') + '" data-commission-unit="' + (item.original_quantity > 0 ? (item.commission_amount / item.original_quantity) : 0) + '" data-max="' + remQty + '">'
                         : '<span class="badge bg-secondary">{{ __('Fully Refunded') }}</span>';
 
@@ -413,7 +413,7 @@
                         '<td class="text-center fw-bold ' + (remQty > 0 ? 'text-primary' : 'text-muted') + '">' + remQty + '</td>' +
                         '<td class="text-end">$' + item.net_unit_price.toFixed(2) + (item.discount > 0 ? '<div class="text-muted small">-' + item.discount + '%</div>' : '') + '</td>' +
                         '<td class="text-center">' + qtyInput + '</td>' +
-                        '<td class="text-end fw-bold line-refund-total">$0.00</td>' +
+                        '<td class="text-end fw-bold line-refund-total">__('$') 0.00</td>' +
                         '</tr>';
                 });
 

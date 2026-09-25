@@ -45,15 +45,15 @@
         <input type="hidden" name="transaction_id" id="transaction_id" value="{{ old('transaction_id', $transaction->id ?? '') }}">
 <div class="row mb-3">
     <div class="col-md-6">
-        <label for="invoice_date" class="form-label">Date</label>
+        <label for="invoice_date" class="form-label">{{ __('Date') }}</label>
         <input type="date" id="invoice_date" name="invoice_date" value="{{ old('invoice_Date',date('Y-m-d')) }}" class="form-control" required>
     </div>
     <div class="col-md-6">
-        <label for="statement_type" class="form-label">Statement Type</label>
+        <label for="statement_type" class="form-label">{{ __('Statement Type') }}</label>
         <select id="statement_type" name="statement_type" class="form-select" required>
-            <option value="">Select One Reason</option>
-            <option value="adjustment">Balance Adjustment</option>
-            <option value="return">Return or Other Reason</option>
+            <option value="">{{ __('Select One Reason') }}</option>
+            <option value="adjustment">{{ __('Balance Adjustment') }}</option>
+            <option value="return">{{ __('Return or Other Reason') }}</option>
         </select>
     </div>
 </div>
@@ -61,9 +61,9 @@
         <!-- Inventory Selectors -->
         <div class="row mb-3">
             <div class="col-md-6">
-                <label for="source_inventory" class="form-label">Source Inventory</label>
+                <label for="source_inventory" class="form-label">{{ __('Source Inventory') }}</label>
                 <select id="source_inventory" name="source_inventory" class="form-select" required>
-                    <option value="" disabled selected>Select Source Inventory</option>
+                    <option value="" disabled selected>{{ __('Select Source Inventory') }}</option>
                     @foreach($inventories as $inventory)
                         <option value="{{ $inventory->id }}"
                             {{ old('source_inventory', $transaction->source_inventory ?? '') == $inventory->id ? 'selected' : '' }}>
@@ -73,9 +73,9 @@
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="destination_inventory" class="form-label">Destination Inventory</label>
+                <label for="destination_inventory" class="form-label">{{ __('Destination Inventory') }}</label>
                 <select id="destination_inventory" name="destination_inventory" class="form-select" required>
-                    <option value="" disabled selected>Select Destination Inventory</option>
+                    <option value="" disabled selected>{{ __('Select Destination Inventory') }}</option>
                     @foreach($inventories as $inventory)
                         <option value="{{ $inventory->id }}"
                             {{ old('destination_inventory', $transaction->destination_inventory ?? '') == $inventory->id ? 'selected' : '' }}>
@@ -89,18 +89,18 @@
         <!-- Add Products Section -->
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title">Add Products</h5>
+                <h5 class="card-title">{{ __('Add Products') }}</h5>
             </div>
             <div class="card-body">
                 <table class="table table-bordered" id="products-table">
                     <thead class="table-light">
                         <tr>
-                            <th>Product</th>
-                            <th>Quantity</th>
-                            <th>Unit Price</th>
-                            <th>Total</th>
-                            <th>Notes</th>
-                            <th>Action</th>
+                            <th>{{ __('Product') }}</th>
+                            <th>{{ __('Quantity') }}</th>
+                            <th>{{ __('Unit Price') }}</th>
+                            <th>{{ __('Total') }}</th>
+                            <th>{{ __('Notes') }}</th>
+                            <th>{{ __('Action') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -110,7 +110,7 @@
                                 <tr>
                                     <td>
                                         <select name="products[{{ $index }}][product_id]" class="form-select product-selector" required>
-                                            <option value="" disabled>Select Product</option>
+                                            <option value="" disabled>{{ __('Select Product') }}</option>
                                             @foreach($products as $item)
                                                 <option value="{{ $item->id }}"  data-price="{{ $item->supplierPrices->first()->supplier_price ?? 0 }}"
                                                     {{ $item->id == $product->product_id ? 'selected' : '' }}>
@@ -131,46 +131,45 @@
                     </tbody>
                 </table>
                 <button type="button" id="add-product" class="btn btn-primary mt-3">
-                    <i class="bi-plus-circle"></i> Add Product
+                    <i class="bi-plus-circle"></i> {{ __('Add Product') }}
                 </button>
             </div>
         </div>
 
         <!-- Totals Section -->
-<!-- Totals Section -->
 <div class="row mt-4">
     <div class="col-md-4">
-        <label for="total_before_discount" class="form-label">Total Before Discount</label>
+        <label for="total_before_discount" class="form-label">{{ __('Total Before Discount') }}</label>
         <input type="number" id="total_before_discount" name="total_before_discount" class="form-control" readonly>
     </div>
     <div class="col-md-4">
-        <label for="discount" class="form-label">Discount</label>
+        <label for="discount" class="form-label">{{ __('Discount') }}</label>
         <input type="number" id="discount" name="discount" class="form-control" value="{{ old('discount', $transaction->discount ?? '') }}">
     </div>
     <div class="col-md-4">
-        <label for="delivery_expense" class="form-label">Delivery Expense</label>
+        <label for="delivery_expense" class="form-label">{{ __('Delivery Expense') }}</label>
         <input type="number" id="delivery_expense" name="delivery_expense" class="form-control" value="{{ old('delivery_expense', $transaction->delivery_expense ?? '') }}">
     </div>
 </div>
 
 <div class="row mt-4">
     <div class="col-md-4">
-        <label for="other_expenses" class="form-label">Other Expenses</label>
+        <label for="other_expenses" class="form-label">{{ __('Other Expenses') }}</label>
         <input type="number" id="other_expenses" name="other_expenses" class="form-control" value="{{ old('other_expenses', $transaction->other_expenses ?? '') }}">
     </div>
     <div class="col-md-4">
-        <label for="added_value_tax" class="form-label">Added Value Tax (%)</label>
+        <label for="added_value_tax" class="form-label">{{ __('Added Value Tax (%)') }}</label>
         <input type="number" id="added_value_tax" value="14" name="added_value_tax" class="form-control" value="{{ old('added_value_tax', $transaction->added_value_tax ?? '') }}">
     </div>
     <div class="col-md-4">
-        <label for="commercial_tax" class="form-label">Commercial Tax (%)</label>
+        <label for="commercial_tax" class="form-label">{{ __('Commercial Tax (%)') }}</label>
         <input type="number" id="commercial_tax" name="commercial_tax" class="form-control" value="{{ old('commercial_tax', $transaction->commercial_tax ?? '') }}">
     </div>
 </div>
 
 <div class="row mt-4">
     <div class="col-md-4">
-        <label for="net_total" class="form-label">Net Total</label>
+        <label for="net_total" class="form-label">{{ __('Net Total') }}</label>
         <input type="text" id="net_total" name="net_total" class="form-control" readonly>
     </div>
 </div>
@@ -179,7 +178,7 @@
         <!-- Actions Section -->
         <div class="mt-4 text-end">
             <button type="submit" class="btn btn-success">
-                <i class="bi-check-circle"></i> Save
+                <i class="bi-check-circle"></i> {{ __('Save') }}
             </button>
             {{-- <a href="{{ route('transaction.index') }}" class="btn btn-danger">
                 <i class="bi-x-circle"></i> Cancel
@@ -203,7 +202,7 @@ $(document).ready(function () {
             <tr data-row-id="${rowCounter}">
                 <td>
                     <select name="products[${rowCounter}][product_id]" class="form-select product-selector" required>
-                        <option value="" disabled selected>Select Product</option>
+                        <option value="" disabled selected>{{ __('Select Product') }}</option>
                         ${getProductsOptions()}
                     </select>
                 </td>

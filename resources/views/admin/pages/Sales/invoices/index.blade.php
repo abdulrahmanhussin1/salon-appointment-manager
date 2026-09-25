@@ -49,7 +49,7 @@
                         </x-form-select>
                     </div>
                     <div class="col-3">
-                        <button type="submit" id="filter" class="btn btn-primary">Filter</button>
+                        <button type="submit" id="filter" class="btn btn-primary"><i class="fa fa-filter"></i> {{ __('Filter') }}</button>
                     </div>
 
                 </div>

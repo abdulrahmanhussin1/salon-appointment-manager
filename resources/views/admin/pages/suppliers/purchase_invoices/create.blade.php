@@ -41,7 +41,7 @@
     {{-- End breadcrumbs --}}
     <div class="card">
         <div class="card-header text-dark">
-            <h4 class="mb-0">Create Purchase Invoice</h4>
+            <h4 class="mb-0">{{ __('Create Purchase Invoice') }}</h4>
         </div>
         @include('admin.layouts.alerts')
         <div class="card-body">

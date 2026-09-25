@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 
 <head>
     <meta charset="utf-8">
@@ -15,12 +15,20 @@
 
     <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
+    @if(app()->getLocale() === 'ar')
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    @else
     <link
         href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
         rel="stylesheet">
+    @endif
 
     <!-- Vendor CSS Files -->
+    @if(app()->getLocale() === 'ar')
+    <link href="{{asset('admin-assets')}}/assets/vendor/bootstrap/css/bootstrap.rtl.min.css" rel="stylesheet">
+    @else
     <link href="{{asset('admin-assets')}}/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    @endif
     <link href="{{asset('admin-assets')}}/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="{{asset('admin-assets')}}/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
     <link href="{{asset('admin-assets')}}/assets/vendor/quill/quill.snow.css" rel="stylesheet">
@@ -30,6 +38,9 @@
 
     <!-- Template Main CSS File -->
     <link href="{{asset('admin-assets')}}/assets/css/style.css" rel="stylesheet">
+    @if(app()->getLocale() === 'ar')
+    <link href="{{asset('admin-assets')}}/assets/css/rtl.css" rel="stylesheet">
+    @endif
 
     <!-- =======================================================
   * Template Name: NiceAdmin - v2.5.0

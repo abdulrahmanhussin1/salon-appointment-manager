@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 @section('title')
-    Book Appointment
+    {{ __('Book Appointment') }}
 @endsection
 @section('content')
     <div class="card">

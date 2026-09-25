@@ -37,7 +37,7 @@
                             <label class="form-check form-check-sm form-check-custom form-check-solid me-5 me-lg-20">
                                 <input class="form-check-input selectAllPermission" type="checkbox"
                                     value="{{ $group }}" id="group" />
-                                <span class="form-check-label">{{ $group }}</span>
+                                <span class="form-check-label">{{ __($group) }}</span>
                             </label>
                         </td>
                         <!--end::Label-->

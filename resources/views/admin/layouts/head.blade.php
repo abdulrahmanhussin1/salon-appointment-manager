@@ -4,7 +4,7 @@
     <meta content="" name="description">
     <meta content="" name="keywords">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $adminPanelSetting->system_name }} | @yield('title')</title>
+    <title>{{ $adminPanelSetting?->system_name ?? config('app.name') }} | @yield('title')</title>
 
   <style>
     body {

@@ -29,10 +29,10 @@ class PaymentMethodDataTable extends DataTable
                             </button>
                             <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('payment_methods.edit')) {
-                    $html .= '<a href="'.route('payment_methods.edit', ['payment_method' => $model]).'" class="dropdown-item">Edit</a>';
+                    $html .= '<a href="'.route('payment_methods.edit', ['payment_method' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
                 if (AppHelper::perUser('payment_methods.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-payment_method" data-id="'.$model->id.'" data-url="'.route('payment_methods.destroy', ['payment_method' => $model]).'">Delete</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-payment_method" data-id="'.$model->id.'" data-url="'.route('payment_methods.destroy', ['payment_method' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
                 }
 
                 return $html;
@@ -102,14 +102,14 @@ class PaymentMethodDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id')->addClass('text-center'),
-            Column::make('name')->addClass('text-center'),
-            Column::make('description')->addClass('text-center'),
-            Column::make('status')->addClass('text-center'),
-            Column::make('created_by')->addClass('text-center'),
-            Column::make('created_at')->addClass('text-center'),
-            Column::make('updated_at')->addClass('text-center'),
-            Column::computed('action')
+            Column::make('id')->addClass('text-center')->title(__('ID')),
+            Column::make('name')->addClass('text-center')->title(__('Name')),
+            Column::make('description')->addClass('text-center')->title(__('Description')),
+            Column::make('status')->addClass('text-center')->title(__('Status')),
+            Column::make('created_by')->addClass('text-center')->title(__('Created By')),
+            Column::make('created_at')->addClass('text-center')->title(__('Created At')),
+            Column::make('updated_at')->addClass('text-center')->title(__('Updated At')),
+            Column::computed('action')->title(__('Action'))
                 ->exportable(false)
                 ->printable(false)
                 ->width(60)

@@ -45,20 +45,20 @@ class PurchaseInvoiceDataTable extends DataTable
                         </button>
                         <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('purchase_invoices.edit')) {
-                    $html .= '<a href="'.route('purchase_invoices.edit', ['purchase_invoice' => $model]).'" class="dropdown-item">Edit</a>';
+                    $html .= '<a href="'.route('purchase_invoices.edit', ['purchase_invoice' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
 
                 // if (AppHelper::perUser('purchase_invoices.destroy')) {
-                //     $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-purchase_invoice" data-id="' . $model->id . '" data-url="' . route('purchase_invoices.destroy', ['purchase_invoice' => $model]) . '">Delete</a></div></div>';
+                //     $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-purchase_invoice" data-id="' . $model->id . '" data-url="' . route('purchase_invoices.destroy', ['purchase_invoice' => $model]) . '">\'.__(\'Delete\').\'</a></div></div>';
                 // }
                 return $html;
             })
 
             ->editColumn('status', function ($model) {
                 if ($model->status == 'active') {
-                    return '<i class="bi bi-check-circle-fill text-success" style="font-size:large">Active</i>';
+                    return '<i class="bi bi-check-circle-fill text-success" style="font-size:large">'.__('Active').'</i>';
                 } elseif ($model->status == 'inactive') {
-                    return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large">Inactive</i>';
+                    return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large">'.__('Inactive').'</i>';
                 } elseif ($model->status == 'draft') {
 
                     return '<i class="bi  bi-dash-circle-fill text-warning" style="font-size:large">Draft</i>';
@@ -126,16 +126,16 @@ class PurchaseInvoiceDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id')->addClass('text-center'),
-            Column::make('supplier_id')->addClass('text-center')->title('Supplier'),
-            Column::make('invoice_number')->addClass('text-center'),
-            Column::make('invoice_date')->addClass('text-center'),
-            Column::make('total_amount')->addClass('text-center'),
-            Column::make('invoice_discount')->addClass('text-center'),
-            Column::make('net_amount')->addClass('text-center'),
-            Column::make('branch_id')->addClass('text-center')->title('Branch'),
-            Column::make('status')->addClass('text-center'),
-            Column::computed('action')
+            Column::make('id')->addClass('text-center')->title(__('ID')),
+            Column::make('supplier_id')->addClass('text-center')->title(__('Supplier')),
+            Column::make('invoice_number')->addClass('text-center')->title(__('Invoice Number')),
+            Column::make('invoice_date')->addClass('text-center')->title(__('Invoice Date')),
+            Column::make('total_amount')->addClass('text-center')->title(__('Total Amount')),
+            Column::make('invoice_discount')->addClass('text-center')->title(__('Discount')),
+            Column::make('net_amount')->addClass('text-center')->title(__('Net Amount')),
+            Column::make('branch_id')->addClass('text-center')->title(__('Branch')),
+            Column::make('status')->addClass('text-center')->title(__('Status')),
+            Column::computed('action')->title(__('Action'))
                 ->exportable(false)
                 ->printable(false)
                 ->width(60)

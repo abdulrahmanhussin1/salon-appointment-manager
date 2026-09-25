@@ -14,17 +14,17 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-header">
-                <h4 class="card-title">Employee Performance Summary</h4>
+                <h4 class="card-title">{{ __('Employee Performance Summary') }}</h4>
             </div>
             <div class="card-body">
                 <!-- Filters -->
                 <div class="row mb-4">
                     <div class="col-md-2">
                         <div class="form-group">
-                            <label>Branch</label>
+                            <label>{{ __('Branch') }}</label>
                             <select class="form-control" id="branch_filter" {{ ! ($canSelectAll ?? true) ? 'disabled' : '' }}>
                                 @if($canSelectAll ?? true)
-                                    <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>All Branches</option>
+                                    <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>{{ __('All Branches') }}</option>
                                 @endif
                                 @foreach ($branches ?? [] as $branch)
                                     <option value="{{ $branch->id }}" {{ ($effectiveBranchId ?? null) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
@@ -34,23 +34,23 @@
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
-                            <label>From Date</label>
+                            <label>{{ __('From Date') }}</label>
                             <input type="date" class="form-control" id="start_date" name="start_date"
                                 value="{{ date('Y-m-d') }}">
                         </div>
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
-                            <label>To Date</label>
+                            <label>{{ __('To Date') }}</label>
                             <input type="date" class="form-control" id="end_date" name="end_date"
                                 value="{{ date('Y-m-d') }}">
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label>Employee</label>
+                            <label>{{ __('Employee') }}</label>
                             <select class="form-control" id="employee_filter">
-                                <option value="">All Employees</option>
+                                <option value="">{{ __('All Employees') }}</option>
                                 @foreach ($employees as $employee)
                                     <option value="{{ $employee->id }}">{{ $employee->name }}</option>
                                 @endforeach
@@ -60,7 +60,7 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label>&nbsp;</label>
-                            <button class="btn btn-primary btn-block" id="filter_button">Apply Filters</button>
+                            <button class="btn btn-primary btn-block" id="filter_button">{{ __('Apply Filter') }}</button>
                         </div>
                     </div>
                 </div>
@@ -70,7 +70,7 @@
                     <div class="col-md-3">
                         <div class="card bg-info text-white">
                             <div class="card-body">
-                                <h5 class="card-title">Total Employees</h5>
+                                <h5 class="card-title text-white">{{ __('Total Employees') }}</h5>
                                 <h3 class="card-text" id="total_employees">0</h3>
                             </div>
                         </div>
@@ -78,7 +78,7 @@
                     <div class="col-md-3">
                         <div class="card bg-success text-white">
                             <div class="card-body">
-                                <h5 class="card-title">Total Amount</h5>
+                                <h5 class="card-title text-white">{{ __('Total Amount') }}</h5>
                                 <h3 class="card-text" id="total_amount">0</h3>
                             </div>
                         </div>
@@ -86,7 +86,7 @@
                     <div class="col-md-3">
                         <div class="card bg-warning text-white">
                             <div class="card-body">
-                                <h5 class="card-title">Total Movements</h5>
+                                <h5 class="card-title text-white">{{ __('Total Movements') }}</h5>
                                 <h3 class="card-text" id="total_movements">0</h3>
                             </div>
                         </div>
@@ -94,7 +94,7 @@
                     <div class="col-md-3">
                         <div class="card bg-primary text-white">
                             <div class="card-body">
-                                <h5 class="card-title">Total Invoices</h5>
+                                <h5 class="card-title text-white">{{ __('Total Invoices') }}</h5>
                                 <h3 class="card-text" id="total_invoices">0</h3>
                             </div>
                         </div>
@@ -106,12 +106,12 @@
                     <table class="table table-bordered" id="employees-table">
                         <thead>
                             <tr>
-                                <th>Employee Name</th>
-                                <th>Services Count</th>
-                                <th>Products Count</th>
-                                <th>Total Movements</th>
-                                <th>Invoices Count</th>
-                                <th>Total Amount</th>
+                                <th>{{ __('Employee Name') }}</th>
+                                <th>{{ __('Services Count') }}</th>
+                                <th>{{ __('Products Count') }}</th>
+                                <th>{{ __('Total Movements') }}</th>
+                                <th>{{ __('Invoices Count') }}</th>
+                                <th>{{ __('Total Amount') }}</th>
                             </tr>
                         </thead>
                     </table>

@@ -22,26 +22,26 @@
     <div class="dropdown">
         <button class="btn btn-primary btn-sm mx-1 dropdown-toggle " type="button" id="dropdownMenuLink"
             data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-filter"></i> Filters
+            <i class="bi bi-filter"></i> {{ __('Filters') }}
         </button>
         <div class="dropdown-menu" onclick="event.stopPropagation();" aria-labelledby="dropdownMenuLink" style="width: 300px; height:auto">
-            <h3 class="col-12">Filters</h3>
+            <h3 class="col-12">{{ __('Filters') }}</h3>
 
             <!-- start businessCategory filter -->
             <div class="col-12 form-group dropdown-item d-flex flex-column mb-0" style="min-width: 100px;">
-                <label for="status">Status</label><br>
-                <select name="status" data-placeholder="Select" class="js-example-basic-single fs-xs text-muted form-select-sm"
+                <label for="status">{{ __('Status') }}</label><br>
+                <select name="status" data-placeholder="{{ __('Select') }}" class="js-example-basic-single fs-xs text-muted form-select-sm"
                     id="status">
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                    <option value="active">{{ __('Active') }}</option>
+                    <option value="inactive">{{ __('Inactive') }}</option>
                 </select>
             </div>
             <!-- end businessCategory filter -->
 
             <!-- start insuranceCompanies filter -->
             <div class="col-12 form-group dropdown-item d-flex flex-column mb-0" style="min-width: 100px;">
-                <label for="insuranceCompanies_id">Lead Insurance Companies</label><br>
-                <select name="created_by[]" data-placeholder="Select" multiple class="form-select form-select-sm   js-example-basic-multiple"
+                <label for="created_by">{{ __('Created By') }}</label><br>
+                <select name="created_by[]" data-placeholder="{{ __('Select') }}" multiple class="form-select form-select-sm js-example-basic-multiple"
                     id="created_by">
                     @foreach ($users as $user)
                         <option value="{{ $user->id }}">{{ $user->name }}</option>

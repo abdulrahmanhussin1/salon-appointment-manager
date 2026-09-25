@@ -34,13 +34,13 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
 </button>
 <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('employees.edit')) {
-                    $html .= '<a href="'.route('employees.edit', ['employee' => $model]).'" class="dropdown-item">Edit</a>';
+                    $html .= '<a href="'.route('employees.edit', ['employee' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
                 if (AppHelper::perUser('employees.show')) {
                     $html .= '<a href="'.route('employees.show', ['employee' => $model]).'" class="dropdown-item">Employee Details</a>';
                 }
                 if (AppHelper::perUser('employees.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-employee" data-id="'.$model->id.'" data-url="'.route('employees.destroy', ['employee' => $model]).'">Delete</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-employee" data-id="'.$model->id.'" data-url="'.route('employees.destroy', ['employee' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
                 }
 
                 return $html;
@@ -135,19 +135,19 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
     public function getColumns(): array
     {
         return [
-            Column::make('id')->addClass('text-center'),
-            Column::make('photo')->addClass('text-center'),
-            Column::make('name')->addClass('text-center'),
-            Column::make('phone')->addClass('text-center'),
-            Column::make('hiring_date')->addClass('text-center')->title('Hiring Date'),
-            Column::make('job_title')->addClass('text-center')->title('Job Title'),
-            Column::make('finger_print_code')->addClass('text-center')->title('Finger Print Code'),
-            Column::make('employee_level_id')->addClass('text-center')->title('Employee Level'),
-            Column::make('status')->addClass('text-center'),
-            Column::make('created_by')->addClass('text-center'),
-            Column::make('created_at')->addClass('text-center'),
-            Column::make('updated_at')->addClass('text-center'),
-            Column::computed('action')
+            Column::make('id')->addClass('text-center')->title(__('ID')),
+            Column::make('photo')->addClass('text-center')->title(__('Photo')),
+            Column::make('name')->addClass('text-center')->title(__('Name')),
+            Column::make('phone')->addClass('text-center')->title(__('Phone')),
+            Column::make('hiring_date')->addClass('text-center')->title(__('Hiring Date')),
+            Column::make('job_title')->addClass('text-center')->title(__('Job Title')),
+            Column::make('finger_print_code')->addClass('text-center')->title(__('Fingerprint Code')),
+            Column::make('employee_level_id')->addClass('text-center')->title(__('Employee Level')),
+            Column::make('status')->addClass('text-center')->title(__('Status')),
+            Column::make('created_by')->addClass('text-center')->title(__('Created By')),
+            Column::make('created_at')->addClass('text-center')->title(__('Created At')),
+            Column::make('updated_at')->addClass('text-center')->title(__('Updated At')),
+            Column::computed('action')->title(__('Action'))
                 ->exportable(false)
                 ->printable(false)
                 ->width(60)

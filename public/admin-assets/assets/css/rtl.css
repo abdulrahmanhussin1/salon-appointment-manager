@@ -1,0 +1,246 @@
+/**
+ * Salon Management System - RTL Stylesheet
+ * Beautiful Arabic Typography (Cairo) & Bootstrap 5 RTL layout
+ */
+
+body {
+  font-family: 'Cairo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  direction: rtl;
+  text-align: right;
+}
+
+h1, h2, h3, h4, h5, h6,
+.pagetitle h1,
+.card-title,
+.modal-title {
+  font-family: 'Cairo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-weight: 700;
+}
+
+/* Header & Navbar adjustments */
+.header {
+  padding-left: 0;
+  padding-right: 20px;
+}
+
+.header .logo img {
+  margin-right: 0;
+  margin-left: 8px;
+}
+
+.header .toggle-sidebar-btn {
+  padding-left: 0;
+  padding-right: 10px;
+}
+
+.header-nav .nav-icon {
+  margin-right: 0;
+  margin-left: 20px;
+}
+
+.header-nav .dropdown-menu {
+  text-align: right;
+}
+
+.dropdown-menu .dropdown-item {
+  text-align: right;
+}
+
+.dropdown-menu .dropdown-item i,
+.header-nav .profile .dropdown-item i {
+  margin-right: 0;
+  margin-left: 10px;
+}
+
+@media (min-width: 768px) {
+  .dropdown-menu-arrow::before {
+    right: auto;
+    left: 20px;
+    border-top: 1px solid #eaedf1;
+    border-left: none;
+    border-right: 1px solid #eaedf1;
+  }
+}
+
+/* Sidebar adjustments (if toggled/opened) */
+.sidebar {
+  left: auto;
+  right: 0;
+}
+
+@media (max-width: 1199px) {
+  .sidebar {
+    right: -300px;
+    left: auto;
+  }
+}
+
+@media (min-width: 1200px) {
+  #main,
+  #footer {
+    margin-left: 0;
+    margin-right: 300px;
+  }
+
+  .toggle-sidebar #main,
+  .toggle-sidebar #footer {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .toggle-sidebar .sidebar {
+    right: -300px;
+    left: auto;
+  }
+}
+
+.sidebar-nav .nav-link i {
+  margin-right: 0;
+  margin-left: 10px;
+}
+
+.sidebar-nav .nav-link .bi-chevron-down {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+/* DataTables RTL Styling */
+.dataTables_wrapper {
+  direction: rtl;
+}
+
+.dataTables_wrapper .dataTables_filter {
+  float: left !important;
+  text-align: left;
+}
+
+.dataTables_wrapper .dataTables_length {
+  float: right !important;
+}
+
+.dataTables_wrapper .dataTables_info {
+  float: right !important;
+  text-align: right;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+  float: left !important;
+  text-align: left;
+}
+
+.dataTables_filter label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.table th,
+.table td {
+  text-align: right;
+}
+
+.table th.text-center,
+.table td.text-center {
+  text-align: center !important;
+}
+
+/* Breadcrumbs */
+.breadcrumb-item + .breadcrumb-item::before {
+  float: right;
+  padding-left: 0.5rem;
+  padding-right: 0;
+}
+
+/* Form controls & Input groups */
+.form-label {
+  text-align: right;
+  display: block;
+}
+
+.form-check {
+  padding-right: 1.5em;
+  padding-left: 0;
+}
+
+.form-check .form-check-input {
+  float: right;
+  margin-right: -1.5em;
+  margin-left: 0;
+}
+
+.form-switch {
+  padding-right: 2.5em;
+  padding-left: 0;
+}
+
+.form-switch .form-check-input {
+  margin-right: -2.5em;
+  margin-left: 0;
+}
+
+/* Select2 RTL */
+.select2-container--default .select2-selection--single {
+  text-align: right;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+  left: 6px;
+  right: auto;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  padding-right: 12px;
+  padding-left: 28px;
+  text-align: right;
+}
+
+.select2-dropdown {
+  text-align: right;
+  direction: rtl;
+}
+
+.select2-search--dropdown .select2-search__field {
+  text-align: right;
+  direction: rtl;
+}
+
+/* Buttons with icons */
+.btn i.me-1,
+.btn i.me-2 {
+  margin-right: 0 !important;
+  margin-left: 0.5rem !important;
+}
+
+.btn i.ms-1,
+.btn i.ms-2 {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Modal */
+.modal-header .btn-close {
+  margin: -0.5rem auto -0.5rem -0.5rem;
+}
+
+/* Badges */
+.badge i {
+  margin-left: 4px;
+}
+
+/* Back to top button */
+.back-to-top {
+  right: auto;
+  left: 15px;
+}
+
+/* Nav tabs */
+.nav-tabs .nav-link {
+  margin-left: 2px;
+  margin-right: 0;
+}
+
+/* Custom cards and widgets in Arabic */
+.stat-card-icon {
+  margin-left: 15px;
+  margin-right: 0;
+}

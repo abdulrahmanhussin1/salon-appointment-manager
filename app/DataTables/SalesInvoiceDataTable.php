@@ -45,13 +45,13 @@ class SalesInvoiceDataTable extends DataTable
                     </button>
                     <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('sales_invoices.create')) {
-                    $html .= '<a class="dropdown-item" data-id="'.$model->id.'" href="'.route('sales_invoices.invoice', $model->id).'">Invoice</a>';
+                    $html .= '<a class="dropdown-item" data-id="'.$model->id.'" href="'.route('sales_invoices.invoice', $model->id).'">'.__('Invoice').'</a>';
                 }
                 if ($model->status === 'active' && $model->refund_status !== 'full' && (AppHelper::perUser('refunds.create') || AppHelper::perUser('sales_invoices.create'))) {
-                    $html .= '<a class="dropdown-item text-danger" href="'.route('refunds.create', ['invoice_id' => $model->id]).'"><i class="bi bi-arrow-return-left me-1"></i>Refund / Return</a>';
+                    $html .= '<a class="dropdown-item text-danger" href="'.route('refunds.create', ['invoice_id' => $model->id]).'"><i class="bi bi-arrow-return-left me-1"></i>'.__('Refund / Return').'</a>';
                 }
                 if ($model->status !== 'voided' && ($model->refund_status ?? 'none') === 'none' && AppHelper::perUser('sales_invoices.void')) {
-                    $html .= '<div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="'.route('sales_invoices.invoice', $model->id).'#void">Void Invoice</a>';
+                    $html .= '<div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="'.route('sales_invoices.invoice', $model->id).'#void">'.__('Void Invoice').'</a>';
                 }
                 $html .= '</div></div>';
 
@@ -60,18 +60,18 @@ class SalesInvoiceDataTable extends DataTable
             ->editColumn('status', function ($model) {
                 if ($model->status == 'active') {
                     if (($model->refund_status ?? 'none') === 'full') {
-                        return '<span class="badge bg-danger"><i class="bi bi-arrow-return-left me-1"></i>Refunded</span>';
+                        return '<span class="badge bg-danger"><i class="bi bi-arrow-return-left me-1"></i>'.__('Refunded').'</span>';
                     } elseif (($model->refund_status ?? 'none') === 'partial') {
-                        return '<span class="badge bg-warning text-dark"><i class="bi bi-arrow-return-left me-1"></i>Partial Refund</span>';
+                        return '<span class="badge bg-warning text-dark"><i class="bi bi-arrow-return-left me-1"></i>'.__('Partial Refund').'</span>';
                     }
 
-                    return '<i class="bi bi-check-circle-fill text-success" style="font-size:large" title="Active"></i>';
+                    return '<i class="bi bi-check-circle-fill text-success" style="font-size:large" title="'.__('Active').'"></i>';
                 } elseif ($model->status == 'inactive') {
-                    return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large" title="Inactive"></i>';
+                    return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large" title="'.__('Inactive').'"></i>';
                 } elseif ($model->status == 'voided') {
-                    return '<span class="badge bg-danger"><i class="bi bi-slash-circle me-1"></i>Voided</span>';
+                    return '<span class="badge bg-danger"><i class="bi bi-slash-circle me-1"></i>'.__('Voided').'</span>';
                 } else {
-                    return '<span class="badge bg-warning text-dark">Draft</span>';
+                    return '<span class="badge bg-warning text-dark">'.__('Draft').'</span>';
                 }
             })
             ->editColumn('customer_id', function ($model) {
@@ -131,15 +131,15 @@ class SalesInvoiceDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id')->addClass('text-center'),
-            Column::make('customer_id')->addClass('text-center')->title('Customer'),
-            Column::make('invoice_date')->addClass('text-center'),
-            Column::make('total_amount')->addClass('text-center'),
-            Column::make('invoice_discount')->addClass('text-center'),
-            Column::make('net_amount')->addClass('text-center'),
-            Column::make('branch_id')->addClass('text-center')->title('Branch'),
-            Column::make('status')->addClass('text-center'),
-            Column::computed('action')
+            Column::make('id')->addClass('text-center')->title(__('ID')),
+            Column::make('customer_id')->addClass('text-center')->title(__('Customer')),
+            Column::make('invoice_date')->addClass('text-center')->title(__('Invoice Date')),
+            Column::make('total_amount')->addClass('text-center')->title(__('Total Amount')),
+            Column::make('invoice_discount')->addClass('text-center')->title(__('Discount')),
+            Column::make('net_amount')->addClass('text-center')->title(__('Net Amount')),
+            Column::make('branch_id')->addClass('text-center')->title(__('Branch')),
+            Column::make('status')->addClass('text-center')->title(__('Status')),
+            Column::computed('action')->title(__('Action'))
                 ->exportable(false)
                 ->printable(false)
                 ->width(60)

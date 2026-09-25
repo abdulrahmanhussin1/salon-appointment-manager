@@ -10,9 +10,9 @@
     'disabled' => false,
 ])
 <div class="mb-3">
-    <label for="{{ $id }}" class="form-label">{{ Str::ucfirst(__($label)) }}</label>
+    <label for="{{ $id }}" class="form-label">{{ __(Str::ucfirst($label)) }}</label>
     <input type="{{ $type }}" name="{{ $name }}"
-        class="form-control form-control-sm @error($name) is-invalid @enderror" placeholder="{{ $placeholder }}"
+        class="form-control form-control-sm @error($name) is-invalid @enderror" placeholder="{{ $placeholder ? __($placeholder) : '' }}"
         @if ($id) id="{{ $id }}" @endif
         @if ($required) required @endif
         @if ($value) value="{{ $value }}" @endif

@@ -30,12 +30,12 @@
         <div class="card-body m-3">
             <div class="row mb-4 align-items-center">
                 <div class="col-md-6">
-                    <h1 class="h3 mb-0">Monthly Report <span id="year-display">{{ date('Y') }}</span></h1>
+                    <h1 class="h3 mb-0">{{ __('Monthly Report') }} <span id="year-display">{{ date('Y') }}</span></h1>
                 </div>
                 <div class="col-md-6 text-md-end">
                     <select id="branch_id" class="form-select w-auto d-inline-block me-2" {{ ! ($canSelectAll ?? true) ? 'disabled' : '' }}>
                         @if($canSelectAll ?? true)
-                            <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>All Branches</option>
+                            <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>{{ __('All Branches') }}</option>
                         @endif
                         @foreach($branches ?? [] as $branch)
                             <option value="{{ $branch->id }}" {{ ($effectiveBranchId ?? null) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
@@ -53,19 +53,19 @@
                 <table class="table table-bordered table-hover" id="monthly-report-table">
                     <thead>
                         <tr>
-                            <th>Month</th>
-                            <th>Services</th>
-                            <th>Products</th>
-                            <th>Expenses</th>
-                            <th>Net Income</th>
-                            <th>Purchases</th>
-                            <th>Employees</th>
-                            <th>New Customers</th>
+                            <th>{{ __('Month') }}</th>
+                            <th>{{ __('Services') }}</th>
+                            <th>{{ __('Products') }}</th>
+                            <th>{{ __('Expenses') }}</th>
+                            <th>{{ __('Net Income') }}</th>
+                            <th>{{ __('Purchases') }}</th>
+                            <th>{{ __('Employees') }}</th>
+                            <th>{{ __('New Customers') }}</th>
                         </tr>
                     </thead>
                     <tfoot>
                         <tr class="total-row">
-                            <th>Total</th>
+                            <th>{{ __('Total') }}</th>
                             <th></th>
                             <th></th>
                             <th></th>

@@ -29,13 +29,13 @@ class ServiceDataTable extends DataTable
                     </button>
                     <div class="dropdown-menu dropdown-menu-end py-2">';
                 if (AppHelper::perUser('services.edit')) {
-                    $html .= '<a href="'.route('services.edit', ['service' => $model]).'" class="dropdown-item">Edit</a>';
+                    $html .= '<a href="'.route('services.edit', ['service' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
                 if (AppHelper::perUser('services.show')) {
                     $html .= '<a href="'.route('services.show', ['service' => $model]).'" class="dropdown-item">Service Details</a>';
                 }
                 if (AppHelper::perUser('services.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-service" data-id="'.$model->id.'" data-url="'.route('services.destroy', ['service' => $model]).'">Delete</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-service" data-id="'.$model->id.'" data-url="'.route('services.destroy', ['service' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
                 }
 
                 return $html;
@@ -130,19 +130,19 @@ class ServiceDataTable extends DataTable
     {
         return [
 
-            Column::make('id')->addClass('text-center'),
-            Column::make('image')->addClass('text-center'),
+            Column::make('id')->addClass('text-center')->title(__('ID')),
+            Column::make('image')->addClass('text-center')->title(__('Image')),
 
-            Column::make('name')->addClass('text-center'),
-            Column::make('duration')->addClass('text-center'),
-            Column::make('price')->addClass('text-center'),
-            Column::make('service_category_id')->addClass('text-center')->title('Service Category'),
-            Column::make('is_target')->addClass('text-center')->title('Target'),
-            Column::make('status')->addClass('text-center'),
-            Column::make('created_by')->addClass('text-center'),
-            Column::make('created_at')->addClass('text-center'),
-            Column::make('updated_at')->addClass('text-center'),
-            Column::computed('action')
+            Column::make('name')->addClass('text-center')->title(__('Name')),
+            Column::make('duration')->addClass('text-center')->title(__('Duration')),
+            Column::make('price')->addClass('text-center')->title(__('Price')),
+            Column::make('service_category_id')->addClass('text-center')->title(__('Service Category')),
+            Column::make('is_target')->addClass('text-center')->title(__('Target')),
+            Column::make('status')->addClass('text-center')->title(__('Status')),
+            Column::make('created_by')->addClass('text-center')->title(__('Created By')),
+            Column::make('created_at')->addClass('text-center')->title(__('Created At')),
+            Column::make('updated_at')->addClass('text-center')->title(__('Updated At')),
+            Column::computed('action')->title(__('Action'))
                 ->exportable(false)
                 ->printable(false)
                 ->width(60)

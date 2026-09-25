@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Pages / Server Error 500</title>
+  <title>{{ __('Pages') }} / {{ __('Server Error 500') }}</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -28,13 +28,6 @@
 
   <!-- Template Main CSS File -->
   <link href="{{asset('admin-assets')}}/assets/css/style.css" rel="stylesheet">
-
-  <!-- =======================================================
-  * Template Name: NiceAdmin - v2.5.0
-  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
 </head>
 
 <body>
@@ -44,9 +37,9 @@
 
       <section class="section error-404 min-vh-100 d-flex flex-column align-items-center justify-content-center">
         <h1>500</h1>
-        <h2>Server Errror</h2>
-        <a class="btn" href="{{ route('home.index') }}">Back to home</a>
-        <img src="{{asset('admin-assets')}}/assets/img/not-found.svg" class="img-fluid py-5" alt="Page Not Found">
+        <h2>{{ __('Server Error') }}</h2>
+        <a class="btn" href="{{ route('home.index') }}">{{ __('Back to home') }}</a>
+        <img src="{{asset('admin-assets')}}/assets/img/not-found.svg" class="img-fluid py-5" alt="{{ __('Page Not Found') }}">
         {{-- <div class="credits">
           <!-- All the links in the footer should remain intact. -->
           <!-- You can delete the links only if you purchased the pro version. -->
