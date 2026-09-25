@@ -39,6 +39,15 @@
                             </li>
                         @endif
 
+                        @if (App\Traits\AppHelper::perUser('sales_invoices.index') || App\Traits\AppHelper::perUser('refunds.index'))
+                            <li class="">
+                                <a class="dropdown-item d-flex align-items-center"
+                                    href="{{ route('refunds.index') }}">
+                                    <i class="bi bi-arrow-return-left"></i><span>{{ Str::ucfirst(__('Refunds & Returns')) }}</span>
+                                </a>
+                            </li>
+                        @endif
+
 
                         <li>
                             <hr class="dropdown-divider">
@@ -123,6 +132,36 @@
                                     href="{{ route('inventories.index') }}">
                                     <i class="bi bi-houses-fill"></i>
                                     <span>{{ Str::ucfirst(__('inventories')) }}</span>
+                                </a>
+                            </li>
+                        @endif
+
+                        @if (App\Traits\AppHelper::perUser('inventory_transactions.transferView'))
+                            <li class="">
+                                <a class="dropdown-item d-flex align-items-center"
+                                    href="{{ route('inventory_transactions.transferView') }}">
+                                    <i class="bi bi-arrow-left-right"></i>
+                                    <span>{{ Str::ucfirst(__('Transfer')) }}</span>
+                                </a>
+                            </li>
+                        @endif
+
+                        @if (App\Traits\AppHelper::perUser('inventory_transactions.adjustView') || App\Traits\AppHelper::perUser('inventories.create'))
+                            <li class="">
+                                <a class="dropdown-item d-flex align-items-center"
+                                    href="{{ route('inventory_transactions.adjustView') }}">
+                                    <i class="bi bi-sliders"></i>
+                                    <span>{{ Str::ucfirst(__('Stock Adjustment')) }}</span>
+                                </a>
+                            </li>
+                        @endif
+
+                        @if (App\Traits\AppHelper::perUser('inventory_transactions.adjustView') || App\Traits\AppHelper::perUser('inventories.index'))
+                            <li class="">
+                                <a class="dropdown-item d-flex align-items-center"
+                                    href="{{ route('inventory_transactions.history') }}">
+                                    <i class="bi bi-clock-history"></i>
+                                    <span>{{ Str::ucfirst(__('Adjustment History')) }}</span>
                                 </a>
                             </li>
                         @endif

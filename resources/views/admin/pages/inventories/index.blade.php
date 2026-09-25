@@ -21,6 +21,10 @@
             @if (App\Traits\AppHelper::perUSer('inventory_transactions.transferView'))
                 <x-create-button title="Transfer" route='inventory_transactions.transferView' class="btn-primary ms-2"/>
             @endif
+            @if (App\Traits\AppHelper::perUSer('inventory_transactions.adjustView') || App\Traits\AppHelper::perUSer('inventories.create'))
+                <x-create-button title="Stock Adjustment" route='inventory_transactions.adjustView' class="btn-warning ms-2"/>
+                <x-create-button title="Adjustment History" route='inventory_transactions.history' class="btn-secondary ms-2"/>
+            @endif
 
         </div>
         @include('admin.layouts.alerts')

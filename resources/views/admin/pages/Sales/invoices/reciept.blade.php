@@ -138,6 +138,21 @@
                 <strong>{{ __('Reason:') }}</strong> {{ $invoice->void_reason }}
             </div>
         </div>
+    @elseif (($invoice->refund_status ?? 'none') === 'full')
+        <div class="alert alert-danger text-center mb-3" style="max-width: 450px; margin: auto;">
+            <h4 class="alert-heading mb-1"><i class="bi bi-arrow-return-left me-1"></i> {{ __('THIS INVOICE IS FULLY REFUNDED') }}</h4>
+            <div class="small">
+                <strong>{{ __('Total Refunded:') }}</strong> ${{ number_format($invoice->total_refunded, 2) }}
+            </div>
+        </div>
+    @elseif (($invoice->refund_status ?? 'none') === 'partial')
+        <div class="alert alert-warning text-center mb-3" style="max-width: 450px; margin: auto;">
+            <h4 class="alert-heading mb-1"><i class="bi bi-arrow-return-left me-1"></i> {{ __('PARTIALLY REFUNDED') }}</h4>
+            <div class="small">
+                <strong>{{ __('Refunded to Date:') }}</strong> ${{ number_format($invoice->total_refunded, 2) }} |
+                <strong>{{ __('Remaining:') }}</strong> ${{ number_format($invoice->remainingRefundableAmount(), 2) }}
+            </div>
+        </div>
     @endif
 
     <section id="invoice" class="main-pd-wrapper" style="width: 450px; margin: auto">
@@ -261,7 +276,29 @@
 
     <div style="width: 450px; margin: auto">
         <button onclick="printInvoice()" class="btn btn-success btn-sm mt-3 w-100">Print</button>
-        @if ($invoice->status !== 'voided' && \App\Traits\AppHelper::perUser('sales_invoices.void'))
+
+        @if ($invoice->status === 'active' && ($invoice->refund_status ?? 'none') !== 'full' && (\App\Traits\AppHelper::perUser('refunds.create') || \App\Traits\AppHelper::perUser('sales_invoices.create')))
+            <a href="{{ route('refunds.create', ['invoice_id' => $invoice->id]) }}" class="btn btn-outline-warning btn-sm mt-2 w-100 text-dark fw-bold">
+                <i class="bi bi-arrow-return-left me-1"></i> {{ __('Issue Refund / Return') }}
+            </a>
+        @endif
+
+        @if ($invoice->refunds && $invoice->refunds->count() > 0)
+            <div class="mt-3 card border-0 shadow-sm p-3 bg-light text-start">
+                <h6 class="fw-bold mb-2 small text-muted"><i class="bi bi-clock-history me-1"></i> {{ __('Associated Refunds') }} ({{ $invoice->refunds->count() }})</h6>
+                @foreach ($invoice->refunds as $ref)
+                    <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-light small">
+                        <div>
+                            <a href="{{ route('refunds.show', $ref->id) }}" class="fw-bold text-primary">{{ $ref->refund_number }}</a>
+                            <span class="text-muted ms-1">({{ $ref->refund_date?->format('Y-m-d') }})</span>
+                        </div>
+                        <span class="fw-bold text-danger">-${{ number_format($ref->total_refund_amount, 2) }}</span>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
+        @if ($invoice->status !== 'voided' && $invoice->refunds()->count() === 0 && \App\Traits\AppHelper::perUser('sales_invoices.void'))
             <button type="button" class="btn btn-outline-danger btn-sm mt-2 w-100" data-bs-toggle="modal" data-bs-target="#voidInvoiceModal">
                 <i class="bi bi-slash-circle me-1"></i> {{ __('Void Invoice') }}
             </button>

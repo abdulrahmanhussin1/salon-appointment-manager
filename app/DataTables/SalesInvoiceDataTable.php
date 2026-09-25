@@ -47,7 +47,10 @@ class SalesInvoiceDataTable extends DataTable
                 if (AppHelper::perUser('sales_invoices.create')) {
                     $html .= '<a class="dropdown-item" data-id="'.$model->id.'" href="'.route('sales_invoices.invoice', $model->id).'">Invoice</a>';
                 }
-                if ($model->status !== 'voided' && AppHelper::perUser('sales_invoices.void')) {
+                if ($model->status === 'active' && $model->refund_status !== 'full' && (AppHelper::perUser('refunds.create') || AppHelper::perUser('sales_invoices.create'))) {
+                    $html .= '<a class="dropdown-item text-danger" href="'.route('refunds.create', ['invoice_id' => $model->id]).'"><i class="bi bi-arrow-return-left me-1"></i>Refund / Return</a>';
+                }
+                if ($model->status !== 'voided' && ($model->refund_status ?? 'none') === 'none' && AppHelper::perUser('sales_invoices.void')) {
                     $html .= '<div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="'.route('sales_invoices.invoice', $model->id).'#void">Void Invoice</a>';
                 }
                 $html .= '</div></div>';
@@ -56,6 +59,12 @@ class SalesInvoiceDataTable extends DataTable
             })
             ->editColumn('status', function ($model) {
                 if ($model->status == 'active') {
+                    if (($model->refund_status ?? 'none') === 'full') {
+                        return '<span class="badge bg-danger"><i class="bi bi-arrow-return-left me-1"></i>Refunded</span>';
+                    } elseif (($model->refund_status ?? 'none') === 'partial') {
+                        return '<span class="badge bg-warning text-dark"><i class="bi bi-arrow-return-left me-1"></i>Partial Refund</span>';
+                    }
+
                     return '<i class="bi bi-check-circle-fill text-success" style="font-size:large" title="Active"></i>';
                 } elseif ($model->status == 'inactive') {
                     return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large" title="Inactive"></i>';

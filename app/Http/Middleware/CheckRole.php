@@ -38,9 +38,12 @@ class CheckRole
                 || ($page === 'export' && self::perUSer($type.'.export'))
                 || ($page === 'update' && self::perUSer($type.'.edit'))
                 || ($page === 'transfer' && self::perUSer($type.'.transferView'))
+                || (in_array($page, ['adjust', 'adjustView', 'check_stock']) && (self::perUSer('inventory_transactions.adjustView') || self::perUSer('inventories.create')))
+                || (in_array($page, ['history', 'history_data']) && (self::perUSer('inventory_transactions.adjustView') || self::perUSer('inventories.index')))
                 || ($page === 'activate' && self::perUSer($type.'.create'))
                 || ($page === 'void' && self::perUSer($type.'.void'))
                 || ($page === 'invoice' && self::perUSer($type.'.show'))
+                || ($type === 'refunds' && in_array($page, ['index', 'create', 'store', 'show', 'invoice_details']) && (self::perUSer('refunds.index') || self::perUSer('refunds.create') || self::perUSer('sales_invoices.create') || self::perUSer('sales_invoices.index')))
                 || ($type === 'appointments' && in_array($page, ['confirm', 'cancel', 'check_in', 'start_service', 'complete', 'no_show', 'status']) && self::perUSer('appointments.edit'))
 
                 || ($page === 'daily_revenues' && self::perUSer('reports.index'))

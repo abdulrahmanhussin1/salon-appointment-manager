@@ -59,8 +59,8 @@
 | ID | Requirement | Status | Notes |
 |---|---|---|---|
 | REQ-017 | Appointment → Invoice linkage | ✅ | Migration 2026_09_25_000006 added appointment_id FK; auto-transition to completed on invoice create/activate; calendar checkout action button & invoice modal; prefilling in POS create; appointment conversion & revenue report with branch filtering; 13 feature tests passing (57 assertions) |
-| REQ-018 | Manual stock adjustment workflow | ⬜ | New UI + InventoryTransaction type |
-| REQ-019 | Refund / return workflow | ⬜ | Depends on REQ-015, REQ-012 |
+| REQ-018 | Manual stock adjustment workflow | ✅ | Migration 2026_09_25_000007 added adjustment transaction_type and audit columns (adjustment_type, adjustment_reason, notes, created_by, updated_by); dedicated stock adjustment UI with real-time stock checks; server-side cashier branch isolation; negative stock deduction rejection with pessimistic locking; DataTables audit history view; StoreBalanceReport integration for in_qty / out_qty; 13 feature tests passing (68 assertions) |
+| REQ-019 | Refund / return workflow | ✅ | Migration 2026_09_25_000008 created refunds & refund_details tables and added refund tracking to sales_invoices/details; sales_return added to inventory_transactions; atomic transaction with pessimistic locking; product returns restore physical inventory; service refunds reverse employee commissions; refunds to customer deposit credit deposit ledger; cashier branch isolation; DataTables audit view and printable refund receipt; 13 feature tests passing (76 assertions) |
 
 ---
 
@@ -69,14 +69,77 @@
 | ID | Requirement | Status | Notes |
 |---|---|---|---|
 | NFR-001 | Security — all routes auth-guarded, no dd(), debug=false | ✅ | Covered by REQ-001–003; zero dd() in app/; all routes auth/role protected |
-| NFR-002 | Data integrity — transactions, no hard-delete on financial records | ✅ | Enforced via DB::transaction across financial operations, draft protection, invoice void rollback |
-| NFR-003 | Branch isolation — server-side enforcement | ✅ | Enforced via HasBranchFilter across all reports (REQ-013, REQ-020) and server-side cashier branch validation on invoice store (GAP-001) |
-| NFR-004 | Auditability — created_by/updated_by + void/refund audit | 🔄 | created_by/updated_by on records, void audit trail (voided_by/voided_at/void_reason); stock audit coming in REQ-018 |
-| NFR-005 | Reporting accuracy — correct commissions + expenses + branch filter | ✅ | Covered by REQ-012 (commission_amount), REQ-013, REQ-016 (all payment methods), REQ-020 |
+| NFR-002 | Data integrity — transactions, no hard-delete on financial records | ✅ | Enforced via DB::transaction across financial operations, draft protection, invoice void rollback, immutable refunds |
+| NFR-003 | Branch isolation — server-side enforcement | ✅ | Enforced via HasBranchFilter across all reports (REQ-013, REQ-020), sales invoices (GAP-001), stock adjustments (REQ-018), and refunds (REQ-019) |
+| NFR-004 | Auditability — created_by/updated_by + void/refund audit | ✅ | created_by/updated_by on records, void audit trail (voided_by/voided_at/void_reason), stock adjustment audit trail (adjustment_type/reason/notes/user), and complete refund voucher audit trail (REQ-019) |
+| NFR-005 | Reporting accuracy — correct commissions + expenses + branch filter | ✅ | Covered by REQ-012 (commission_amount), REQ-013, REQ-016 (all payment methods), REQ-020, REQ-018 (store balance adjustments), REQ-019 (commission reversals & refunds in daily revenues) |
 
 ---
 
 ## Implementation Log
+
+### 2026-09-25 — REQ-019 Implemented & Verified (Refund / Return Workflow)
+
+- **Database Migrations & Enums**:
+  - Updated base migration `database/migrations/2024_11_22_173722_create_inventory_transactions_table.php` to include `sales_return` in `transaction_type` enum (for SQLite test environment compatibility).
+  - Created and ran migration `database/migrations/2026_09_25_000008_create_refunds_tables.php`:
+    - Altered MySQL enum on `inventory_transactions` to include `'sales_return'`.
+    - Added `refund_status` (`'none'`, `'partial'`, `'full'`) and `total_refunded` (decimal) to `sales_invoices`.
+    - Added `refunded_quantity` (unsigned int) and `refunded_amount` (decimal) to `sales_invoice_details`.
+    - Created master table `refunds`: `refund_number`, `sales_invoice_id`, `customer_id`, `branch_id`, `refund_date`, `refund_method` (`cash`, `deposit`, `card`, `bank_transfer`, `other`), `total_refund_amount`, `tax_refund_amount`, `commission_reversed_amount`, `reason`, `notes`, `created_by`, `updated_by`.
+    - Created detail table `refund_details`: `refund_id`, `sales_invoice_detail_id`, `service_id`, `product_id`, `provider_id`, `quantity`, `unit_price`, `discount`, `tax`, `subtotal`, `commission_reversed`, `inventory_restored`, `inventory_id`, `notes`, `created_by`, `updated_by`.
+- **Model Enhancements**:
+  - Created `App\Models\Refund`: Relationships to `salesInvoice`, `customer`, `branch`, `createdBy`, `refundDetails`, `customerTransaction`; sequential refund number generator `generateRefundNumber()`.
+  - Created `App\Models\RefundDetail`: Relationships to `refund`, `salesInvoiceDetail`, `service`, `product`, `provider`, `inventory`.
+  - Updated `App\Models\SalesInvoice`: Defined `refunds()`, `remainingRefundableAmount()`, `isRefundable()`; blocked `void()` if invoice has associated refunds.
+  - Updated `App\Models\SalesInvoiceDetail`: Defined `refundDetails()`, `remainingRefundableQuantity()`, `isFullyRefunded()`.
+- **Controller Implementation (`app/Http/Controllers/Admin/RefundController.php`)**:
+  - `index(Request $request)`: DataTables audit trail with branch filtering via `HasBranchFilter`, date range filters, and method badges.
+  - `create(Request $request)`: Interactive refund creation form with invoice preloading, cashier branch isolation checks, and remaining refundable bounds.
+  - `getInvoiceDetails(Request $request, $id)`: Secure AJAX lookup returning refundable line items and remaining quantities.
+  - `store(Request $request)`: Atomic `DB::transaction()` with pessimistic locking (`lockForUpdate()`), cashier branch isolation, validation against over-refunding, physical inventory restoration (`InventoryProduct` balance update + `InventoryTransaction` of type `sales_return`), service employee commission reversal (`detail->commission_amount` decrement), customer deposit account credit (`CustomerTransaction` creation when method is `deposit`), and invoice `refund_status` auto-transition.
+  - `show(Refund $refund)`: Printable refund voucher/receipt scoped to branch.
+- **Reporting Integration**:
+  - `StoreBalanceReportController`: Factored `sales_return` into `in_qty` and `in_value`.
+  - `ReportController::dailyRevenues`: Factored refunds into `total_refunds` in JSON response.
+- **UI & Navigation**:
+  - `resources/views/admin/pages/refunds/index.blade.php`: DataTables table of all refunds.
+  - `resources/views/admin/pages/refunds/create.blade.php`: Interactive form with live totals recalculation and restock destination selection.
+  - `resources/views/admin/pages/refunds/show.blade.php`: Printable refund voucher with thermal/letter layout.
+  - Added "Refunds & Returns" to main navigation bar under Sales.
+  - Added "Refund / Return" button and associated refunds history list to invoice receipt view `reciept.blade.php`.
+  - Added "Refund / Return" action in `SalesInvoiceDataTable`.
+- **Permissions & Security**:
+  - Registered web routes in `routes/web.php`.
+  - Authorized routes in `app/Http/Middleware/CheckRole.php`.
+  - Seeded permissions in `database/seeders/RolesAndPermissionsSeeder.php`.
+- **Automated Test Suite**:
+  - `tests/Feature/RefundWorkflowTest.php`: 13 tests passing (76 assertions) covering schema, auth guards, branch isolation, product inventory restoration, service commission reversal, deposit account credit, full refund status transition, over-refunding rejection, void blocking on refunded invoices, DataTables endpoint scoping, StoreBalanceReport integration, and DailyRevenueReport integration.
+
+### 2026-09-25 — REQ-018 Implemented & Verified (Manual Stock Adjustment Workflow)
+
+- **Database Migrations & Enums**:
+  - Updated base migration `database/migrations/2024_11_22_173722_create_inventory_transactions_table.php` to include `adjustment` in `transaction_type` enum (for SQLite test environment compatibility).
+  - Created and ran migration `database/migrations/2026_09_25_000007_add_adjustment_to_inventory_transactions_table.php` adding `adjustment` to MySQL enum, plus `adjustment_type` (`increase`, `decrease`), `adjustment_reason` (`count_correction`, `damage`, `waste`, `theft`, `other`), `notes` (text), and `created_by` / `updated_by` foreign keys.
+- **Model Enhancements**:
+  - `app/Models/InventoryTransaction.php`: Added scopes `scopeAdjustments($query)`, accessors `getInventoryAttribute()` and `getAdjustmentReasonLabelAttribute()`.
+  - `app/Models/InventoryTransactionDetail.php`: Added `product()` relationship.
+- **Controller Implementation (`app/Http/Controllers/Admin/InventoryTransactionController.php`)**:
+  - Added `adjustView(Request $request)`: Renders dedicated adjustment UI scoped to user's branch via `HasBranchFilter`.
+  - Added `checkStock(Request $request)`: Secure real-time stock lookup JSON endpoint validating branch isolation.
+  - Added `adjust(Request $request)`: Handles multi-product adjustments inside `DB::transaction()` with pessimistic locking (`lockForUpdate()`), validates against negative physical stock for decreases, creates `InventoryTransaction` and `InventoryTransactionDetail` records, updates or creates `InventoryProduct` balances.
+  - Added `history(Request $request)` & `historyData(Request $request)`: Complete Yajra DataTables audit history view with branch scoping, direction badges, reason translations, and audit trail metadata.
+- **Reporting Integration (`app/Http/Controllers/Admin/StoreBalanceReportController.php`)**:
+  - Updated store balance computation: `purchase` + `adjustment` (`increase`) feed into `in_qty` / `in_value`; `sales` + `service_consumption` + `adjustment` (`decrease`) feed into `out_qty` / `out_value`.
+- **UI & Navigation**:
+  - Dedicated Blade view `resources/views/admin/pages/inventories/transactions/adjust.blade.php`: Real-time stock checks, increase/decrease toggle, reason codes, dynamic multi-item row builder, responsive badges, and input validation.
+  - Audit trail Blade view `resources/views/admin/pages/inventories/transactions/history.blade.php`: DataTables table displaying transactions, users, reasons, and quantities.
+  - Updated `resources/views/admin/pages/inventories/index.blade.php` and `resources/views/admin/layouts/navbar.blade.php` with direct navigation links.
+- **Permissions & Routes**:
+  - Registered web routes: `inventory_transactions.adjustView`, `adjust`, `check_stock`, `history`, `history_data`.
+  - Authorized permissions in `app/Http/Middleware/CheckRole.php` and seeded `RolesAndPermissionsSeeder.php`.
+- **Automated Test Suite**:
+  - `tests/Feature/ManualStockAdjustmentTest.php`: 13 tests passing covering guest protection, role authorization, positive/negative quantity adjustments, multi-product adjustments, negative stock rejection, reason code enforcement, cashier branch isolation, DataTables audit history, and StoreBalanceReport integration.
 
 ### 2026-09-25 — REQ-017 Implemented & Verified (Appointment → Invoice Linkage & Conversion Analytics)
 

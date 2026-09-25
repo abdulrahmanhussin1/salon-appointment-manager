@@ -58,4 +58,19 @@ class SalesInvoiceDetail extends Model
     {
         return $this->belongsTo(Employee::class, 'provider_id');
     }
+
+    public function refundDetails()
+    {
+        return $this->hasMany(RefundDetail::class, 'sales_invoice_detail_id');
+    }
+
+    public function remainingRefundableQuantity(): int
+    {
+        return max(0, (int) $this->quantity - (int) ($this->refunded_quantity ?? 0));
+    }
+
+    public function isFullyRefunded(): bool
+    {
+        return (int) ($this->refunded_quantity ?? 0) >= (int) $this->quantity;
+    }
 }

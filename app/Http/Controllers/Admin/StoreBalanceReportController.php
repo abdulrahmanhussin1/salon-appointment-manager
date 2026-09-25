@@ -72,7 +72,13 @@ class StoreBalanceReportController extends Controller
             })
             ->addColumn('in_qty', function ($product) use ($firstDayOfMonth, $lastDayOfMonth, $effectiveBranchId, $request) {
                 return InventoryTransactionDetail::whereHas('inventoryTransaction', function ($query) use ($effectiveBranchId, $request) {
-                    $query->where('transaction_type', 'purchase')
+                    $query->where(function ($sub) {
+                        $sub->whereIn('transaction_type', ['purchase', 'sales_return'])
+                            ->orWhere(function ($adj) {
+                                $adj->where('transaction_type', 'adjustment')
+                                    ->where('adjustment_type', 'increase');
+                            });
+                    })
                         ->when($effectiveBranchId, fn ($tq) => $tq->where(function ($sub) use ($effectiveBranchId) {
                             $sub->whereHas('destinationInventory', fn ($dq) => $dq->where('branch_id', $effectiveBranchId))
                                 ->orWhereHas('sourceInventory', fn ($sq) => $sq->where('branch_id', $effectiveBranchId));
@@ -85,7 +91,13 @@ class StoreBalanceReportController extends Controller
             })
             ->addColumn('in_value', function ($product) use ($firstDayOfMonth, $lastDayOfMonth, $effectiveBranchId, $request) {
                 $qty = InventoryTransactionDetail::whereHas('inventoryTransaction', function ($query) use ($effectiveBranchId, $request) {
-                    $query->where('transaction_type', 'purchase')
+                    $query->where(function ($sub) {
+                        $sub->whereIn('transaction_type', ['purchase', 'sales_return'])
+                            ->orWhere(function ($adj) {
+                                $adj->where('transaction_type', 'adjustment')
+                                    ->where('adjustment_type', 'increase');
+                            });
+                    })
                         ->when($effectiveBranchId, fn ($tq) => $tq->where(function ($sub) use ($effectiveBranchId) {
                             $sub->whereHas('destinationInventory', fn ($dq) => $dq->where('branch_id', $effectiveBranchId))
                                 ->orWhereHas('sourceInventory', fn ($sq) => $sq->where('branch_id', $effectiveBranchId));
@@ -102,7 +114,13 @@ class StoreBalanceReportController extends Controller
             })
             ->addColumn('out_qty', function ($product) use ($firstDayOfMonth, $lastDayOfMonth, $effectiveBranchId, $request) {
                 return InventoryTransactionDetail::whereHas('inventoryTransaction', function ($query) use ($effectiveBranchId, $request) {
-                    $query->whereIn('transaction_type', ['sales', 'service_consumption'])
+                    $query->where(function ($sub) {
+                        $sub->whereIn('transaction_type', ['sales', 'service_consumption'])
+                            ->orWhere(function ($adj) {
+                                $adj->where('transaction_type', 'adjustment')
+                                    ->where('adjustment_type', 'decrease');
+                            });
+                    })
                         ->when($effectiveBranchId, fn ($tq) => $tq->where(function ($sub) use ($effectiveBranchId) {
                             $sub->whereHas('destinationInventory', fn ($dq) => $dq->where('branch_id', $effectiveBranchId))
                                 ->orWhereHas('sourceInventory', fn ($sq) => $sq->where('branch_id', $effectiveBranchId));
@@ -115,7 +133,13 @@ class StoreBalanceReportController extends Controller
             })
             ->addColumn('out_value', function ($product) use ($firstDayOfMonth, $lastDayOfMonth, $effectiveBranchId, $request) {
                 $qty = InventoryTransactionDetail::whereHas('inventoryTransaction', function ($query) use ($effectiveBranchId, $request) {
-                    $query->whereIn('transaction_type', ['sales', 'service_consumption'])
+                    $query->where(function ($sub) {
+                        $sub->whereIn('transaction_type', ['sales', 'service_consumption'])
+                            ->orWhere(function ($adj) {
+                                $adj->where('transaction_type', 'adjustment')
+                                    ->where('adjustment_type', 'decrease');
+                            });
+                    })
                         ->when($effectiveBranchId, fn ($tq) => $tq->where(function ($sub) use ($effectiveBranchId) {
                             $sub->whereHas('destinationInventory', fn ($dq) => $dq->where('branch_id', $effectiveBranchId))
                                 ->orWhereHas('sourceInventory', fn ($sq) => $sq->where('branch_id', $effectiveBranchId));

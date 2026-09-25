@@ -44,6 +44,21 @@ class SalesInvoice extends Model
         return $this->belongsTo(Appointment::class, 'appointment_id');
     }
 
+    public function refunds()
+    {
+        return $this->hasMany(Refund::class, 'sales_invoice_id');
+    }
+
+    public function remainingRefundableAmount(): float
+    {
+        return max(0.0, (float) $this->net_total - (float) ($this->total_refunded ?? 0));
+    }
+
+    public function isRefundable(): bool
+    {
+        return $this->status === 'active' && $this->refund_status !== 'full';
+    }
+
     /**
      * Void the invoice and reverse its effects.
      */
@@ -51,6 +66,10 @@ class SalesInvoice extends Model
     {
         if ($this->status === 'voided') {
             throw new \Exception('Invoice is already voided.');
+        }
+
+        if ($this->refunds()->count() > 0) {
+            throw new \Exception('Invoice cannot be voided because it has associated refunds. Process refunds for returns instead.');
         }
 
         $reason = trim($reason);

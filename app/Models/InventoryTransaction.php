@@ -43,4 +43,26 @@ class InventoryTransaction extends Model
     {
         return $this->belongsTo(InventoryTransaction::class);
     }
+
+    public function scopeAdjustments($query)
+    {
+        return $query->where('transaction_type', 'adjustment');
+    }
+
+    public function getInventoryAttribute()
+    {
+        return $this->destinationInventory ?? $this->sourceInventory;
+    }
+
+    public function getAdjustmentReasonLabelAttribute(): string
+    {
+        return match ($this->adjustment_reason) {
+            'count_correction' => __('Physical Count Correction'),
+            'damage' => __('Damaged Product'),
+            'waste' => __('Waste / Expired'),
+            'theft' => __('Shrinkage / Theft'),
+            'other' => __('Other'),
+            default => $this->adjustment_reason ? ucfirst(str_replace('_', ' ', $this->adjustment_reason)) : '—',
+        };
+    }
 }

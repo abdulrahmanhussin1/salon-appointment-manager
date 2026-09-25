@@ -10,6 +10,7 @@ use App\Models\CustomerTransaction;
 use App\Models\Expense;
 use App\Models\PaymentMethod;
 use App\Models\PurchaseInvoice;
+use App\Models\Refund;
 use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceDetail;
 use App\Models\Service;
@@ -85,6 +86,12 @@ class ReportController extends Controller
                 : 0;
             $nonCashExpenses = $totalExpenses - $cashExpenses;
 
+            // Calculate total refunds (REQ-019)
+            $refundsQuery = Refund::whereDate('refund_date', '>=', $fromDateStr)
+                ->whereDate('refund_date', '<=', $toDateStr)
+                ->when($effectiveBranchId, fn ($q) => $q->where('branch_id', $effectiveBranchId));
+            $totalRefunds = (clone $refundsQuery)->sum('total_refund_amount');
+
             // Return the response in the required format
             return response()->json([
                 'total_services_revenue' => $totalServicesRevenue ?? 0,
@@ -98,6 +105,7 @@ class ReportController extends Controller
                 'total_cash_expenses' => $cashExpenses ?? 0,
                 'total_non_cash_expenses' => $nonCashExpenses ?? 0,
                 'total_deposits' => $totalDeposits ?? 0, // Include deposits separately
+                'total_refunds' => $totalRefunds ?? 0,
             ]);
         }
 

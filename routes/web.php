@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\ProductCategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\PurchaseInvoiceController;
+use App\Http\Controllers\Admin\RefundController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SalesInvoiceController;
@@ -101,6 +102,18 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::post('inventory_transactions/transfer', [InventoryTransactionController::class, 'transfer'])
         ->name('inventory_transactions.transfer');
 
+    /* Stock Adjustments (REQ-018) */
+    Route::get('inventory_transactions/adjust', [InventoryTransactionController::class, 'adjustView'])
+        ->name('inventory_transactions.adjustView');
+    Route::post('inventory_transactions/adjust', [InventoryTransactionController::class, 'adjust'])
+        ->name('inventory_transactions.adjust');
+    Route::get('inventory_transactions/check_stock', [InventoryTransactionController::class, 'checkStock'])
+        ->name('inventory_transactions.check_stock');
+    Route::get('inventory_transactions/history', [InventoryTransactionController::class, 'history'])
+        ->name('inventory_transactions.history');
+    Route::get('inventory_transactions/history_data', [InventoryTransactionController::class, 'historyData'])
+        ->name('inventory_transactions.history_data');
+
     /* sales invoice  */
     Route::resource('sales_invoices', SalesInvoiceController::class);
     Route::get('sales_invoices/invoice/{id}', [SalesInvoiceController::class, 'showReceipt'])->name('sales_invoices.invoice');
@@ -109,6 +122,10 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::get('/get-items', [SalesInvoiceController::class, 'getItem'])->name('sales_invoices.getItem');
     Route::get('/get-related-employees', [EmployeeController::class, 'getRelatedEmployees'])->name('sales_invoices.getRelatedEmployees');
     // Route::get('/book_appointment', [SalesInvoiceController::class, 'bookAppointment'])->name('sales_invoices.bookAppointment');
+
+    /* Refunds & Returns */
+    Route::get('refunds/invoice-details/{id}', [RefundController::class, 'getInvoiceDetails'])->name('refunds.invoice_details');
+    Route::resource('refunds', RefundController::class)->only(['index', 'create', 'store', 'show']);
 
     /* Customers */
 

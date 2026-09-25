@@ -149,6 +149,11 @@ class RolesAndPermissionsSeeder extends Seeder
                 'sales_invoices.edit',
                 'sales_invoices.destroy',
 
+                /* refunds */
+                'refunds.index',
+                'refunds.show',
+                'refunds.create',
+
                 /* inventories */
                 'inventories.index',
                 'inventories.show',
@@ -159,6 +164,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 /* inventory_transactions */
                 'inventory_transactions.transferView',
                 'inventory_transactions.transferOutView',
+                'inventory_transactions.adjustView',
 
                 /* daily_revenues */
                 'customer_transactions.get_customer_payments',
