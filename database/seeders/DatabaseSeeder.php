@@ -13,21 +13,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        if (app()->environment(['local', 'testing']) && env('SEED_DEVELOPMENT_SIMULATION', true)) {
+            $this->call(DevelopmentSimulationSeeder::class);
+            return;
+        }
+
         $this->call([
             UserSeeder::class,
             RolesAndPermissionsSeeder::class,
             AdminPanelSettingSeeder::class,
             BranchSeeder::class,
-            // ProductCategorySeeder::class,
-            // UnitSeeder::class,
             PaymentMethodSeeder::class,
-            //SupplierSeeder::class,
-            //ProductSeeder::class,
-            // ToolSeeder::class,
-            // EmployeeLevelSeeder::class,
-            //ServiceCategorySeeder::class,
-            //EmployeeSeeder::class,
-
         ]);
     }
 }

@@ -780,5 +780,19 @@
     "Yes, proceed": "Yes, proceed",
     "You are not authorized to adjust inventory for another branch.": "You are not authorized to adjust inventory for another branch.",
     "You Have No permission for this page": "You Have No permission for this page",
-    "العربية": "العربية"
+    "العربية": "العربية",
+    "yesterday": "yesterday",
+    "today": "today",
+    "Tomorrow": "Tomorrow",
+    "custom":"custom",
+    "this week":"this week",
+    "this month":"this month",
+    "this year":"this year",
+    "last week":"last week",
+    "last month":"last month",
+    "last year":"last year",
+    "Start of Month":"Start of Month",
+    "End of Month":"End of Month",
+    "Start of Year":"Start of Year",
+    "End of Year":"End of Year"
 }

@@ -843,5 +843,20 @@
     "No recent activities recorded today": "لا توجد نشاطات مسجلة اليوم",
     "No appointments found for the selected view": "لم يتم العثور على مواعيد لهذا العرض",
     "Use Quick Actions to book a new client appointment": "استخدم الإجراءات السريعة لحجز موعد جديد للعميل",
-    "Start": "بدء الخدمة"
+    "Start": "بدء الخدمة",
+    "Back": "عودة",
+    "yesterday": "أمس",
+    "today": "اليوم",
+    "Tomorrow": "غداً",
+    "custom":"تخصيص",
+    "this week":"هذا الأسبوع",
+    "this month":"هذا الشهر",
+    "this year":"هذا العام",
+    "last week":"الأسبوع الماضي",
+    "last month":"الشهر الماضي",
+    "last year":"العام الماضي",
+    "Start of Month":"بداية الشهر",
+    "End of Month":"نهاية الشهر",
+    "Start of Year":"بداية العام",
+    "End of Year":"نهاية العام"
 }
