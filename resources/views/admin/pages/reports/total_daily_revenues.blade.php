@@ -157,7 +157,7 @@
 
             $('#filter').click(function() {
                 if (!$('#start_date').val() || !$('#end_date').val()) {
-                    alert('Please select both start and end dates');
+                    alert("{{ __('Please select both start and end dates') }}");
                     return;
                 }
                 table.draw();

@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <tr data-row-id="${rowCounter}">
                 <td>
                     <select name="details[${rowCounter}][product_id]" class="form-control select2 bg-white" required>
-                        <option value="">Select Product</option>
+                        <option value="">${window.__ ? window.__('Select Product') : 'Select Product'}</option>
                         ${productOptions}
                     </select>
                 </td>
@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .addEventListener("change", function (e) {
             if (e.target.name.includes("[product_id]")) {
                 if (isDuplicateProduct(e.target.value)) {
-                    alert("This product is already selected!");
+                    alert(window.__ ? window.__("This product is already selected!") : "This product is already selected!");
                     e.target.value = "";
                 }
             }
@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .addEventListener("submit", function (e) {
             const rows = document.querySelectorAll("#details-table tbody tr");
             if (rows.length === 0) {
-                alert("Please add at least one product to the invoice!");
+                alert(window.__ ? window.__("Please add at least one product to the invoice!") : "Please add at least one product to the invoice!");
                 e.preventDefault();
             }
         });
@@ -147,7 +147,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function validateNonNegative(input) {
         const value = parseFloat(input.value || 0);
         if (value < 0) {
-            alert("Value cannot be negative!");
+            alert(window.__ ? window.__("Value cannot be negative!") : "Value cannot be negative!");
             input.value = "";
         }
     }
@@ -155,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function validateDiscount(input) {
         const discount = parseFloat(input.value || 0);
         if (discount > 100) {
-            alert("Discount cannot exceed 100%!");
+            alert(window.__ ? window.__("Discount cannot exceed 100%!") : "Discount cannot exceed 100%!");
             input.value = 100;
         }
     }

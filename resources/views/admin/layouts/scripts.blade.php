@@ -28,8 +28,31 @@
   <script src="{{ asset('vendor/sweetalert/sweetalert.all.js') }}"></script>
   <script>
     window.__translations = @json(app()->getLocale() === 'ar' && file_exists(resource_path('lang/ar.json')) ? (json_decode(file_get_contents(resource_path('lang/ar.json')), true) ?? (object)[]) : (object)[]);
+    window.__translationsLower = {};
+    if (window.__translations) {
+        for (var k in window.__translations) {
+            if (Object.prototype.hasOwnProperty.call(window.__translations, k)) {
+                window.__translationsLower[k.trim().toLowerCase()] = window.__translations[k];
+            }
+        }
+    }
     window.__ = function(key) {
-        return (window.__translations && window.__translations[key]) ? window.__translations[key] : key;
+        if (!key) return '';
+        var str = String(key);
+        if (window.__translations) {
+            if (window.__translations[str] !== undefined) {
+                return window.__translations[str];
+            }
+            var trimmed = str.trim();
+            if (window.__translations[trimmed] !== undefined) {
+                return window.__translations[trimmed];
+            }
+            var lower = trimmed.toLowerCase();
+            if (window.__translationsLower && window.__translationsLower[lower] !== undefined) {
+                return window.__translationsLower[lower];
+            }
+        }
+        return key;
     };
     $(document).ready(function() {
         @if(app()->getLocale() === 'ar')

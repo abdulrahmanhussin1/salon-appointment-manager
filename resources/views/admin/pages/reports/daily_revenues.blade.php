@@ -278,7 +278,7 @@
                                         .total_other_payment_methods_revenue || 0)
                                     .toFixed(2));
                             } else {
-                                alert('Failed to retrieve data. Please try again.');
+                                alert("{{ __('Failed to retrieve data. Please try again.') }}");
                             }
                         }
                     });

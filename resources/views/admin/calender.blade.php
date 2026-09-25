@@ -3,8 +3,10 @@
     {{ __('Calender') }}
 @endsection
 @section('content')
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <script src="{{ asset('admin-assets/assets/vendor/fullcalendar-6.1.15/dist/index.global.min.js') }}"></script>
+    @if (app()->getLocale() === 'ar')
+        <script src="{{ asset('admin-assets/assets/vendor/fullcalendar-6.1.15/packages/core/locales/ar.global.min.js') }}"></script>
+    @endif
 
     <x-breadcrumb :pageName="__('Home')">
         <x-breadcrumb-item>{{ __('Home') }}</x-breadcrumb-item>
@@ -589,6 +591,14 @@
                     center: 'title',
                     right: 'timeGridWeek,timeGridDay'
                 },
+                buttonText: {
+                    today: '{{ __("Today") }}',
+                    month: '{{ __("Month") }}',
+                    week: '{{ __("Week") }}',
+                    day: '{{ __("Day") }}',
+                    timeGridWeek: '{{ __("Week") }}',
+                    timeGridDay: '{{ __("Day") }}'
+                },
                 events: '{{ route('appointments.index') }}',
                 editable: false,
                 eventClick: function(info) {
@@ -610,7 +620,8 @@
                     document.getElementById('edit_end_date').value = info.event.extendedProps.end_date;
 
                     var status = info.event.extendedProps.status || 'requested';
-                    var statusLabel = info.event.extendedProps.status_label || status;
+                    var rawStatusLabel = info.event.extendedProps.status_label || status;
+                    var statusLabel = window.__ ? window.__(rawStatusLabel) : rawStatusLabel;
                     var statusBadge = info.event.extendedProps.status_badge || 'bg-secondary text-white';
 
                     $('#event_status_badge').text(statusLabel).attr('class', 'badge ' + statusBadge);

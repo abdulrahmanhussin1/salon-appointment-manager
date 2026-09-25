@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <tr data-row-id="${rowCounter}">
                 <td>
                     <select name="details[${rowCounter}][product_id]" class="form-control select2 bg-white" required>
-                        <option value="">Select Product</option>
+                        <option value="">${window.__ ? window.__('Select Product') : 'Select Product'}</option>
                         ${productOptions}
                     </select>
                 </td>

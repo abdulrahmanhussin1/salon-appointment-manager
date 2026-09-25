@@ -16,6 +16,16 @@ class AppServiceProvider extends ServiceProvider
             $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
             $this->app->register(TelescopeServiceProvider::class);
         }
+
+        $this->app->extend('translator', function ($translator, $app) {
+            $trans = new \App\Translation\CaseInsensitiveTranslator(
+                $app['translation.loader'],
+                $app['config']['app.locale']
+            );
+            $trans->setFallback($app['config']['app.fallback_locale']);
+
+            return $trans;
+        });
     }
 
     /**

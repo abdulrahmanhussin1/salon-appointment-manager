@@ -110,4 +110,84 @@ class LocalizationTest extends TestCase
         $response->assertSee('dir="rtl"', false);
         $response->assertSee(__('Login to Your Account'));
     }
+
+    public function test_case_insensitive_and_whitespace_translation_works(): void
+    {
+        app()->setLocale('ar');
+
+        $this->assertEquals('الإجراء', __('Action'));
+        $this->assertEquals('الإجراء', __('action'));
+        $this->assertEquals('الإجراء', __('ACTION'));
+        $this->assertEquals('الإجراء', __('  Action  '));
+
+        $this->assertEquals('العميل', __('Customer'));
+        $this->assertEquals('العميل', __('customer'));
+
+        app()->setLocale('en');
+
+        $this->assertEquals('Action', __('Action'));
+        $this->assertEquals('Action', __('action'));
+        $this->assertEquals('Action', __('ACTION'));
+        $this->assertEquals('Action', __('  Action  '));
+    }
+
+    public function test_calendar_and_public_script_keys_exist_in_arabic(): void
+    {
+        app()->setLocale('ar');
+
+        $scriptKeys = [
+            'Select Product',
+            'This product is already selected!',
+            'Please add at least one product to the invoice!',
+            'Value cannot be negative!',
+            'Discount cannot exceed 100%!',
+            'Please select both start and end dates',
+            'Failed to retrieve data. Please try again.',
+            'Please fix the errors in the form before submitting.',
+            "The page you are looking for doesn't exist.",
+            'Today',
+            'Month',
+            'Week',
+            'Day',
+            'Cancel Appointment',
+            'Cancellation Reason',
+            'Appointment Details',
+        ];
+
+        foreach ($scriptKeys as $key) {
+            $translated = __($key);
+            $this->assertNotEquals($key, $translated, "Key '{$key}' was not translated to Arabic.");
+            $this->assertNotEmpty($translated);
+        }
+    }
+
+    public function test_lang_files_have_zero_case_insensitive_duplicates(): void
+    {
+        $arPath = resource_path('lang/ar.json');
+        $enPath = resource_path('lang/en.json');
+
+        $this->assertFileExists($arPath);
+        $this->assertFileExists($enPath);
+
+        $ar = json_decode(file_get_contents($arPath), true);
+        $en = json_decode(file_get_contents($enPath), true);
+
+        $this->assertIsArray($ar);
+        $this->assertIsArray($en);
+
+        $arKeysLower = array_map('mb_strtolower', array_keys($ar));
+        $enKeysLower = array_map('mb_strtolower', array_keys($en));
+
+        $this->assertCount(
+            count($arKeysLower),
+            array_unique($arKeysLower),
+            'ar.json contains case-insensitive duplicate keys!'
+        );
+
+        $this->assertCount(
+            count($enKeysLower),
+            array_unique($enKeysLower),
+            'en.json contains case-insensitive duplicate keys!'
+        );
+    }
 }

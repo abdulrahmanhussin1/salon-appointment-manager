@@ -426,7 +426,7 @@
                     if (!hasErrors) {
                         form.submit(); // Submit the form if there are no custom errors
                     } else {
-                        alert('Please fix the errors in the form before submitting.');
+                        alert("{{ __('Please fix the errors in the form before submitting.') }}");
                     }
                 }
             });
