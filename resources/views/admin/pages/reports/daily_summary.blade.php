@@ -10,6 +10,19 @@
 
         <div class="card-body">
             <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text">Branch</span>
+                        <select id="branch_id" class="form-select" {{ ! ($canSelectAll ?? true) ? 'disabled' : '' }}>
+                            @if($canSelectAll ?? true)
+                                <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>All Branches</option>
+                            @endif
+                            @foreach($branches ?? [] as $branch)
+                                <option value="{{ $branch->id }}" {{ ($effectiveBranchId ?? null) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
                 <div class="col-md-6">
                     <div class="input-group">
                         <span class="input-group-text">Date Range</span>
@@ -96,6 +109,7 @@
                     data: function(d) {
                         d.start_date = $('#start_date').val();
                         d.end_date = $('#end_date').val();
+                        d.branch_id = $('#branch_id').val();
                     },
                     "init": false
                 },

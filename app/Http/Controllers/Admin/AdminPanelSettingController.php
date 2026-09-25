@@ -47,6 +47,8 @@ class AdminPanelSettingController extends Controller
             'system_notes' => $request->input('system_notes'),
             'system_address' => $request->input('system_address'),
             'system_logo' => $newLogoPath,
+            'block_insufficient_consumables' => $request->boolean('block_insufficient_consumables'),
+            'void_time_window_hours' => $request->input('void_time_window_hours', 24),
             'updated_by' => auth()->id(),
         ]);
         Alert::success(__('Settings have been updated successfully.'));

@@ -105,6 +105,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::resource('sales_invoices', SalesInvoiceController::class);
     Route::get('sales_invoices/invoice/{id}', [SalesInvoiceController::class, 'showReceipt'])->name('sales_invoices.invoice');
     Route::post('sales_invoices/{sales_invoice}/activate', [SalesInvoiceController::class, 'activate'])->name('sales_invoices.activate');
+    Route::post('sales_invoices/{sales_invoice}/void', [SalesInvoiceController::class, 'void'])->name('sales_invoices.void');
     Route::get('/get-items', [SalesInvoiceController::class, 'getItem'])->name('sales_invoices.getItem');
     Route::get('/get-related-employees', [EmployeeController::class, 'getRelatedEmployees'])->name('sales_invoices.getRelatedEmployees');
     // Route::get('/book_appointment', [SalesInvoiceController::class, 'bookAppointment'])->name('sales_invoices.bookAppointment');
@@ -137,6 +138,9 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::get('reports/stock/data', [StockReportController::class, 'getData'])->name('report.stock_report');
     Route::get('reports/store-balance', [StoreBalanceReportController::class, 'index'])->name('report.stock_balance');
     Route::get('reports/store-balance/data', [StoreBalanceReportController::class, 'getData'])->name('report.stock_balance_transfer');
+    Route::get('reports/customer-deposits', [ReportController::class, 'customerDeposits'])->name('report.customer_deposits');
+    Route::get('reports/customer-deposits/data', [ReportController::class, 'customerDepositsData'])->name('report.customer_deposits_data');
+    Route::get('reports/customer-deposits/stats', [ReportController::class, 'customerDepositsStats'])->name('report.customer_deposits_stats');
 
     Route::get('/categories', [salesInvoiceController::class, 'getByType'])->name('sales_invoices.getByType');
     Route::get('/items', [salesInvoiceController::class, 'getByCategory'])->name('sales_invoices.getByCategory');

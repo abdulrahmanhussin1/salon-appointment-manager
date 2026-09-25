@@ -24,6 +24,11 @@ class Customer extends Model
         return $this->hasMany(CustomerTransaction::class);
     }
 
+    public function salesInvoices()
+    {
+        return $this->hasMany(SalesInvoice::class);
+    }
+
     public function getAvailableDepositAmount()
     {
         return CustomerTransaction::getAvailableDeposits($this->id)->sum('amount');

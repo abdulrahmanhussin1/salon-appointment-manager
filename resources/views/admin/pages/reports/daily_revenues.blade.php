@@ -30,11 +30,24 @@
                 <!-- Filters Section -->
                 <form id="dateFilterForm" method="GET" action="{{ route('report.daily_revenues') }}">
                     <div class="row mb-4">
-                        <div class="col-3">
+                        <div class="col-md-3">
+                            <label for="branch_id">Branch</label>
+                            <select id="branch_id" name="branch_id" class="form-control" {{ ! ($canSelectAll ?? true) ? 'disabled' : '' }}>
+                                @if($canSelectAll ?? true)
+                                    <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>All Branches</option>
+                                @endif
+                                @foreach($branches ?? [] as $branch)
+                                    <option value="{{ $branch->id }}" {{ ($effectiveBranchId ?? null) == $branch->id ? 'selected' : '' }}>
+                                        {{ $branch->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
                             <label for="from_date">From Date</label>
                             <input type="date" id="from_date" name="from_date" class="form-control">
                         </div>
-                        <div class="col-3">
+                        <div class="col-md-3">
                             <label for="to_date">To Date</label>
                             <input type="date" id="to_date" name="to_date" class="form-control">
                         </div>
@@ -93,8 +106,16 @@
                                 <td><strong class="text-success" id="total-cash">0.00</strong></td>
                             </tr>
                             <tr class="table-danger">
-                                <td>Total Other Expenses</td>
+                                <td><strong>Total Expenses</strong></td>
                                 <td><strong class="text-danger" id="total-expenses">0.00</strong></td>
+                            </tr>
+                            <tr>
+                                <td class="ps-4 text-muted"><small>• Cash Expenses</small></td>
+                                <td class="text-muted" id="total-cash-expenses">0.00</td>
+                            </tr>
+                            <tr>
+                                <td class="ps-4 text-muted"><small>• Non-Cash Expenses</small></td>
+                                <td class="text-muted" id="total-non-cash-expenses">0.00</td>
                             </tr>
                             <tr class="table-net-cash-total">
                                 <td><strong>Net Cash Revenue (Total Cash Revenue - Total Cash Payments):</strong></td>
@@ -199,7 +220,8 @@
                         method: "GET",
                         data: {
                             from_date: fromDate,
-                            to_date: toDate
+                            to_date: toDate,
+                            branch_id: $('#branch_id').val()
                         },
                         success: function(response) {
                             if (response) {
@@ -239,6 +261,12 @@
 
                                 $('#total-expenses').text(parseFloat(response
                                     .total_other_expenses || 0).toFixed(2));
+
+                                $('#total-cash-expenses').text(parseFloat(response
+                                    .total_cash_expenses || 0).toFixed(2));
+
+                                $('#total-non-cash-expenses').text(parseFloat(response
+                                    .total_non_cash_expenses || 0).toFixed(2));
 
                                 $('#net-cash-revenue').text(parseFloat(response
                                     .total_cash_revenue || 0) - parseFloat(response

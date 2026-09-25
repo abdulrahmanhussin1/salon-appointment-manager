@@ -129,7 +129,16 @@
     </x-breadcrumb>
     {{-- End breadcrumbs --}}
 
-
+    @if ($invoice->status === 'voided')
+        <div class="alert alert-danger text-center mb-3" style="max-width: 450px; margin: auto;">
+            <h4 class="alert-heading mb-1"><i class="bi bi-slash-circle me-1"></i> {{ __('THIS INVOICE IS VOIDED') }}</h4>
+            <div class="small">
+                <strong>{{ __('Voided At:') }}</strong> {{ $invoice->voided_at?->format('Y-m-d H:i') }}<br>
+                <strong>{{ __('Voided By:') }}</strong> {{ $invoice->voidedBy?->name ?? 'System' }}<br>
+                <strong>{{ __('Reason:') }}</strong> {{ $invoice->void_reason }}
+            </div>
+        </div>
+    @endif
 
     <section id="invoice" class="main-pd-wrapper" style="width: 450px; margin: auto">
         <div
@@ -140,6 +149,11 @@
                   font-size: 14px;
                   color: #4a4a4a;
                 ">
+            @if ($invoice->status === 'voided')
+                <div style="background-color: #f8d7da; color: #842029; padding: 6px; border-radius: 4px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase;">
+                    *** {{ __('VOIDED INVOICE') }} ***
+                </div>
+            @endif
             <img style="max-height:50px"
                 src="{{ !empty($adminPanelSetting->system_logo) ? (Storage::exists($adminPanelSetting->system_logo) ? Storage::url($adminPanelSetting->system_logo) : asset('admin-assets/assets/img/avatar.jpg')) : '' }}"
                 alt="">
@@ -247,20 +261,42 @@
 
     <div style="width: 450px; margin: auto">
         <button onclick="printInvoice()" class="btn btn-success btn-sm mt-3 w-100">Print</button>
+        @if ($invoice->status !== 'voided' && \App\Traits\AppHelper::perUser('sales_invoices.void'))
+            <button type="button" class="btn btn-outline-danger btn-sm mt-2 w-100" data-bs-toggle="modal" data-bs-target="#voidInvoiceModal">
+                <i class="bi bi-slash-circle me-1"></i> {{ __('Void Invoice') }}
+            </button>
+
+            <!-- Void Invoice Modal -->
+            <div class="modal fade" id="voidInvoiceModal" tabindex="-1" aria-labelledby="voidInvoiceModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <form method="POST" action="{{ route('sales_invoices.void', $invoice->id) }}">
+                        @csrf
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title text-danger" id="voidInvoiceModalLabel"><i class="bi bi-exclamation-triangle-fill me-2"></i>{{ __('Void Invoice') }} #{{ $invoice->id }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-start">
+                                <p class="text-secondary mb-3">{{ __('Are you sure you want to void this invoice? All inventory deductions and deposit usages will be reversed. This action cannot be undone.') }}</p>
+                                <div class="mb-3">
+                                    <label for="void_reason" class="form-label fw-bold">{{ __('Reason for voiding') }} <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="void_reason" name="reason" rows="3" required placeholder="{{ __('Please specify the reason for voiding this invoice...') }}"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                                <button type="submit" class="btn btn-danger">{{ __('Confirm Void') }}</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endif
     </div>
 @endsection
 
 @section('js')
     <script>
-        // function printInvoice() {
-        //     const originalContents = document.body.innerHTML; // Store original content
-        //     const invoiceContent = document.getElementById('invoice').outerHTML; // Get invoice content
-        //     document.body.innerHTML = invoiceContent; // Replace body with invoice content
-        //     window.print(); // Trigger print
-        //     document.body.innerHTML = originalContents; // Restore original content
-        //     location.reload(); // Reload the page to restore event listeners
-        // }
-
         function printInvoice() {
             const originalContents = document.body.innerHTML; // Store original content
             const invoiceContent = document.getElementById('invoice').outerHTML; // Get invoice content
@@ -295,5 +331,15 @@
             // Reload the page to restore event listeners
             location.reload();
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.location.hash === '#void') {
+                const voidModalEl = document.getElementById('voidInvoiceModal');
+                if (voidModalEl && typeof bootstrap !== 'undefined') {
+                    const modal = new bootstrap.Modal(voidModalEl);
+                    modal.show();
+                }
+            }
+        });
     </script>
 @endsection

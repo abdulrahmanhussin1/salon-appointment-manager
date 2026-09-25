@@ -18,21 +18,34 @@
         <div class="card-body">
             <!-- Filters -->
             <div class="row mb-4">
-                <div class="col-md-3">
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label>Branch</label>
+                        <select class="form-control" id="branch_filter" {{ ! ($canSelectAll ?? true) ? 'disabled' : '' }}>
+                            @if($canSelectAll ?? true)
+                                <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>All Branches</option>
+                            @endif
+                            @foreach ($branches ?? [] as $branch)
+                                <option value="{{ $branch->id }}" {{ ($effectiveBranchId ?? null) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
                     <div class="form-group">
                         <label>From Date</label>
                         <input type="date" class="form-control" id="start_date" name="start_date"
                             value="{{ date('Y-m-d') }}">
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="form-group">
                         <label>To Date</label>
                         <input type="date" class="form-control" id="end_date" name="end_date"
                             value="{{ date('Y-m-d') }}">
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="form-group">
                         <label>Employee</label>
                         <select class="form-control" id="employee_filter">
@@ -43,7 +56,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="form-group">
                         <label>Service</label>
                         <select class="form-control" id="service_filter">
@@ -54,7 +67,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="form-group">
                         <label>&nbsp;</label>
                         <button class="btn btn-primary btn-sm btn-block mt-4" id="filter_button">Filters</button>
@@ -92,7 +105,7 @@
                         d.end_date = $('#end_date').val();
                         d.employee_id = $('#employee_filter').val();
                         d.service_id = $('#service_filter').val(); // Add service filter
-
+                        d.branch_id = $('#branch_filter').val();
                     }
                 },
                 columns: [{
@@ -137,8 +150,8 @@
                         start_date: $('#start_date').val(),
                         end_date: $('#end_date').val(),
                         employee_id: $('#employee_filter').val(),
-                        service_id: $('#service_filter').val() // Add service filter
-
+                        service_id: $('#service_filter').val(),
+                        branch_id: $('#branch_filter').val()
                     },
                     success: function(data) {
                         // Update summary statistics if needed

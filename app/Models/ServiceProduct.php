@@ -13,8 +13,13 @@ class ServiceProduct extends Model
 
     protected $table = 'service_products';
 
-    public function services()
+    public function service()
     {
-        return $this->belongsToMany(Service::class, 'services_products');
+        return $this->belongsTo(Service::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }

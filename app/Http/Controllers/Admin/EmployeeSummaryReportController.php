@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use App\Traits\HasBranchFilter;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,15 +12,27 @@ use Yajra\DataTables\Facades\DataTables;
 
 class EmployeeSummaryReportController extends Controller
 {
-    public function index()
-    {
-        $employees = Employee::where('status', 'active')->get();
+    use HasBranchFilter;
 
-        return view('admin.pages.reports.summary_employee_report', compact('employees'));
+    public function index(Request $request)
+    {
+        $branches = $this->getAvailableBranches();
+        $canSelectAll = $this->canAccessAllBranches();
+        $effectiveBranchId = $this->getEffectiveBranchId($request->input('branch_id'));
+
+        $employeesQuery = Employee::where('status', 'active');
+        if ($effectiveBranchId) {
+            $employeesQuery->where('branch_id', $effectiveBranchId);
+        }
+        $employees = $employeesQuery->get();
+
+        return view('admin.pages.reports.summary_employee_report', compact('employees', 'branches', 'canSelectAll', 'effectiveBranchId'));
     }
 
     public function getData(Request $request)
     {
+        $effectiveBranchId = $this->getEffectiveBranchId($request->input('branch_id'));
+
         $query = DB::table('sales_invoice_details')
             ->join('sales_invoices', 'sales_invoices.id', '=', 'sales_invoice_details.sales_invoice_id')
             ->join('employees', 'employees.id', '=', 'sales_invoice_details.provider_id')
@@ -35,6 +48,10 @@ class EmployeeSummaryReportController extends Controller
                 DB::raw('COUNT(DISTINCT sales_invoice_details.sales_invoice_id) as invoices_count'),
             ])
             ->groupBy('employees.id', 'employees.name');
+
+        if ($effectiveBranchId) {
+            $query->where('sales_invoices.branch_id', $effectiveBranchId);
+        }
 
         // Apply date filter
         if ($request->filled('start_date') && $request->filled('end_date')) {
@@ -74,9 +91,15 @@ class EmployeeSummaryReportController extends Controller
 
     public function getStats(Request $request)
     {
+        $effectiveBranchId = $this->getEffectiveBranchId($request->input('branch_id'));
+
         $query = DB::table('sales_invoice_details')
             ->join('sales_invoices', 'sales_invoices.id', '=', 'sales_invoice_details.sales_invoice_id')
             ->where('sales_invoices.status', 'active');
+
+        if ($effectiveBranchId) {
+            $query->where('sales_invoices.branch_id', $effectiveBranchId);
+        }
 
         // Apply date filter
         if ($request->filled('start_date') && $request->filled('end_date')) {

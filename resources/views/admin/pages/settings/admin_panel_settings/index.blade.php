@@ -46,7 +46,16 @@
                                 <div class="mb-3">
                                     <label for="formFile" class="form-label">Logo</label>
                                     <input class="form-control" name="system_logo" type="file" id="systemLogo">
-                                  </div>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="block_insufficient_consumables" value="1" id="blockInsufficientConsumables" {{ !empty($setting->block_insufficient_consumables) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="blockInsufficientConsumables">{{ __('Block Sale on Insufficient Consumables') }}</label>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="voidTimeWindowHours" class="form-label">{{ __('Invoice Void Time Window (Hours)') }}</label>
+                                    <input type="number" class="form-control" name="void_time_window_hours" id="voidTimeWindowHours" min="1" max="720" value="{{ $setting->void_time_window_hours ?? 24 }}">
+                                    <div class="form-text">{{ __('Time limit in hours during which an invoice can be voided (default: 24).') }}</div>
+                                </div>
                         </div>
 
                         <x-modal-footer class="btn-primary"/>
@@ -80,6 +89,22 @@
                 <tr>
                     <th>{{ __('Company Notes') }}</th>
                     <td>{{ $setting->system_notes }}</td>
+                </tr>
+
+                <tr>
+                    <th>{{ __('Block on Insufficient Consumable Stock') }}</th>
+                    <td>
+                        @if (!empty($setting->block_insufficient_consumables))
+                            <span class="badge bg-danger">{{ __('Yes (Block)') }}</span>
+                        @else
+                            <span class="badge bg-success">{{ __('No (Warning Only)') }}</span>
+                        @endif
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>{{ __('Invoice Void Time Window') }}</th>
+                    <td>{{ $setting->void_time_window_hours ?? 24 }} {{ __('hours') }}</td>
                 </tr>
 
 

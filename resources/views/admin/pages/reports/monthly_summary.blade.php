@@ -33,6 +33,14 @@
                     <h1 class="h3 mb-0">Monthly Report <span id="year-display">{{ date('Y') }}</span></h1>
                 </div>
                 <div class="col-md-6 text-md-end">
+                    <select id="branch_id" class="form-select w-auto d-inline-block me-2" {{ ! ($canSelectAll ?? true) ? 'disabled' : '' }}>
+                        @if($canSelectAll ?? true)
+                            <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>All Branches</option>
+                        @endif
+                        @foreach($branches ?? [] as $branch)
+                            <option value="{{ $branch->id }}" {{ ($effectiveBranchId ?? null) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+                        @endforeach
+                    </select>
                     <select id="year-filter" class="form-select w-auto d-inline-block me-2">
                         @for ($y = date('Y'); $y >= 2020; $y--)
                             <option value="{{ $y }}">{{ $y }}</option>
@@ -87,6 +95,7 @@
                     url: "{{ route('report.monthlySummary') }}",
                     data: function(d) {
                         d.year = $('#year-filter').val();
+                        d.branch_id = $('#branch_id').val();
                     }
                 },
                 columns: [
@@ -159,6 +168,10 @@
 
             $('#year-filter').change(function() {
                 $('#year-display').text($(this).val());
+                table.ajax.reload();
+            });
+
+            $('#branch_id').change(function() {
                 table.ajax.reload();
             });
         });

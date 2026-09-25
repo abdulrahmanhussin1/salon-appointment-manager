@@ -39,6 +39,7 @@ class CheckRole
                 || ($page === 'update' && self::perUSer($type.'.edit'))
                 || ($page === 'transfer' && self::perUSer($type.'.transferView'))
                 || ($page === 'activate' && self::perUSer($type.'.create'))
+                || ($page === 'void' && self::perUSer($type.'.void'))
                 || ($page === 'invoice' && self::perUSer($type.'.show'))
                 || ($type === 'appointments' && in_array($page, ['confirm', 'cancel', 'check_in', 'start_service', 'complete', 'no_show', 'status']) && self::perUSer('appointments.edit'))
 
@@ -62,6 +63,7 @@ class CheckRole
                 || ($page === 'stock_report' && self::perUSer('reports.index'))
                 || ($page === 'stock_balance' && self::perUSer('reports.index'))
                 || ($page === 'stock_balance_transfer' && self::perUSer('reports.index'))
+                || (in_array($page, ['customer_deposits', 'customer_deposits_data', 'customer_deposits_stats']) && self::perUSer('reports.index'))
 
                 || ($page === 'getDetails' && self::perUSer('sales_invoices.create'))
                 || ($page === 'getByType' && self::perUSer('sales_invoices.create'))

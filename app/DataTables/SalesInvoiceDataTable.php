@@ -44,25 +44,25 @@ class SalesInvoiceDataTable extends DataTable
                     <i class="bi bi-three-dots-vertical"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end py-2">';
-                // if (AppHelper::perUser('purchase_invoices.edit')) {
-                //     $html .= '<a href="' . route('purchase_invoices.edit', ['purchase_invoice' => $model]) . '" class="dropdown-item">Edit</a>';
-                // }
-                // if (AppHelper::perUser('purchase_invoices.destroy')) {
-                //     $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-purchase_invoice" data-id="' . $model->id . '" data-url="' . route('purchase_invoices.destroy', ['purchase_invoice' => $model]) . '">Delete</a></div></div>';
-                // }
                 if (AppHelper::perUser('sales_invoices.create')) {
-                    $html .= '<div class="dropdown-divider"></div><a  class="dropdown-item t " data-id="'.$model->id.'" href="'.route('sales_invoices.invoice', $model->id).'">Invoice</a></div></div>';
+                    $html .= '<a class="dropdown-item" data-id="'.$model->id.'" href="'.route('sales_invoices.invoice', $model->id).'">Invoice</a>';
                 }
+                if ($model->status !== 'voided' && AppHelper::perUser('sales_invoices.void')) {
+                    $html .= '<div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="'.route('sales_invoices.invoice', $model->id).'#void">Void Invoice</a>';
+                }
+                $html .= '</div></div>';
 
                 return $html;
             })
             ->editColumn('status', function ($model) {
                 if ($model->status == 'active') {
-                    return '<i class="bi bi-check-circle-fill text-success" style="font-size:large"></i>';
+                    return '<i class="bi bi-check-circle-fill text-success" style="font-size:large" title="Active"></i>';
                 } elseif ($model->status == 'inactive') {
-                    return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large"></i>';
+                    return '<i class="bi bi-x-circle-fill text-secondary" style="font-size:large" title="Inactive"></i>';
+                } elseif ($model->status == 'voided') {
+                    return '<span class="badge bg-danger"><i class="bi bi-slash-circle me-1"></i>Voided</span>';
                 } else {
-                    return '<i class=" bi-dash-circle text-warning" style="font-size:large"></i>';
+                    return '<span class="badge bg-warning text-dark">Draft</span>';
                 }
             })
             ->editColumn('customer_id', function ($model) {

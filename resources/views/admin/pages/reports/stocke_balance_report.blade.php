@@ -24,7 +24,20 @@
             <div class="row mb-3">
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label for="inventory_id">Branch</label>
+                        <label for="branch_id">Branch</label>
+                        <select class="form-control" id="branch_id" name="branch_id" {{ ! ($canSelectAll ?? true) ? 'disabled' : '' }}>
+                            @if($canSelectAll ?? true)
+                                <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>All Branches</option>
+                            @endif
+                            @foreach($branches ?? [] as $branch)
+                                <option value="{{ $branch->id }}" {{ ($effectiveBranchId ?? null) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="inventory_id">Inventory</label>
                         <select class="form-control" id="inventory_id" name="inventory_id">
                             <option value="">ALL</option>
                             @foreach($inventories as $inventory)
@@ -93,6 +106,7 @@ $(function() {
             url: "{{ route('report.stock_balance_transfer') }}",
             data: function(d) {
                 d.inventory_id = $('#inventory_id').val();
+                d.branch_id = $('#branch_id').val();
             }
         },
         columns: [

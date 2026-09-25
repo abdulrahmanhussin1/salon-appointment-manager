@@ -65,9 +65,9 @@ When implementing a requirement from `PRODUCT_REQUIREMENTS.md`:
 
 ## DEC-003: Invoice Void vs. Delete
 
-**Date:** _(to be filled when REQ-015 is implemented)_
+**Date:** 2026-09-25
 **Requirement:** REQ-015
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** When an invoice needs to be cancelled, options:
 1. Hard delete the record
@@ -75,13 +75,22 @@ When implementing a requirement from `PRODUCT_REQUIREMENTS.md`:
 3. Set `status = 'voided'` with audit columns
 
 **Decision:** Use `status = 'voided'` with `voided_by`, `voided_at`, `void_reason` columns. No soft delete, no hard delete.
+- Implemented `SalesInvoice::void(string $reason, ?int $userId = null)` wrapped in a database transaction.
+- Restores retail product stock in the invoice branch.
+- Restores service consumable stock in the invoice branch.
+- Restores customer deposit usage back to source deposit transaction (`status = 'available'`) without double-counting.
+- Recomputes `customer.last_service` if established by this invoice.
+- Enforced a configurable time window (`AdminPanelSetting.void_time_window_hours`, default 24h).
+- Added `sales_invoices.void` permission gated in `CheckRole` middleware.
+- Re-voiding, deleting, or activating voided invoices is strictly prohibited.
+- Receipt view and DataTable updated with void badges, alert banners, and confirmation modals.
 
 **Reason:**
 - Financial records must never be destroyed — immutable history requirement (NFR-002)
 - Soft delete via `deleted_at` hides the record entirely; voided invoices should remain visible in the audit trail
 - `status = 'voided'` is consistent with the existing status pattern on `sales_invoices`
 
-**Consequences:** All report queries must explicitly exclude `status = 'voided'` (most already filter for `status = 'active'`).
+**Consequences:** All report queries must explicitly exclude `status = 'voided'` (existing queries already filter for `status = 'active'`).
 
 ---
 
@@ -109,24 +118,28 @@ When implementing a requirement from `PRODUCT_REQUIREMENTS.md`:
 
 ## DEC-005: Service Consumable Deduction — Non-Blocking on Insufficient Stock
 
-**Date:** _(to be filled when REQ-014 is implemented)_
+**Date:** 2026-09-25
 **Requirement:** REQ-014
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** When a service is sold but there is insufficient consumable stock, options:
 1. Block the sale entirely
 2. Allow the sale but show a warning
 3. Allow the sale silently
 
-**Decision:** Allow the sale but show a warning. Do not block.
+**Decision:** Allow the sale by default but return/display a warning without blocking the sale. Added configurable behavior via `AdminPanelSetting.block_insufficient_consumables` (boolean, default false):
+- If `block_insufficient_consumables = false` (default): deduct consumable stock (can go negative in branch inventory), record `InventoryTransaction` of type `'service_consumption'`, and return actionable warning.
+- If `block_insufficient_consumables = true`: immediately block sale/activation and throw validation exception with rollback.
+- Draft invoices do NOT deduct consumable inventory until explicitly activated via `SalesInvoiceController::activate()`.
+- Consumable deductions are strictly scoped to the invoice's branch.
+- Added `out_qty` and `out_value` inclusion of `service_consumption` in `StoreBalanceReportController`.
 
 **Reason:**
-- A salon cannot refuse to cut a customer's hair because the internal stock count is wrong
-- Stock discrepancies are common in real operations (theft, waste, incorrect counts)
-- The consumable deduction warning flags the issue for the inventory manager without harming the customer experience
-- Behavior is configurable via `AdminPanelSetting` in a later phase
+- A salon cannot refuse to deliver a service because internal stock counts are inaccurate.
+- Stock discrepancies are common in real operations (theft, waste, incorrect counts).
+- Configurable setting gives salon owners the flexibility to enforce strict stock control when desired.
 
-**Consequences:** Stock can go negative for consumables. Reports must handle negative stock gracefully.
+**Consequences:** Consumable stock can go negative when non-blocking mode is active. Inventory transactions and balance reports track `service_consumption` accurately.
 
 ---
 
@@ -458,5 +471,40 @@ Prior to starting Phase 2 (REQ-013: Branch-Filtered Reports), an adversarial sen
 - Prevents technical debt accumulation and regression vulnerabilities.
 
 **Consequences:** The entire system is production-hardened, fully compliant with product requirements and business rules, and backed by a comprehensive suite of 63 passing domain tests.
+
+---
+
+## DEC-018: Centralized Branch Filtering Trait and Multi-Report Branch Isolation
+
+**Date:** 2026-09-25
+**Requirement:** REQ-013 (GAP-005, NFR-003, NFR-005)
+**Status:** Accepted
+
+**Context:**
+All financial, operational, employee, and inventory reports previously aggregated data across all salon branches without any branch filtering capability. Branch managers and cashiers could view data from other branches, and business owners had no mechanism to compare performance between branches or view a single branch in isolation.
+Furthermore, authorization requirements demanded that cashier and branch-scoped staff be strictly auto-filtered to their assigned branch without the ability to tamper with or override the branch filter in client requests.
+
+**Decision:**
+1. Created reusable trait `App\Traits\HasBranchFilter` providing:
+   - `canAccessAllBranches(): bool`: Evaluates user roles; returns `false` if user has role `'cashier'` or is non-admin with an assigned `employee->branch_id`.
+   - `getEffectiveBranchId($requestedBranchId = null): ?int`: Server-side branch resolver. If the user cannot access all branches, it strictly forces their assigned `employee->branch_id`, completely ignoring any incoming `branch_id` from the request. For users with admin/owner access, it accepts a numeric branch ID or returns `null` (representing all branches).
+   - `getAvailableBranches(): Collection`: Returns active branches for admins, or strictly the user's branch for restricted roles.
+2. Implemented branch filtering across all 5 report controllers:
+   - `ReportController`: Scoped daily cash revenues, total daily revenues, daily summary, and monthly summary by `$effectiveBranchId` for sales, expenses, purchases, deposits, and provider counts.
+   - `EmployeeSummaryReportController`: Scoped employee performance movements, revenues, and commissions by `sales_invoices.branch_id`.
+   - `EmployeeReportController`: Scoped employee service details and performance stats by `sales_invoices.branch_id`.
+   - `StockReportController`: Scoped product stock quantities and values by `products.branch_id` and inventory branch relations.
+   - `StoreBalanceReportController`: Scoped beginning balances, in-transfers/purchases, out-transfers/sales, and on-hand quantities/values strictly by branch and inventory.
+3. Enhanced all 8 report Blade templates with branch filter selectors, disabled states for restricted roles, and automatic parameter binding in AJAX and DataTables requests.
+4. Resolved cross-database driver compatibility in `ReportController::monthlySummary()` by providing dynamic expression resolution (`strftime` for SQLite / `MONTH` for MySQL).
+5. Created comprehensive test suite `tests/Feature/BranchFilteredReportsTest.php` with 8 test cases (37 assertions).
+
+**Reason:**
+- Centralizing branch resolution logic in a trait guarantees consistency and DRY compliance across all report controllers.
+- Enforcing cashier branch isolation on the server-side prevents client-side parameter tampering and ensures strict data privacy between branches.
+- Retaining multi-branch switching for administrators satisfies business oversight and comparative reporting needs.
+
+**Consequences:** Multi-branch operations now possess rigorous branch-level accountability and security across all reporting dashboards.
+
 
 

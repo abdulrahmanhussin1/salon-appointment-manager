@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('inventory_transactions', function (Blueprint $table) {
             $table->id();
-            $table->enum('transaction_type', ['purchase', 'sales', 'transfer']);
+            $table->enum('transaction_type', ['purchase', 'sales', 'transfer', 'service_consumption']);
             $table->foreignId('source_inventory_id')->nullable()->constrained('inventories', 'id')->cascadeOnUpdate()->nullOnDelete();
             $table->foreignId('destination_inventory_id')->nullable()->constrained('inventories', 'id')->cascadeOnUpdate()->nullOnDelete();
             $table->decimal('total_before_discount', 15, 2)->nullable();

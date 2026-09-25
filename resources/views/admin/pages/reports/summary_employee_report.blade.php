@@ -19,14 +19,27 @@
             <div class="card-body">
                 <!-- Filters -->
                 <div class="row mb-4">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Branch</label>
+                            <select class="form-control" id="branch_filter" {{ ! ($canSelectAll ?? true) ? 'disabled' : '' }}>
+                                @if($canSelectAll ?? true)
+                                    <option value="all" {{ ($effectiveBranchId ?? null) === null ? 'selected' : '' }}>All Branches</option>
+                                @endif
+                                @foreach ($branches ?? [] as $branch)
+                                    <option value="{{ $branch->id }}" {{ ($effectiveBranchId ?? null) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
                         <div class="form-group">
                             <label>From Date</label>
                             <input type="date" class="form-control" id="start_date" name="start_date"
                                 value="{{ date('Y-m-d') }}">
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="form-group">
                             <label>To Date</label>
                             <input type="date" class="form-control" id="end_date" name="end_date"
@@ -120,6 +133,7 @@
                         d.start_date = $('#start_date').val();
                         d.end_date = $('#end_date').val();
                         d.employee_id = $('#employee_filter').val();
+                        d.branch_id = $('#branch_filter').val();
                     }
                 },
                 columns: [{
@@ -170,7 +184,8 @@
                     data: {
                         start_date: $('#start_date').val(),
                         end_date: $('#end_date').val(),
-                        employee_id: $('#employee_filter').val()
+                        employee_id: $('#employee_filter').val(),
+                        branch_id: $('#branch_filter').val()
                     },
                     success: function(data) {
                         $('#total_employees').text(data.total_employees.toLocaleString());

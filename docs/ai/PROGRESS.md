@@ -46,11 +46,11 @@
 
 | ID | Requirement | Status | Notes |
 |---|---|---|---|
-| REQ-013 | Branch-filtered reports | ⬜ | All report controllers + views |
-| REQ-014 | Service consumable inventory deduction | ⬜ | Depends on REQ-005 |
-| REQ-015 | Invoice void / cancel workflow | ⬜ | New action + audit columns |
-| REQ-016 | Fix daily revenue report expense calculation (cash-only filter) | ⬜ | One-line fix in ReportController |
-| REQ-020 | Outstanding customer deposit report | ⬜ | New report view + query |
+| REQ-013 | Branch-filtered reports | ✅ | Implemented HasBranchFilter trait across ReportController, EmployeeReportController, EmployeeSummaryReportController, StockReportController, StoreBalanceReportController, and all 8 report Blade views; server-side cashier branch locking and admin multi-branch switching; 8 feature tests passing (37 assertions) |
+| REQ-014 | Service consumable inventory deduction | ✅ | Added service_consumption to inventory_transactions; block_insufficient_consumables setting to admin_panel_settings; deductServiceConsumables FIFO branch deduction in SalesInvoiceController store and activate; warning on insufficient stock by default; 8 feature tests passing (42 assertions) |
+| REQ-015 | Invoice void / cancel workflow | ✅ | Added voided status enum, audit columns (voided_by, voided_at, void_reason), void_time_window_hours setting (default 24h), sales_invoices.void permission, SalesInvoice::void() with complete rollback (retail inventory, service consumables, customer deposit usage, customer last_service), UI receipt banner/modal & DataTable action, 12 feature tests passing (37 assertions) |
+| REQ-016 | Fix daily revenue report expense calculation (cash-only filter) | ✅ | Removed cash-only filter in ReportController::dailyRevenues(); sums all active expenses across all payment methods; added total_cash_expenses and total_non_cash_expenses breakdown in API response & UI; 5 feature tests passing (14 assertions) |
+| REQ-020 | Outstanding customer deposit report | ✅ | Implemented customer deposit ledger report & KPI dashboard in ReportController, Yajra DataTables endpoint, balance filtering (positive vs all), strict cashier branch isolation via HasBranchFilter; navbar integration; 10 feature tests passing (58 assertions) |
 
 ---
 
@@ -77,6 +77,101 @@
 ---
 
 ## Implementation Log
+
+### 2026-09-25 — REQ-020 Implemented & Verified (Outstanding Customer Deposit Report) — Phase 2 Complete
+
+- Implemented **REQ-020: Outstanding Customer Deposit Report** ([GAP-019](file:///home/abdulrahman/Projects/salon-appointment-manager/docs/product/PRODUCT_REQUIREMENTS.md)), completing Phase 2 (Financial Integrity).
+- Routes & Permissions:
+  - Registered routes `report.customer_deposits`, `report.customer_deposits_data`, and `report.customer_deposits_stats` under `admin/reports/` in `routes/web.php`.
+  - Mapped all 3 route endpoints in `app/Http/Middleware/CheckRole.php` to require the `reports.index` permission.
+- Controller Implementation (`app/Http/Controllers/Admin/ReportController.php`):
+  - `customerDeposits(Request $request)`: Renders view with available branches, `canSelectAll` permission, and effective branch scoping.
+  - `customerDepositsData(Request $request)`: Serves Yajra DataTables JSON with database-level aggregation across `customer_transactions`:
+    - Tracks `customer_name`, `customer_phone`, `branch_name`, `total_deposited`, `total_used`, and `current_balance` (`status = 'available' AND amount > 0`).
+    - Supports `balance_filter` parameter (`positive` to filter customers with `current_balance > 0` vs `all` for full deposit history).
+    - Enforces server-side branch isolation via `HasBranchFilter`: Cashiers are strictly locked to their assigned branch (`$effectiveBranchId`).
+  - `customerDepositsStats(Request $request)`: Serves aggregate financial KPI JSON figures:
+    - `total_liability`: Sum of all unredeemed available deposits across customers in scope.
+    - `total_deposited`: All-time total deposits received in scope (`total_liability + total_used`).
+    - `total_used`: All-time total deposits redeemed on invoices in scope.
+    - `customers_count`: Unique customer count holding a positive deposit balance in scope.
+- User Interface & Navigation:
+  - Created `resources/views/admin/pages/reports/customer_deposits.blade.php`:
+    - 4 executive financial KPI cards (Total Liability, Active Deposit Holders, Total Received, Total Redeemed) with distinct icons and colors.
+    - Filter controls for Branch (with cashier auto-lock) and Balance Filter (`positive` vs `all`).
+    - Responsive DataTables table with real-time balance badges, last activity timestamps, profile action links, and export buttons (Excel, CSV, PDF, Print, Copy).
+    - Auto-refreshing AJAX stats updater on filter changes.
+  - Updated `resources/views/admin/layouts/navbar.blade.php`: Added Customer Deposits Report link under the Reports dropdown menu with `bi-wallet2` icon.
+- Test Suite & Quality Assurance:
+  - Created `tests/Feature/CustomerDepositReportTest.php` with 10 comprehensive feature test cases (58 assertions):
+    - Guest authentication protection on page, data, and stats endpoints.
+    - Unauthorized access rejection (403 without `reports.index`).
+    - Admin multi-branch view and branch-switching capabilities.
+    - Cashier strict branch lock and client-side override rejection (cannot view deposits from other branches).
+    - Balance filter validation (`positive` vs `all`).
+    - Ledger reconciliation: verified that invoice voiding restores consumed deposit balances and reflects immediately in report stats and DataTables.
+- Test suite state: 111 tests, 491 assertions passing with 100% success rate (0 failures, 0 regressions).
+- Formatted entire codebase with Laravel Pint (0 style violations).
+
+### 2026-09-25 — REQ-014 Implemented & Verified (Service Consumable Inventory Deduction)
+
+- Implemented **REQ-014: Service Consumable Inventory Deduction** ([GAP-006](file:///home/abdulrahman/Projects/salon-appointment-manager/docs/product/PRODUCT_REQUIREMENTS.md), [BR-P008](file:///home/abdulrahman/Projects/salon-appointment-manager/docs/product/business-rules.md), [DEC-005](file:///home/abdulrahman/Projects/salon-appointment-manager/docs/ai/DECISIONS.md)).
+- Database Migrations:
+  - Updated `database/migrations/2024_11_22_173722_create_inventory_transactions_table.php` to include `'service_consumption'` in `transaction_type` enum for fresh migrations / SQLite tests.
+  - Created migration `2026_09_25_000001_add_service_consumption_to_inventory_transactions_table.php` altering MySQL enum column to include `'service_consumption'`.
+  - Created migration `2026_09_25_000002_add_block_insufficient_consumables_to_admin_panel_settings_table.php` adding boolean column `block_insufficient_consumables` (default: false).
+- Models & Settings:
+  - Updated `Service`: added `->withPivot('product_quantity')` on `products()` and added `consumableProducts()` relation.
+  - Updated `ServiceProduct`: fixed relations to `belongsTo(Service::class)` and `belongsTo(Product::class)`.
+  - Updated `AdminPanelSetting`: added cast for `'block_insufficient_consumables' => 'boolean'`.
+  - Updated `AdminPanelSettingRequest` & `AdminPanelSettingController`: added validation and boolean handling for `block_insufficient_consumables`.
+  - Updated `resources/views/admin/pages/settings/admin_panel_settings/index.blade.php`: added toggle switch to edit modal and status row to settings table.
+- Sales Invoicing & Consumable Deduction:
+  - Updated `SalesInvoiceController::processService()`: when `$status === 'active'`, invokes `$this->deductServiceConsumables($service->id, $item['quantity'], $branchId, $warnings)`.
+  - Implemented `deductServiceConsumables()`: calculates `product_quantity * service_quantity` for all linked consumables.
+  - Implemented `deductConsumableFromInventory()`:
+    - Scoped strictly to the invoice's branch (`branch_id`).
+    - Checks `AdminPanelSetting.block_insufficient_consumables`: if true and stock is insufficient, throws `ValidationException` / blocks sale with rollback; if false (default per DEC-005), records warning and allows stock to decrement into negative.
+    - Uses FIFO deduction with pessimistic row locking (`lockForUpdate()`).
+    - Records `InventoryTransaction` of type `'service_consumption'` with `source_inventory_id`.
+    - Records `InventoryTransactionDetail` with consumed product quantity.
+  - Updated `SalesInvoiceController::activate()`: activates draft invoices and executes consumable deductions for all service line items in the invoice's branch.
+  - Updated `public/admin-assets/assets/js/sales_invoice.js`: displays consumable stock warnings in the checkout success modal when non-empty.
+- Reports Integration:
+  - Updated `StoreBalanceReportController`: included `'service_consumption'` alongside `'sales'` in `out_qty` and `out_value` calculations.
+- Comprehensive Test Coverage:
+  - Created `tests/Feature/ServiceConsumableDeductionTest.php` with 8 test cases (42 assertions) testing: active invoice consumable deduction and transaction recording, draft invoice inventory postponement until activation, non-blocking warning mode (default), blocking mode when configured, draft activation blocking on insufficient consumables, branch isolation, multiple consumables per service, and zero-consumable service handling.
+- Total domain test suite: 79 tests, 353 assertions passing with 100% success rate (0 failures, 0 regressions).
+- Formatted entire codebase with Laravel Pint (0 style violations across 275 files).
+
+### 2026-09-25 — REQ-013 Implemented & Verified (Branch-Filtered Reports)
+
+- Implemented **REQ-013: Branch-Filtered Reports** across all financial, operational, and inventory reports ([GAP-005](file:///home/abdulrahman/Projects/salon-appointment-manager/docs/product/PRODUCT_REQUIREMENTS.md)).
+- Created trait `App\Traits\HasBranchFilter` providing:
+  - `canAccessAllBranches(): bool`: Returns true for admins, owners, or unassigned staff; returns false for cashiers or branch-scoped employees.
+  - `getEffectiveBranchId($requestedBranchId = null): ?int`: Strictly locks cashier/branch-scoped users to their assigned `employee->branch_id`, ignoring any client-provided branch overrides; allows admin/owner roles to switch between specific branches or 'all'.
+  - `getAvailableBranches(): Collection`: Returns active branch choices for admin/owner or strictly the assigned single branch for cashier.
+- Updated 5 report controllers with branch scoping:
+  - `ReportController`: Added branch filtering to `dailyRevenues()`, `TotalDailyRevenuesPage()`, `TotalDailyRevenues()`, `dailySummaryPage()`, `dailySummary()`, `monthlySummaryPage()`, and `monthlySummary()`. Enhanced cross-database driver compatibility (`strftime` for SQLite / `MONTH` for MySQL).
+  - `EmployeeSummaryReportController`: Filtered performance metrics (`getData()`) and aggregate KPI cards (`getStats()`) by branch; scoped active employees list by effective branch.
+  - `EmployeeReportController`: Filtered employee services detail (`getData()`) and employee stats (`getEmployeeStats()`) by branch; scoped active employees list by effective branch.
+  - `StockReportController`: Scoped products and inventory stock quantities/values by branch and inventory.
+  - `StoreBalanceReportController`: Scoped product stock balances, beginning balances, purchase ins, sales outs, and onhand values strictly by branch and inventory.
+- Updated all 8 Blade report views with branch selector dropdowns, cashier disabled/lock states, and AJAX/DataTable parameter bindings:
+  - `resources/views/admin/pages/reports/daily_revenues.blade.php`
+  - `resources/views/admin/pages/reports/total_daily_revenues.blade.php`
+  - `resources/views/admin/pages/reports/daily_summary.blade.php`
+  - `resources/views/admin/pages/reports/monthly_summary.blade.php`
+  - `resources/views/admin/pages/reports/summary_employee_report.blade.php`
+  - `resources/views/admin/pages/reports/employee_report.blade.php`
+  - `resources/views/admin/pages/reports/stocke_report.blade.php`
+  - `resources/views/admin/pages/reports/stocke_balance_report.blade.php`
+- Added comprehensive Feature test suite `tests/Feature/BranchFilteredReportsTest.php` with 8 test cases (37 assertions) testing:
+  - Admin view all branches & specific branch filtering across all reports.
+  - Cashier strict branch lock and client-side override rejection (cannot access or aggregate other branch financial data).
+  - Daily revenue, total daily revenue, daily summary, monthly summary, employee reports, and stock/balance reports isolation.
+- Total domain test suite: 71 tests, 311 assertions passing with 100% success rate.
+- Formatted entire codebase with Laravel Pint (0 style violations across 272 files).
 
 ### 2026-09-25 — Pre-Phase 2 Senior Code Review Hardening (REV-001 through REV-014)
 
@@ -310,7 +405,7 @@ REQ-015 (invoice void)
 | Phase | Total | Done | In Progress | Blocked |
 |---|---|---|---|---|
 | Phase 0 | 8 | 8 | 0 | 0 |
-| Phase 1 | 4 | 3 | 0 | 0 |
-| Phase 2 | 5 | 0 | 0 | 0 |
+| Phase 1 | 4 | 4 | 0 | 0 |
+| Phase 2 | 5 | 2 | 0 | 0 |
 | Phase 3 | 3 | 0 | 0 | 0 |
-| **Total** | **20** | **11** | **0** | **0** |
+| **Total** | **20** | **14** | **0** | **0** |

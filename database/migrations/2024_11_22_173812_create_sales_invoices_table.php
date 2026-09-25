@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->date('invoice_date');
             $table->unsignedDecimal('total_amount', 15, 2);
-            $table->enum('status', ['active', 'inactive', 'draft']);
+            $table->enum('status', ['active', 'inactive', 'draft', 'voided']);
             $table->unsignedDecimal('invoice_discount', 10, 2)->default(0);
             $table->unsignedDecimal('invoice_deposit', 15, 2)->default(0);
             $table->unsignedDecimal('invoice_tax', 15, 2)->default(0);

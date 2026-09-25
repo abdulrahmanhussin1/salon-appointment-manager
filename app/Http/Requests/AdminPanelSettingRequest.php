@@ -27,6 +27,8 @@ class AdminPanelSettingRequest extends FormRequest
             'system_notes' => 'nullable|string|max:1000',
             'system_address' => 'nullable|string|max:255',
             'system_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'block_insufficient_consumables' => 'nullable|boolean',
+            'void_time_window_hours' => 'nullable|integer|min:1|max:720',
         ];
     }
 }

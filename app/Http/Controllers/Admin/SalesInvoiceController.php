@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\DataTables\SalesInvoiceDataTable;
 use App\Http\Controllers\Controller;
+use App\Models\AdminPanelSetting;
 use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\CustomerTransaction;
 use App\Models\Employee;
+use App\Models\Inventory;
 use App\Models\InventoryProduct;
 use App\Models\InventoryTransaction;
 use App\Models\InventoryTransactionDetail;
@@ -111,6 +113,8 @@ class SalesInvoiceController extends Controller
                     'servicesTotal' => 0,
                 ];
 
+                $warnings = [];
+
                 // Process invoice items
                 foreach ($validatedData['items'] as $item) {
                     if ($item['type'] === 'product') {
@@ -121,7 +125,7 @@ class SalesInvoiceController extends Controller
                         $invoiceItems[] = $productData['invoiceItem'];
                         $this->updateTotals($totals, $productData);
                     } elseif ($item['type'] === 'service') {
-                        $serviceData = $this->processService($item);
+                        $serviceData = $this->processService($item, $validatedData['status'], $validatedData['branch_id'], $warnings);
                         $invoiceItems[] = $serviceData['invoiceItem'];
                         $this->updateTotals($totals, $serviceData);
                     }
@@ -154,9 +158,14 @@ class SalesInvoiceController extends Controller
                     }
                 }
 
-                return response()->json([
+                $response = [
                     'invoice_id' => $invoice->id,
-                ], 200);
+                ];
+                if (! empty($warnings)) {
+                    $response['warnings'] = $warnings;
+                }
+
+                return response()->json($response, 200);
             }, 5); // 5 retries for deadlock cases
         } catch (\Throwable $th) {
             if (request()->wantsJson()) {
@@ -323,7 +332,7 @@ class SalesInvoiceController extends Controller
         ]);
     }
 
-    private function processService($item)
+    private function processService($item, $status = 'active', $branchId = null, &$warnings = [])
     {
         $service = Service::where('id', $item['item_id'])
             ->where('status', 'active')
@@ -366,6 +375,11 @@ class SalesInvoiceController extends Controller
             }
         }
 
+        // Deduct service consumables ONLY if status is active (REQ-014)
+        if ($status === 'active') {
+            $this->deductServiceConsumables($service->id, $item['quantity'], $branchId, $warnings);
+        }
+
         return [
             'grossTotal' => $grossTotal,
             'discount' => $discount,
@@ -384,6 +398,121 @@ class SalesInvoiceController extends Controller
                 'is_immediate_commission' => $isImmediateCommission,
             ],
         ];
+    }
+
+    private function deductServiceConsumables($serviceId, $serviceQuantity, $branchId = null, &$warnings = [])
+    {
+        $service = Service::with('products')->find($serviceId);
+        if (! $service) {
+            return;
+        }
+
+        foreach ($service->products as $product) {
+            $qtyPerService = $product->pivot->product_quantity ?? 1;
+            $totalQuantity = (int) $qtyPerService * (int) $serviceQuantity;
+
+            if ($totalQuantity > 0) {
+                $this->deductConsumableFromInventory($product->id, $totalQuantity, $branchId, $warnings);
+            }
+        }
+    }
+
+    private function deductConsumableFromInventory($productId, $quantity, $branchId = null, &$warnings = [])
+    {
+        $product = Product::find($productId);
+        $productName = $product?->name ?? "Product #{$productId}";
+
+        $blockInsufficient = (bool) AdminPanelSetting::value('block_insufficient_consumables');
+
+        $availableQuery = InventoryProduct::where('product_id', $productId);
+        if ($branchId) {
+            $availableQuery->whereHas('inventory', function ($q) use ($branchId) {
+                $q->where('branch_id', $branchId);
+            });
+        }
+        $availableStock = (int) $availableQuery->sum('quantity');
+
+        if ($availableStock < $quantity) {
+            if ($blockInsufficient) {
+                throw new \Exception("Insufficient inventory for consumable {$productName}");
+            }
+            $warnings[] = "Insufficient stock for consumable {$productName} (required: {$quantity}, available: {$availableStock}).";
+        }
+
+        // FIFO deduction from branch inventory
+        $query = InventoryProduct::where('product_id', $productId);
+        if ($branchId) {
+            $query->whereHas('inventory', function ($q) use ($branchId) {
+                $q->where('branch_id', $branchId);
+            });
+        }
+
+        $inventoryProducts = $query->orderBy('created_at', 'asc')
+            ->lockForUpdate()
+            ->get();
+
+        $remainingQuantity = $quantity;
+        $sourceInventoryId = null;
+
+        // Deduct from records with positive stock first
+        foreach ($inventoryProducts as $inventoryProduct) {
+            if ($remainingQuantity <= 0) {
+                break;
+            }
+
+            if ($inventoryProduct->quantity > 0) {
+                $deduct = min($remainingQuantity, $inventoryProduct->quantity);
+                $inventoryProduct->quantity -= $deduct;
+                $inventoryProduct->save();
+
+                $remainingQuantity -= $deduct;
+                if (! $sourceInventoryId) {
+                    $sourceInventoryId = $inventoryProduct->inventory_id;
+                }
+            }
+        }
+
+        // If remaining quantity remains (insufficient stock permitted by setting),
+        // deduct remaining into negative stock on the last record, or find/create branch inventory product
+        if ($remainingQuantity > 0) {
+            if ($inventoryProducts->isNotEmpty()) {
+                $target = $inventoryProducts->last();
+                $target->quantity -= $remainingQuantity;
+                $target->save();
+                $sourceInventoryId = $sourceInventoryId ?? $target->inventory_id;
+            } else {
+                $inventory = $branchId ? Inventory::where('branch_id', $branchId)->first() : Inventory::first();
+                if ($inventory) {
+                    InventoryProduct::create([
+                        'inventory_id' => $inventory->id,
+                        'product_id' => $productId,
+                        'quantity' => -$remainingQuantity,
+                    ]);
+                    $sourceInventoryId = $inventory->id;
+                }
+            }
+        }
+
+        if (! $sourceInventoryId && $branchId) {
+            $inventory = Inventory::where('branch_id', $branchId)->first();
+            $sourceInventoryId = $inventory?->id;
+        }
+
+        // Create inventory transaction record of type service_consumption
+        $inventoryTransaction = InventoryTransaction::create([
+            'transaction_type' => 'service_consumption',
+            'source_inventory_id' => $sourceInventoryId,
+            'total_before_discount' => 0,
+            'net_total' => 0,
+        ]);
+
+        InventoryTransactionDetail::create([
+            'inventory_transaction_id' => $inventoryTransaction->id,
+            'product_id' => $productId,
+            'quantity' => $quantity,
+        ]);
+
+        return $inventoryTransaction;
     }
 
     private function allocateProductPrices($product, $requestedQuantity)
@@ -536,7 +665,9 @@ class SalesInvoiceController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($salesInvoice) {
+            $warnings = [];
+
+            DB::transaction(function () use ($salesInvoice, &$warnings) {
                 $productDetails = $salesInvoice->salesInvoiceDetails()
                     ->whereNotNull('product_id')
                     ->get();
@@ -560,10 +691,19 @@ class SalesInvoiceController extends Controller
                     $this->deductFromInventory($detail->product_id, $detail->quantity, $salesInvoice->branch_id);
                 }
 
-                // 3. Mark invoice as active
+                // 3. Deduct service consumables for all service line items in the invoice's branch (REQ-014)
+                $serviceDetails = $salesInvoice->salesInvoiceDetails()
+                    ->whereNotNull('service_id')
+                    ->get();
+
+                foreach ($serviceDetails as $detail) {
+                    $this->deductServiceConsumables($detail->service_id, $detail->quantity, $salesInvoice->branch_id, $warnings);
+                }
+
+                // 4. Mark invoice as active
                 $salesInvoice->update(['status' => 'active']);
 
-                // 4. Update customer last_service only if invoice contains services (BR-P009)
+                // 5. Update customer last_service only if invoice contains services (BR-P009)
                 $hasServices = $salesInvoice->salesInvoiceDetails()->whereNotNull('service_id')->exists();
                 if ($hasServices) {
                     $customer = Customer::where('id', $salesInvoice->customer_id)
@@ -577,13 +717,22 @@ class SalesInvoiceController extends Controller
             });
 
             if (request()->wantsJson()) {
-                return response()->json([
+                $response = [
                     'message' => 'Invoice activated successfully.',
                     'invoice_id' => $salesInvoice->id,
-                ], 200);
+                ];
+                if (! empty($warnings)) {
+                    $response['warnings'] = $warnings;
+                }
+
+                return response()->json($response, 200);
             }
 
-            Alert::success(__('Success'), __('Invoice activated successfully.'));
+            if (! empty($warnings)) {
+                Alert::warning(__('Warning'), implode("\n", $warnings));
+            } else {
+                Alert::success(__('Success'), __('Invoice activated successfully.'));
+            }
 
             return redirect()->back();
         } catch (\Throwable $th) {
@@ -594,6 +743,43 @@ class SalesInvoiceController extends Controller
             Alert::error(__('Error'), $th->getMessage());
 
             return redirect()->back();
+        }
+    }
+
+    /**
+     * Void the specified sales invoice.
+     */
+    public function void(Request $request, SalesInvoice $salesInvoice)
+    {
+        $validated = $request->validate([
+            'reason' => 'required|string|max:500',
+        ]);
+
+        try {
+            $salesInvoice->void($validated['reason'], auth()->id());
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'message' => 'Invoice voided successfully.',
+                    'invoice_id' => $salesInvoice->id,
+                    'status' => $salesInvoice->status,
+                    'voided_at' => $salesInvoice->voided_at?->toIso8601String(),
+                    'voided_by' => $salesInvoice->voided_by,
+                    'void_reason' => $salesInvoice->void_reason,
+                ], 200);
+            }
+
+            Alert::success(__('Success'), __('Invoice voided successfully.'));
+
+            return redirect()->back();
+        } catch (\Throwable $th) {
+            if ($request->wantsJson()) {
+                return response()->json(['error' => $th->getMessage()], 422);
+            }
+
+            Alert::error(__('Error'), $th->getMessage());
+
+            return redirect()->back()->withInput();
         }
     }
 
@@ -620,21 +806,7 @@ class SalesInvoiceController extends Controller
 
         DB::transaction(function () use ($salesInvoice) {
             // Restore any customer deposits consumed by this draft invoice (REV-002)
-            $usages = CustomerTransaction::where('reference_type', 'invoice')
-                ->where('reference_id', $salesInvoice->id)
-                ->get();
-
-            foreach ($usages as $usage) {
-                if ($usage->used_in_transaction_id) {
-                    $sourceDeposit = CustomerTransaction::find($usage->used_in_transaction_id);
-                    if ($sourceDeposit) {
-                        $sourceDeposit->amount += abs($usage->amount);
-                        $sourceDeposit->status = 'available';
-                        $sourceDeposit->save();
-                    }
-                }
-                $usage->delete();
-            }
+            $salesInvoice->reverseCustomerDepositUsage();
 
             $salesInvoice->salesInvoiceDetails()->delete();
             $salesInvoice->delete();

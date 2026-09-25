@@ -16,6 +16,11 @@ class AdminPanelSetting extends Model
 
     protected $table = 'admin_panel_settings';
 
+    protected $casts = [
+        'block_insufficient_consumables' => 'boolean',
+        'void_time_window_hours' => 'integer',
+    ];
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);

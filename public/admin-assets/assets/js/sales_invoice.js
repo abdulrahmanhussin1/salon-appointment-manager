@@ -263,10 +263,15 @@ function handleCheckout(e) {
             //console.log("Stringified data:", JSON.stringify(data));
         },
         success: function (response) {
+            const hasWarnings = response.warnings && response.warnings.length > 0;
+            const messageText = hasWarnings
+                ? response.warnings.join("\n") + "\n\nWhat would you like to do next?"
+                : "What would you like to do next?";
+
             Swal.fire({
-                icon: "success",
-                title: "Invoice Created Successfully",
-                text: "What would you like to do next?",
+                icon: hasWarnings ? "warning" : "success",
+                title: hasWarnings ? "Invoice Created with Warnings" : "Invoice Created Successfully",
+                text: messageText,
                 //showDenyButton: true,
                 showCancelButton: true,
                 confirmButtonText: "Print Invoice",
