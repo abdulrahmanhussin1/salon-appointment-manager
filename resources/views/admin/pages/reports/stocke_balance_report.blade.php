@@ -41,7 +41,7 @@
                         <select class="form-control" id="inventory_id" name="inventory_id">
                             <option value="">{{ __('All') }}</option>
                             @foreach($inventories as $inventory)
-                                <option value="{{ $inventory->id }}">{{ $inventory->name }}</option>
+                                <option value="{{ $inventory->id }}" {{ (string) request('inventory_id') === (string) $inventory->id ? 'selected' : '' }}>{{ $inventory->name }}</option>
                             @endforeach
                         </select>
                     </div>

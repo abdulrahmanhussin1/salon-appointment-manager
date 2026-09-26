@@ -52,7 +52,10 @@ class InventoryController extends Controller
      */
     public function show(Inventory $inventory)
     {
-        abort(404);
+        return redirect()->route('report.stock_balance', [
+            'branch_id' => $inventory->branch_id,
+            'inventory_id' => $inventory->id,
+        ]);
     }
 
     /**

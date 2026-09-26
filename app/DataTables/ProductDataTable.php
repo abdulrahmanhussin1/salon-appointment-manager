@@ -38,7 +38,7 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                 }
 
                 if (AppHelper::perUser('products.show')) {
-                    $html .= '<a href="'.route('products.show', ['product' => $model]).'" class="dropdown-item">Product Details</a>';
+                    $html .= '<a href="'.route('products.show', ['product' => $model]).'" class="dropdown-item">'.__('Product Details').'</a>';
                 }
                 if (AppHelper::perUser('products.destroy')) {
                     $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-product" data-id="'.$model->id.'" data-url="'.route('products.destroy', ['product' => $model]).'">'.__('Delete').'</a></div></div>';

@@ -75,7 +75,7 @@
             $("#status,#branch_id").select2({
                 dropdownParent: $("#employeeLevelsModal")
             });
-            $(document).on('click', '.delete-this-employee_level', function(e) {
+            $(document).on('click', '.delete-this-inventory', function(e) {
                 e.preventDefault();
                 let el = $(this);
                 let url = el.attr('data-url');

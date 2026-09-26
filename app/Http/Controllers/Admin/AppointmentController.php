@@ -20,7 +20,7 @@ class AppointmentController extends Controller
      */
     public function index(Request $request)
     {
-        if (! $request->expectsJson() && ! $request->ajax()) {
+        if (! $request->is('api/*') && ! $request->routeIs('api.*') && ! $request->expectsJson() && ! $request->ajax() && ! $request->filled('start') && ! $request->filled('date')) {
             return view('admin.calender');
         }
 

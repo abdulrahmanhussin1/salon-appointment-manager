@@ -589,7 +589,7 @@
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'timeGridWeek,timeGridDay'
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
                 buttonText: {
                     today: '{{ __("Today") }}',
@@ -597,9 +597,32 @@
                     week: '{{ __("Week") }}',
                     day: '{{ __("Day") }}',
                     timeGridWeek: '{{ __("Week") }}',
-                    timeGridDay: '{{ __("Day") }}'
+                    timeGridDay: '{{ __("Day") }}',
+                    dayGridMonth: '{{ __("Month") }}'
                 },
-                events: '{{ route('api.appointments') }}',
+                events: function(info, successCallback, failureCallback) {
+                    var url = '{{ route('api.appointments') }}' + '?start=' + encodeURIComponent(info.startStr) + '&end=' + encodeURIComponent(info.endStr);
+                    fetch(url, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(function(response) {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        var events = Array.isArray(data) ? data : (data.data || []);
+                        successCallback(events);
+                    })
+                    .catch(function(error) {
+                        console.error('Error fetching calendar events:', error);
+                        failureCallback(error);
+                    });
+                },
                 editable: false,
                 eventClick: function(info) {
                     currentEventId = info.event.id;
