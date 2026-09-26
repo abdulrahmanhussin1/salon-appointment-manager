@@ -30,4 +30,6 @@ auth.json
 /.fleet
 /.idea
 /.vscode
+/storage/clockwork
+storage/*.sqlite
 

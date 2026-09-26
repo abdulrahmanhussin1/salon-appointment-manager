@@ -361,7 +361,7 @@ class DashboardController extends Controller
             'no_show' => (int) ($rawCounts[AppointmentStatus::NO_SHOW->value] ?? $rawCounts['no_show'] ?? 0),
         ];
 
-            $canEditAppts = self::perUser('appointments.edit');
+            $canEditAppts = self::perUser('appointments.edit') || self::perUser('appointments.index') || ($user && $user->hasRole('admin'));
 
             $appointments = (clone $query)
                 ->with(['customer', 'provider', 'service'])
