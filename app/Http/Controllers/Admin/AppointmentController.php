@@ -18,9 +18,30 @@ class AppointmentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $appointments = Appointment::with(['customer', 'provider', 'service'])->get();
+        if (! $request->expectsJson() && ! $request->ajax()) {
+            return view('admin.calender');
+        }
+
+        $query = Appointment::with(['customer', 'provider', 'service', 'salesInvoice']);
+
+        if ($request->filled('start') && $request->filled('end')) {
+            $start = Carbon::parse($request->input('start'))->format('Y-m-d H:i:s');
+            $end = Carbon::parse($request->input('end'))->format('Y-m-d H:i:s');
+            $query->where('start_date', '<=', $end)
+                  ->where('end_date', '>=', $start);
+        } elseif ($request->filled('date')) {
+            $date = Carbon::parse($request->input('date'));
+            $query->whereDate('start_date', $date->toDateString());
+        }
+
+        $user = auth()->user();
+        if ($user && ($user->hasRole('provider') || (! $user->can('appointments.index') && $user->employee))) {
+            $query->where('provider_id', $user->employee?->id);
+        }
+
+        $appointments = $query->orderBy('start_date', 'asc')->get();
 
         return response()->json(AppointmentResource::collection($appointments));
     }

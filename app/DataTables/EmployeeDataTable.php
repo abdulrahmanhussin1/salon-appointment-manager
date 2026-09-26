@@ -40,7 +40,7 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                     $html .= '<a href="'.route('employees.show', ['employee' => $model]).'" class="dropdown-item">Employee Details</a>';
                 }
                 if (AppHelper::perUser('employees.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-employee" data-id="'.$model->id.'" data-url="'.route('employees.destroy', ['employee' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-employee" data-id="'.$model->id.'" data-url="'.route('employees.destroy', ['employee' => $model]).'">'.__('Delete').'</a></div></div>';
                 }
 
                 return $html;
@@ -60,7 +60,7 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                 return $model->finger_print_code ?? null;
             })
             ->editColumn('photo', function ($model) {
-                if ($model->photo && Storage::exists($model->photo)) {
+                if ($model->photo && (Storage::disk('public')->exists($model->photo) || Storage::exists($model->photo))) {
                     return '<img src="'.asset('storage/'.$model->photo).'" alt="'.$model->name.'" style="max-width: 75px; max-height: 75px;">';
                 }
 

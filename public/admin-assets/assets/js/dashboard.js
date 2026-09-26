@@ -213,8 +213,14 @@ function dashboardData(config = {}) {
                 },
                 body: JSON.stringify(data)
             });
-            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-            return await res.json();
+            const json = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                const message = json.message || Object.values(json.errors || {})[0]?.[0] || `HTTP error ${res.status}`;
+                const err = new Error(message);
+                err.response = json;
+                throw err;
+            }
+            return json;
         },
 
         // Fetch Summary
@@ -222,7 +228,7 @@ function dashboardData(config = {}) {
             this.loading.summary = true;
             this.errors.summary = false;
             try {
-                const res = await this.request('/admin/dashboard/summary', this.getQueryParams());
+                const res = await this.request('/api/dashboard/summary', this.getQueryParams());
                 if (res.data) {
                     this.data.summary = res.data;
                 }
@@ -239,7 +245,7 @@ function dashboardData(config = {}) {
             this.loading.revenue = true;
             this.errors.revenue = false;
             try {
-                const res = await this.request('/admin/dashboard/revenue', this.getQueryParams());
+                const res = await this.request('/api/dashboard/revenue', this.getQueryParams());
                 if (res.data) {
                     this.data.revenue = res.data;
                     this.$nextTick(() => {
@@ -259,7 +265,7 @@ function dashboardData(config = {}) {
             this.loading.appointments = true;
             this.errors.appointments = false;
             try {
-                const res = await this.request('/admin/dashboard/appointments', this.getQueryParams());
+                const res = await this.request('/api/dashboard/appointments', this.getQueryParams());
                 if (res.data) {
                     this.data.appointments = res.data.appointments || [];
                     this.data.statusBreakdown = res.data.status_breakdown || {};
@@ -280,7 +286,7 @@ function dashboardData(config = {}) {
             this.loading.staff = true;
             this.errors.staff = false;
             try {
-                const res = await this.request('/admin/dashboard/staff', this.getQueryParams());
+                const res = await this.request('/api/dashboard/staff', this.getQueryParams());
                 if (res.data) {
                     this.data.staff = res.data || [];
                 }
@@ -297,7 +303,7 @@ function dashboardData(config = {}) {
             this.loading.inventory = true;
             this.errors.inventory = false;
             try {
-                const res = await this.request('/admin/dashboard/inventory-alerts', { branch_id: this.filters.branchId });
+                const res = await this.request('/api/dashboard/inventory-alerts', { branch_id: this.filters.branchId });
                 if (res.data) {
                     this.data.inventory = res.data;
                 }
@@ -314,7 +320,7 @@ function dashboardData(config = {}) {
             this.loading.expenses = true;
             this.errors.expenses = false;
             try {
-                const res = await this.request('/admin/dashboard/expenses', this.getQueryParams());
+                const res = await this.request('/api/dashboard/expenses', this.getQueryParams());
                 if (res.data) {
                     this.data.expenses = res.data;
                     this.$nextTick(() => {
@@ -334,7 +340,7 @@ function dashboardData(config = {}) {
             this.loading.activity = true;
             this.errors.activity = false;
             try {
-                const res = await this.request('/admin/dashboard/activity', { branch_id: this.filters.branchId, limit: 15 });
+                const res = await this.request('/api/dashboard/activity', { branch_id: this.filters.branchId, limit: 15 });
                 if (res.data) {
                     this.data.activity = res.data || [];
                 }
@@ -351,7 +357,7 @@ function dashboardData(config = {}) {
             this.loading.alerts = true;
             this.errors.alerts = false;
             try {
-                const res = await this.request('/admin/dashboard/alerts', { branch_id: this.filters.branchId });
+                const res = await this.request('/api/dashboard/alerts', { branch_id: this.filters.branchId });
                 if (res.data) {
                     this.data.alerts = res.data || [];
                 }
@@ -365,43 +371,93 @@ function dashboardData(config = {}) {
 
         // Appointment Lifecycle Actions
         async confirmAppointment(id) {
-            await this.performAppointmentAction(`/admin/appointments/${id}/confirm`);
+            await this.performAppointmentAction(`/api/appointments/${id}/confirm`);
         },
 
         async checkInAppointment(id) {
-            await this.performAppointmentAction(`/admin/appointments/${id}/check-in`);
+            await this.performAppointmentAction(`/api/appointments/${id}/check-in`);
         },
 
         async startServiceAppointment(id) {
-            await this.performAppointmentAction(`/admin/appointments/${id}/start-service`);
+            await this.performAppointmentAction(`/api/appointments/${id}/start-service`);
         },
 
         async completeAppointment(id) {
-            await this.performAppointmentAction(`/admin/appointments/${id}/complete`);
+            await this.performAppointmentAction(`/api/appointments/${id}/complete`);
         },
 
         async noShowAppointment(id) {
-            if (!confirm(this.t('Are you sure you want to mark this appointment as No Show?'))) {
-                return;
+            if (typeof Swal !== 'undefined') {
+                const result = await Swal.fire({
+                    title: this.t('Mark as No Show?'),
+                    text: this.t('Are you sure you want to mark this appointment as No Show?'),
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#212529',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: this.t('Yes, mark No Show')
+                });
+                if (!result.isConfirmed) return;
+            } else {
+                if (!confirm(this.t('Are you sure you want to mark this appointment as No Show?'))) return;
             }
-            await this.performAppointmentAction(`/admin/appointments/${id}/no-show`);
+            await this.performAppointmentAction(`/api/appointments/${id}/no-show`);
         },
 
         async cancelAppointment(id) {
-            const reason = prompt(this.t('Please enter cancellation reason:'));
-            if (!reason) return;
-            await this.performAppointmentAction(`/admin/appointments/${id}/cancel`, { cancellation_reason: reason });
+            let reason = '';
+            if (typeof Swal !== 'undefined') {
+                const result = await Swal.fire({
+                    title: this.t('Cancel Appointment'),
+                    input: 'textarea',
+                    inputLabel: this.t('Cancellation Reason'),
+                    inputPlaceholder: this.t('Please enter cancellation reason...'),
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: this.t('Confirm Cancellation'),
+                    inputValidator: (value) => {
+                        if (!value || !value.trim()) {
+                            return this.t('A cancellation reason is required!');
+                        }
+                    }
+                });
+                if (!result.isConfirmed || !result.value) return;
+                reason = result.value;
+            } else {
+                reason = prompt(this.t('Please enter cancellation reason:'));
+                if (!reason) return;
+            }
+            await this.performAppointmentAction(`/api/appointments/${id}/cancel`, { cancellation_reason: reason });
         },
 
         async performAppointmentAction(url, payload = {}) {
             this.loading.action = true;
             try {
-                await this.postRequest(url, payload);
+                const response = await this.postRequest(url, payload);
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: this.t('Success'),
+                        text: response.message || this.t('Status updated successfully'),
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
                 await this.fetchAppointments();
                 await this.fetchSummary();
                 await this.fetchAlerts();
             } catch (err) {
-                alert(this.t('Action could not be completed. Please try again.'));
+                const msg = err.message || this.t('Action could not be completed. Please try again.');
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: this.t('Error'),
+                        text: msg
+                    });
+                } else {
+                    alert(msg);
+                }
                 console.error('Action error:', err);
             } finally {
                 this.loading.action = false;

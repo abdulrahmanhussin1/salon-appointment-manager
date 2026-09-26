@@ -37,7 +37,7 @@ class InventoryDataTable extends DataTable
                 }
 
                 if (AppHelper::perUser('inventories.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-inventory" data-id="'.$model->id.'" data-url="'.route('inventories.destroy', ['inventory' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-inventory" data-id="'.$model->id.'" data-url="'.route('inventories.destroy', ['inventory' => $model]).'">'.__('Delete').'</a></div></div>';
                 }
 
                 return $html;

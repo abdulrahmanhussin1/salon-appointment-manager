@@ -43,17 +43,18 @@ class CheckRole
                 || ($page === 'activate' && self::perUSer($type.'.create'))
                 || ($page === 'void' && self::perUSer($type.'.void'))
                 || ($page === 'invoice' && self::perUSer($type.'.show'))
+                || ($type === 'customer_transactions' && in_array($page, ['get_customer_payments', 'store_customer_payment', 'get_payments', 'store_payment']) && (self::perUSer('customers.index') || self::perUSer('customers.show') || self::perUSer('sales_invoices.create') || self::perUSer('customer_transactions.get_customer_payments') || self::perUSer('customer_transactions.store_customer_payment')))
                 || ($type === 'refunds' && in_array($page, ['index', 'create', 'store', 'show', 'invoice_details']) && (self::perUSer('refunds.index') || self::perUSer('refunds.create') || self::perUSer('sales_invoices.create') || self::perUSer('sales_invoices.index')))
                 || ($type === 'appointments' && in_array($page, ['confirm', 'cancel', 'check_in', 'start_service', 'complete', 'no_show', 'status']) && self::perUSer('appointments.edit'))
 
                 || ($page === 'daily_revenues' && self::perUSer('reports.index'))
                 || ($page === 'TotalDailyRevenuesPage' && self::perUSer('reports.index'))
-                || ($page === 'TotalDailyRevenues' && self::perUSer('reports.index'))
+                || (in_array($page, ['TotalDailyRevenues', 'total_daily_revenues']) && self::perUSer('reports.index'))
                 || ($page === 'dailySummaryPage' && self::perUSer('reports.index'))
-                || ($page === 'dailySummary' && self::perUSer('reports.index'))
+                || (in_array($page, ['dailySummary', 'daily_summary']) && self::perUSer('reports.index'))
                 || ($page === 'bookAppointment' && self::perUSer('sales_invoices.create'))
                 || ($page === 'monthlySummaryPage' && self::perUSer('reports.index'))
-                || ($page === 'monthlySummary' && self::perUSer('reports.index'))
+                || (in_array($page, ['monthlySummary', 'monthly_summary']) && self::perUSer('reports.index'))
 
                 || ($page === 'employee-services' && self::perUSer('reports.index'))
                 || ($page === 'employee-services.data' && self::perUSer('reports.index'))
@@ -75,6 +76,7 @@ class CheckRole
                 || self::perUSer($this->getRoute())
                 || in_array($this->getRoute(), ['dashboard', 'sales_invoices.getItem', 'sales_invoices.getRelatedEmployees'])
                 || str_starts_with($this->getRoute() ?? '', 'dashboard.')
+                || ($this->getRoute() === 'api.appointments' && (self::perUSer('appointments.index') || (auth()->check() && auth()->user()->hasRole('provider'))))
             ) {
                 return $next($request);
             }

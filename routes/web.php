@@ -62,24 +62,29 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
     Route::get('calender', function () {
         return view('admin.calender');
     })->name('home.calender');
-    Route::resource('appointments', AppointmentController::class);
-    Route::post('appointments/{id}/confirm', [AppointmentController::class, 'confirm'])->name('appointments.confirm');
-    Route::post('appointments/{id}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');
-    Route::post('appointments/{id}/check-in', [AppointmentController::class, 'checkIn'])->name('appointments.check_in');
-    Route::post('appointments/{id}/start-service', [AppointmentController::class, 'startService'])->name('appointments.start_service');
-    Route::post('appointments/{id}/complete', [AppointmentController::class, 'complete'])->name('appointments.complete');
-    Route::post('appointments/{id}/no-show', [AppointmentController::class, 'noShow'])->name('appointments.no_show');
-    Route::post('appointments/{id}/status', [AppointmentController::class, 'changeStatus'])->name('appointments.status');
 
-    Route::prefix('dashboard')->name('dashboard.')->group(function () {
-        Route::get('/summary', [DashboardController::class, 'summary'])->name('summary');
-        Route::get('/revenue', [DashboardController::class, 'revenue'])->name('revenue');
-        Route::get('/appointments', [DashboardController::class, 'appointments'])->name('appointments');
-        Route::get('/staff', [DashboardController::class, 'staff'])->name('staff');
-        Route::get('/inventory-alerts', [DashboardController::class, 'inventoryAlerts'])->name('inventory_alerts');
-        Route::get('/expenses', [DashboardController::class, 'expenses'])->name('expenses');
-        Route::get('/activity', [DashboardController::class, 'activity'])->name('activity');
-        Route::get('/alerts', [DashboardController::class, 'alerts'])->name('alerts');
+    // Appointments Web Page & Management (returns Calendar web page for browser navigation)
+    Route::resource('appointments', AppointmentController::class);
+
+    // Appointments Status Actions Fallback
+    Route::post('appointments/{id}/confirm', [AppointmentController::class, 'confirm']);
+    Route::post('appointments/{id}/cancel', [AppointmentController::class, 'cancel']);
+    Route::post('appointments/{id}/check-in', [AppointmentController::class, 'checkIn']);
+    Route::post('appointments/{id}/start-service', [AppointmentController::class, 'startService']);
+    Route::post('appointments/{id}/complete', [AppointmentController::class, 'complete']);
+    Route::post('appointments/{id}/no-show', [AppointmentController::class, 'noShow']);
+    Route::post('appointments/{id}/status', [AppointmentController::class, 'changeStatus']);
+
+    // Dashboard Legacy Fallbacks (Primary JSON API is registered in routes/api.php)
+    Route::prefix('dashboard')->group(function () {
+        Route::get('/summary', [DashboardController::class, 'summary']);
+        Route::get('/revenue', [DashboardController::class, 'revenue']);
+        Route::get('/appointments', [DashboardController::class, 'appointments']);
+        Route::get('/staff', [DashboardController::class, 'staff']);
+        Route::get('/inventory-alerts', [DashboardController::class, 'inventoryAlerts']);
+        Route::get('/expenses', [DashboardController::class, 'expenses']);
+        Route::get('/activity', [DashboardController::class, 'activity']);
+        Route::get('/alerts', [DashboardController::class, 'alerts']);
     });
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
@@ -118,63 +123,58 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'checkRole'])->group(fun
         ->name('inventory_transactions.adjustView');
     Route::post('inventory_transactions/adjust', [InventoryTransactionController::class, 'adjust'])
         ->name('inventory_transactions.adjust');
-    Route::get('inventory_transactions/check_stock', [InventoryTransactionController::class, 'checkStock'])
-        ->name('inventory_transactions.check_stock');
+    Route::get('inventory_transactions/check_stock', [InventoryTransactionController::class, 'checkStock']);
     Route::get('inventory_transactions/history', [InventoryTransactionController::class, 'history'])
         ->name('inventory_transactions.history');
-    Route::get('inventory_transactions/history_data', [InventoryTransactionController::class, 'historyData'])
-        ->name('inventory_transactions.history_data');
+    Route::get('inventory_transactions/history_data', [InventoryTransactionController::class, 'historyData']);
 
     /* sales invoice  */
     Route::resource('sales_invoices', SalesInvoiceController::class);
     Route::get('sales_invoices/invoice/{id}', [SalesInvoiceController::class, 'showReceipt'])->name('sales_invoices.invoice');
     Route::post('sales_invoices/{sales_invoice}/activate', [SalesInvoiceController::class, 'activate'])->name('sales_invoices.activate');
     Route::post('sales_invoices/{sales_invoice}/void', [SalesInvoiceController::class, 'void'])->name('sales_invoices.void');
-    Route::get('/get-items', [SalesInvoiceController::class, 'getItem'])->name('sales_invoices.getItem');
-    Route::get('/get-related-employees', [EmployeeController::class, 'getRelatedEmployees'])->name('sales_invoices.getRelatedEmployees');
-    // Route::get('/book_appointment', [SalesInvoiceController::class, 'bookAppointment'])->name('sales_invoices.bookAppointment');
+    Route::get('/get-items', [SalesInvoiceController::class, 'getItem']);
+    Route::get('/get-related-employees', [EmployeeController::class, 'getRelatedEmployees']);
 
     /* Refunds & Returns */
-    Route::get('refunds/invoice-details/{id}', [RefundController::class, 'getInvoiceDetails'])->name('refunds.invoice_details');
+    Route::get('refunds/invoice-details/{id}', [RefundController::class, 'getInvoiceDetails']);
     Route::resource('refunds', RefundController::class)->only(['index', 'create', 'store', 'show']);
 
     /* Customers */
-
     Route::get('customer_transactions/get_payments', [CustomerTransactionController::class, 'getCustomerPayments'])->name('customer_transactions.get_customer_payments');
     Route::post('customer_transactions/store_payment', [CustomerTransactionController::class, 'storeCustomerPayment'])->name('customer_transactions.store_customer_payment');
 
-    /* Reports */
-
+    /* Reports Web Pages */
     Route::get('reports/daily_revenues', [ReportController::class, 'dailyRevenues'])->name('report.daily_revenues');
     Route::get('reports/total_daily_revenues_page', [ReportController::class, 'TotalDailyRevenuesPage'])->name('report.TotalDailyRevenuesPage');
-    Route::post('reports/total_daily_revenues', [ReportController::class, 'TotalDailyRevenues'])->name('report.TotalDailyRevenues');
+    Route::match(['get', 'post'], 'reports/total_daily_revenues', [ReportController::class, 'TotalDailyRevenues'])->name('report.TotalDailyRevenues');
     Route::get('reports/daily_summary_page', [ReportController::class, 'dailySummaryPage'])->name('report.dailySummaryPage');
-    Route::post('reports/daily_summary', [ReportController::class, 'dailySummary'])->name('report.dailySummary');
+    Route::match(['get', 'post'], 'reports/daily_summary', [ReportController::class, 'dailySummary'])->name('report.dailySummary');
     Route::get('reports/monthly_summary_page', [ReportController::class, 'monthlySummaryPage'])->name('report.monthlySummaryPage');
-    Route::get('reports/monthly_summary', [ReportController::class, 'monthlySummary'])->name('report.monthlySummary');
+    Route::match(['get', 'post'], 'reports/monthly_summary', [ReportController::class, 'monthlySummary'])->name('report.monthlySummary');
 
     Route::prefix('reports')->name('report.')->group(function () {
         Route::get('/employee-summary-services', [EmployeeSummaryReportController::class, 'index'])->name('employee-summary-services');
-        Route::get('/employee-summary-services/data', [EmployeeSummaryReportController::class, 'getData'])->name('employee-summary-services.data');
-        Route::get('/employee-summary-services/stats', [EmployeeSummaryReportController::class, 'getStats'])->name('employee-summary-services.stats');
+        Route::get('/employee-summary-services/data', [EmployeeSummaryReportController::class, 'getData']);
+        Route::get('/employee-summary-services/stats', [EmployeeSummaryReportController::class, 'getStats']);
     });
 
     Route::get('reports/employee-services', [EmployeeReportController::class, 'index'])->name('report.employee-services');
-    Route::get('reports/employee-services/data', [EmployeeReportController::class, 'getData'])->name('report.employee-services.data');
-    Route::get('reports/employee-services/stats', [EmployeeReportController::class, 'getEmployeeStats'])->name('report.employee-services.stats');
+    Route::get('reports/employee-services/data', [EmployeeReportController::class, 'getData']);
+    Route::get('reports/employee-services/stats', [EmployeeReportController::class, 'getEmployeeStats']);
     Route::get('reports/stock', [StockReportController::class, 'index'])->name('report.stock');
-    Route::get('reports/stock/data', [StockReportController::class, 'getData'])->name('report.stock_report');
+    Route::get('reports/stock/data', [StockReportController::class, 'getData']);
     Route::get('reports/store-balance', [StoreBalanceReportController::class, 'index'])->name('report.stock_balance');
-    Route::get('reports/store-balance/data', [StoreBalanceReportController::class, 'getData'])->name('report.stock_balance_transfer');
+    Route::get('reports/store-balance/data', [StoreBalanceReportController::class, 'getData']);
     Route::get('reports/customer-deposits', [ReportController::class, 'customerDeposits'])->name('report.customer_deposits');
-    Route::get('reports/customer-deposits/data', [ReportController::class, 'customerDepositsData'])->name('report.customer_deposits_data');
-    Route::get('reports/customer-deposits/stats', [ReportController::class, 'customerDepositsStats'])->name('report.customer_deposits_stats');
+    Route::get('reports/customer-deposits/data', [ReportController::class, 'customerDepositsData']);
+    Route::get('reports/customer-deposits/stats', [ReportController::class, 'customerDepositsStats']);
     Route::get('reports/appointment-conversion', [ReportController::class, 'appointmentConversion'])->name('report.appointment_conversion');
-    Route::get('reports/appointment-conversion/stats', [ReportController::class, 'appointmentConversionStats'])->name('report.appointment_conversion_stats');
+    Route::get('reports/appointment-conversion/stats', [ReportController::class, 'appointmentConversionStats']);
 
-    Route::get('/categories', [salesInvoiceController::class, 'getByType'])->name('sales_invoices.getByType');
-    Route::get('/items', [salesInvoiceController::class, 'getByCategory'])->name('sales_invoices.getByCategory');
-    Route::get('/items/{id}', [salesInvoiceController::class, 'getDetails'])->name('sales_invoices.getDetails');
+    Route::get('/categories', [salesInvoiceController::class, 'getByType']);
+    Route::get('/items', [salesInvoiceController::class, 'getByCategory']);
+    Route::get('/items/{id}', [salesInvoiceController::class, 'getDetails']);
 
 });
 

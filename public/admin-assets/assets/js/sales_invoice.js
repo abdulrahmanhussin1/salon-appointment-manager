@@ -2,10 +2,10 @@ const __ = window.__ || function(t) { return t; };
 
 // Configure API endpoints
 const API_ENDPOINTS = {
-    CATEGORIES: "/admin/categories",
-    ITEMS: "/admin/items",
-    ITEM_DETAILS: (id) => `/admin/items/${id}`,
-    PROVIDERS: "/admin/get-related-employees",
+    CATEGORIES: "/api/categories",
+    ITEMS: "/api/items",
+    ITEM_DETAILS: (id) => `/api/items/${id}`,
+    PROVIDERS: "/api/get-related-employees",
     INVOICE_STORE: "/admin/sales_invoices",
 };
 

@@ -35,7 +35,7 @@ class ServiceDataTable extends DataTable
                     $html .= '<a href="'.route('services.show', ['service' => $model]).'" class="dropdown-item">Service Details</a>';
                 }
                 if (AppHelper::perUser('services.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-service" data-id="'.$model->id.'" data-url="'.route('services.destroy', ['service' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-service" data-id="'.$model->id.'" data-url="'.route('services.destroy', ['service' => $model]).'">'.__('Delete').'</a></div></div>';
                 }
 
                 return $html;

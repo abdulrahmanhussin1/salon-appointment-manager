@@ -32,7 +32,7 @@ class PaymentMethodDataTable extends DataTable
                     $html .= '<a href="'.route('payment_methods.edit', ['payment_method' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
                 if (AppHelper::perUser('payment_methods.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-payment_method" data-id="'.$model->id.'" data-url="'.route('payment_methods.destroy', ['payment_method' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-payment_method" data-id="'.$model->id.'" data-url="'.route('payment_methods.destroy', ['payment_method' => $model]).'">'.__('Delete').'</a></div></div>';
                 }
 
                 return $html;

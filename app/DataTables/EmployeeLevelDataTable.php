@@ -32,7 +32,7 @@ class EmployeeLevelDataTable extends DataTable
                     $html .= '<a href="'.route('employee_levels.edit', ['employee_level' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
                 if (AppHelper::perUser('employee_levels.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-employee_level" data-id="'.$model->id.'" data-url="'.route('employee_levels.destroy', ['employee_level' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-employee_level" data-id="'.$model->id.'" data-url="'.route('employee_levels.destroy', ['employee_level' => $model]).'">'.__('Delete').'</a></div></div>';
                 }
 
                 return $html;

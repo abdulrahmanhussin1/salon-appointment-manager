@@ -148,7 +148,7 @@ class ServiceController extends Controller
         try {
             $image = $service->image;
             if ($request->hasFile('image')) {
-                $image = AppHelper::handleFileUpload($request, 'image', 'uploads/images/services', null);
+                $image = AppHelper::handleFileUpload($request, 'image', 'uploads/images/services', $service->image);
             }
             DB::beginTransaction();
             $service->update([
@@ -218,8 +218,8 @@ class ServiceController extends Controller
      */
     public function destroy(Service $service)
     {
-        if ($service->image && Storage::exists($service->image)) {
-            Storage::delete($service->image);
+        if ($service->image && (Storage::disk('public')->exists($service->image) || Storage::exists($service->image))) {
+            Storage::disk('public')->delete($service->image);
         }
         ServiceTool::where('service_id', $service->id)->delete();
         ServiceProduct::where('service_id', $service->id)->delete();

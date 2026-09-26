@@ -33,7 +33,7 @@ class ToolDataTable extends DataTable
                     $html .= '<a href="'.route('tools.edit', ['tool' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
                 if (AppHelper::perUser('tools.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-tool" data-id="'.$model->id.'" data-url="'.route('tools.destroy', ['tool' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-tool" data-id="'.$model->id.'" data-url="'.route('tools.destroy', ['tool' => $model]).'">'.__('Delete').'</a></div></div>';
                 }
 
                 return $html;
@@ -48,7 +48,7 @@ class ToolDataTable extends DataTable
             })
 
             ->editColumn('image', function ($model) {
-                if ($model->image && Storage::exists($model->image)) {
+                if ($model->image && (Storage::disk('public')->exists($model->image) || Storage::exists($model->image))) {
                     return '<img src="'.asset('storage/'.$model->image).'" alt="'.$model->name.'" style="max-width: 75px; max-height: 75px;">';
                 }
 

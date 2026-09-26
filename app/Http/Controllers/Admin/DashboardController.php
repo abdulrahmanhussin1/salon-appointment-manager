@@ -323,12 +323,17 @@ class DashboardController extends Controller
     public function appointments(Request $request): JsonResponse
     {
         $branchId = $this->getEffectiveBranchId($request->input('branch_id'));
-        $dateStr = $request->input('date', today()->toDateString());
-        $date = Carbon::parse($dateStr);
+        if ($request->filled('date') && ! $request->filled('period')) {
+            $from = Carbon::parse($request->input('date'))->startOfDay();
+            $to = $from->copy()->endOfDay();
+            $period = 'custom';
+        } else {
+            [$from, $to, $period] = $this->resolveDateRange($request);
+        }
         $user = auth()->user();
 
-        $dayStart = $date->copy()->startOfDay()->format('Y-m-d H:i:s');
-        $dayEnd = $date->copy()->endOfDay()->format('Y-m-d H:i:s');
+        $dayStart = $from->format('Y-m-d H:i:s');
+        $dayEnd = $to->format('Y-m-d H:i:s');
         $query = Appointment::whereBetween('start_date', [$dayStart, $dayEnd]);
         if ($branchId) {
             $query->where(function ($sub) use ($branchId) {
@@ -356,35 +361,37 @@ class DashboardController extends Controller
             'no_show' => (int) ($rawCounts[AppointmentStatus::NO_SHOW->value] ?? $rawCounts['no_show'] ?? 0),
         ];
 
-        $appointments = (clone $query)
-            ->with(['customer', 'provider', 'service'])
-            ->orderBy('start_date', 'asc')
-            ->limit(100)
-            ->get()
-            ->map(function (Appointment $appt) {
-                $statusVal = $appt->status instanceof AppointmentStatus ? $appt->status->value : (string) $appt->status;
-                $start = Carbon::parse($appt->start_date);
-                $end = $appt->end_date ? Carbon::parse($appt->end_date) : $start->copy()->addMinutes(30);
+            $canEditAppts = self::perUser('appointments.edit');
 
-                return [
-                    'id' => $appt->id,
-                    'start_time' => $start->format('H:i'),
-                    'end_time' => $end->format('H:i'),
-                    'customer_name' => $appt->customer?->name ?? __('Walk-in Customer'),
-                    'customer_phone' => $appt->customer?->phone ?? '',
-                    'service_name' => $appt->service?->name ?? __('Unknown Service'),
-                    'provider_name' => $appt->provider?->name ?? __('Unassigned'),
-                    'status' => $statusVal,
-                    'status_label' => ucfirst(str_replace('_', ' ', $statusVal)),
-                    'duration_minutes' => max(0, $start->diffInMinutes($end)),
-                    'can_confirm' => $statusVal === AppointmentStatus::REQUESTED->value,
-                    'can_check_in' => $statusVal === AppointmentStatus::CONFIRMED->value,
-                    'can_start' => $statusVal === AppointmentStatus::CHECKED_IN->value,
-                    'can_complete' => in_array($statusVal, [AppointmentStatus::CHECKED_IN->value, AppointmentStatus::IN_SERVICE->value]),
-                    'can_cancel' => in_array($statusVal, [AppointmentStatus::REQUESTED->value, AppointmentStatus::CONFIRMED->value, AppointmentStatus::CHECKED_IN->value]),
-                    'can_no_show' => in_array($statusVal, [AppointmentStatus::REQUESTED->value, AppointmentStatus::CONFIRMED->value]),
-                ];
-            });
+            $appointments = (clone $query)
+                ->with(['customer', 'provider', 'service'])
+                ->orderBy('start_date', 'asc')
+                ->limit(100)
+                ->get()
+                ->map(function (Appointment $appt) use ($canEditAppts) {
+                    $statusVal = $appt->status instanceof AppointmentStatus ? $appt->status->value : (string) $appt->status;
+                    $start = Carbon::parse($appt->start_date);
+                    $end = $appt->end_date ? Carbon::parse($appt->end_date) : $start->copy()->addMinutes(30);
+
+                    return [
+                        'id' => $appt->id,
+                        'start_time' => $start->format('H:i'),
+                        'end_time' => $end->format('H:i'),
+                        'customer_name' => $appt->customer?->name ?? __('Walk-in Customer'),
+                        'customer_phone' => $appt->customer?->phone ?? '',
+                        'service_name' => $appt->service?->name ?? __('Unknown Service'),
+                        'provider_name' => $appt->provider?->name ?? __('Unassigned'),
+                        'status' => $statusVal,
+                        'status_label' => ucfirst(str_replace('_', ' ', $statusVal)),
+                        'duration_minutes' => max(0, $start->diffInMinutes($end)),
+                        'can_confirm' => $canEditAppts && $statusVal === AppointmentStatus::REQUESTED->value,
+                        'can_check_in' => $canEditAppts && $statusVal === AppointmentStatus::CONFIRMED->value,
+                        'can_start' => $canEditAppts && $statusVal === AppointmentStatus::CHECKED_IN->value,
+                        'can_complete' => $canEditAppts && in_array($statusVal, [AppointmentStatus::CHECKED_IN->value, AppointmentStatus::IN_SERVICE->value]),
+                        'can_cancel' => $canEditAppts && in_array($statusVal, [AppointmentStatus::REQUESTED->value, AppointmentStatus::CONFIRMED->value, AppointmentStatus::CHECKED_IN->value, AppointmentStatus::IN_SERVICE->value]),
+                        'can_no_show' => $canEditAppts && in_array($statusVal, [AppointmentStatus::REQUESTED->value, AppointmentStatus::CONFIRMED->value, AppointmentStatus::CHECKED_IN->value]),
+                    ];
+                });
 
         return response()->json([
             'data' => [
@@ -393,7 +400,10 @@ class DashboardController extends Controller
             ],
             'meta' => [
                 'branch_id' => $branchId,
-                'date' => $date->toDateString(),
+                'date' => $from->toDateString(),
+                'period' => $period,
+                'from' => $from->toDateString(),
+                'to' => $to->toDateString(),
                 'total_count' => $appointments->count(),
             ],
         ]);

@@ -30,11 +30,13 @@
                             </div>
                             <div class="d-flex align-items-center gap-2">
                                 <span class="badge bg-danger text-white">{{ __('0 in stock') }}</span>
+                                @if(\App\Traits\AppHelper::perUser('purchase_invoices.create'))
                                 <a :href="'/admin/purchase_invoices/create?product_id=' + item.product_id"
                                    class="btn btn-xs btn-danger rounded-pill px-2 py-1 shadow-2xs"
                                    title="{{ __('Create Purchase Order') }}">
                                     <i class="bi bi-cart-plus me-1"></i>{{ __('Order') }}
                                 </a>
+                                @endif
                             </div>
                         </div>
                     </template>

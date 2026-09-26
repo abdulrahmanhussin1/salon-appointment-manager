@@ -39,7 +39,7 @@ class UserController extends Controller
     {
         $photo = null;
         if ($request->hasFile('photo')) {
-            $photo = Storage::putFileAs('uploads/images/users', $request->photo, now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name).'_photo.'.$request->photo->getClientOriginalExtension());
+            $photo = Storage::disk('public')->putFileAs('uploads/images/users', $request->photo, now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name).'_photo.'.$request->photo->getClientOriginalExtension());
         }
 
         $user = User::create([
@@ -90,10 +90,10 @@ class UserController extends Controller
     {
         $photo = $user->photo;
         if ($request->hasFile('photo')) {
-            if ($user->photo && Storage::exists($user->photo)) {
-                Storage::delete($user->photo);
+            if ($user->photo && (Storage::disk('public')->exists($user->photo) || Storage::exists($user->photo))) {
+                Storage::disk('public')->delete($user->photo);
             }
-            $photo = Storage::putFileAs('uploads/images/users', $request->photo, now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name).'_photo.'.$request->photo->getClientOriginalExtension());
+            $photo = Storage::disk('public')->putFileAs('uploads/images/users', $request->photo, now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name).'_photo.'.$request->photo->getClientOriginalExtension());
         }
 
         $user->update([
@@ -121,8 +121,8 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        if ($user->photo && Storage::exists($user->photo)) {
-            Storage::delete($user->photo);
+        if ($user->photo && (Storage::disk('public')->exists($user->photo) || Storage::exists($user->photo))) {
+            Storage::disk('public')->delete($user->photo);
         }
         $user->syncRoles([]);
         $user->syncPermissions([]);

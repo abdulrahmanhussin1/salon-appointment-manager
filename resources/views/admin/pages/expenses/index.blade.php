@@ -188,7 +188,10 @@
                         });
                     }
                 });
-            });
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('open_create') === '1') {
+                $('#ExpensesModal').modal('show');
+            }
         });
     </script>
 @endsection

@@ -39,7 +39,7 @@ class ToolController extends Controller
     {
         $image = null;
         if ($request->hasFile('image')) {
-            $image = Storage::putFileAs('uploads/images/tools', $request->image, now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name).'_image.'.$request->image->getClientOriginalExtension());
+            $image = Storage::disk('public')->putFileAs('uploads/images/tools', $request->image, now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name).'_image.'.$request->image->getClientOriginalExtension());
         }
 
         Tool::create([
@@ -81,10 +81,10 @@ class ToolController extends Controller
     {
         $image = $tool->image;
         if ($request->hasFile('image')) {
-            if ($tool->image && Storage::exists($tool->image)) {
-                Storage::delete($tool->image);
+            if ($tool->image && Storage::disk('public')->exists($tool->image)) {
+                Storage::disk('public')->delete($tool->image);
             }
-            $image = Storage::putFileAs('uploads/images/tools', $request->image, now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name).'_image.'.$request->image->getClientOriginalExtension());
+            $image = Storage::disk('public')->putFileAs('uploads/images/tools', $request->image, now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name).'_image.'.$request->image->getClientOriginalExtension());
         }
 
         $tool->update([
@@ -107,8 +107,8 @@ class ToolController extends Controller
     public function destroy(Tool $tool)
     {
         // Delete tool Image if exists
-        if ($tool->image && Storage::exists($tool->image)) {
-            Storage::delete($tool->image);
+        if ($tool->image && Storage::disk('public')->exists($tool->image)) {
+            Storage::disk('public')->delete($tool->image);
         }
         $tool->delete();
         Alert::success(__('Success'), __('Deleted Successfully'));

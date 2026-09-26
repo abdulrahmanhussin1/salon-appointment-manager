@@ -41,7 +41,7 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                     $html .= '<a href="'.route('products.show', ['product' => $model]).'" class="dropdown-item">Product Details</a>';
                 }
                 if (AppHelper::perUser('products.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-product" data-id="'.$model->id.'" data-url="'.route('products.destroy', ['product' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-product" data-id="'.$model->id.'" data-url="'.route('products.destroy', ['product' => $model]).'">'.__('Delete').'</a></div></div>';
                 }
 
                 return $html;
@@ -57,7 +57,7 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                 return $model->code ?? null;
             })
             ->editColumn('image', function ($model) {
-                if ($model->image && Storage::exists($model->image)) {
+                if ($model->image && (Storage::disk('public')->exists($model->image) || Storage::exists($model->image))) {
                     return '<img src="'.asset('storage/'.$model->image).'" alt="'.$model->name.'" style="max-width: 50px; max-height: 75px;">';
                 }
 

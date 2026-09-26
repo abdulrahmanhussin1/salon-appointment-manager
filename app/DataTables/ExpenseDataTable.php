@@ -60,7 +60,7 @@ class ExpenseDataTable extends DataTable
                     $html .= '<a href="'.route('expenses.edit', ['expense' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
                 if (AppHelper::perUser('expenses.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-expense" data-id="'.$model->id.'" data-url="'.route('expenses.destroy', ['expense' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-expense" data-id="'.$model->id.'" data-url="'.route('expenses.destroy', ['expense' => $model]).'">'.__('Delete').'</a></div></div>';
                 }
 
                 return $html;

@@ -31,7 +31,7 @@ class ExpenseController extends Controller
      */
     public function create()
     {
-        abort(404);
+        return redirect()->route('expenses.index', ['open_create' => 1]);
     }
 
     /**

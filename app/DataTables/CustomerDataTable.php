@@ -32,7 +32,7 @@ class CustomerDataTable extends DataTable
                     $html .= '<a href="'.route('customers.edit', ['customer' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
                 if (AppHelper::perUser('customers.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-customer" data-id="'.$model->id.'" data-url="'.route('customers.destroy', ['customer' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-customer" data-id="'.$model->id.'" data-url="'.route('customers.destroy', ['customer' => $model]).'">'.__('Delete').'</a></div></div>';
                 }
 
                 return $html;

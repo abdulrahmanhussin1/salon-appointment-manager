@@ -34,10 +34,10 @@ class AdminPanelSettingController extends Controller
     {
         $setting = AdminPanelSetting::findOrFail($id);
         if ($request->hasFile(key: 'system_logo')) {
-            if ($setting->system_logo && Storage::exists($setting->system_logo)) {
-                Storage::delete($setting->system_logo);
+            if ($setting->system_logo && (Storage::disk('public')->exists($setting->system_logo) || Storage::exists($setting->system_logo))) {
+                Storage::disk('public')->delete($setting->system_logo);
             }
-            $newLogoPath = Storage::putFile('uploads/images/settings', $request->file('system_logo'));
+            $newLogoPath = Storage::disk('public')->putFile('uploads/images/settings', $request->file('system_logo'));
         } else {
             $newLogoPath = $setting->system_logo;
         }

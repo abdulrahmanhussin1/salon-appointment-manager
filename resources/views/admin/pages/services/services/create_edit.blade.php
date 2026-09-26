@@ -84,8 +84,8 @@
                 @endif
                 <div class="card-body">
                     <div class="col-lg-12">
-                        <x-form-personal-image :src="isset($service) && isset($service->photo)
-                            ? asset('storage/' . $service->photo)
+                        <x-form-personal-image :src="isset($service) && !empty($service->image)
+                            ? asset('storage/' . $service->image)
                             : asset('admin-assets/assets/img/OIP.jpeg')" name="image" />
                     </div>
 

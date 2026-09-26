@@ -171,7 +171,10 @@
                         });
                     }
                 });
-            });
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('open_create') === '1') {
+                $('#customerModal').modal('show');
+            }
         });
     </script>
 @endsection

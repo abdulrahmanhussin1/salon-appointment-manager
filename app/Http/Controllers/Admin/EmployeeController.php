@@ -145,8 +145,8 @@ class EmployeeController extends Controller
     public function update(EmployeeRequest $request, Employee $employee)
     {
         try {
-            $photo = AppHelper::handleFileUpload($request, 'photo', 'uploads/images/employees', null);
-            $idCard = AppHelper::handleFileUpload($request, 'id_card', 'uploads/images/employees/id-cards', null);
+            $photo = AppHelper::handleFileUpload($request, 'photo', 'uploads/images/employees', $employee->photo);
+            $idCard = AppHelper::handleFileUpload($request, 'id_card', 'uploads/images/employees/id-cards', $employee->id_card);
 
             DB::beginTransaction();
             $employee->update([
@@ -223,11 +223,11 @@ class EmployeeController extends Controller
      */
     public function destroy(Employee $employee)
     {
-        if ($employee->photo && Storage::exists($employee->photo)) {
-            Storage::delete($employee->photo);
+        if ($employee->photo && (Storage::disk('public')->exists($employee->photo) || Storage::exists($employee->photo))) {
+            Storage::disk('public')->delete($employee->photo);
         }
-        if ($employee->id_card && Storage::exists($employee->id_card)) {
-            Storage::delete($employee->id_card);
+        if ($employee->id_card && (Storage::disk('public')->exists($employee->id_card) || Storage::exists($employee->id_card))) {
+            Storage::disk('public')->delete($employee->id_card);
         }
 
         EmployeeWage::where('employee_id', $employee->id)->delete();

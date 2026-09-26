@@ -504,7 +504,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: `/admin/appointments/${currentEventId}/${action}`,
+                        url: `/api/appointments/${currentEventId}/${action}`,
                         type: 'POST',
                         data: {
                             _token: '{{ csrf_token() }}'
@@ -550,7 +550,7 @@
             }).then((result) => {
                 if (result.isConfirmed && result.value) {
                     $.ajax({
-                        url: `/admin/appointments/${currentEventId}/cancel`,
+                        url: `/api/appointments/${currentEventId}/cancel`,
                         type: 'POST',
                         data: {
                             _token: '{{ csrf_token() }}',
@@ -599,7 +599,7 @@
                     timeGridWeek: '{{ __("Week") }}',
                     timeGridDay: '{{ __("Day") }}'
                 },
-                events: '{{ route('appointments.index') }}',
+                events: '{{ route('api.appointments') }}',
                 editable: false,
                 eventClick: function(info) {
                     currentEventId = info.event.id;

@@ -43,7 +43,7 @@ class ProductController extends Controller
     {
         $image = null;
         if ($request->hasFile('image')) {
-            $image = Storage::putFileAs('uploads/images/products', $request->image, now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name).'_image.'.$request->image->getClientOriginalExtension());
+            $image = Storage::disk('public')->putFileAs('uploads/images/products', $request->image, now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name).'_image.'.$request->image->getClientOriginalExtension());
         }
 
         Product::create([
@@ -99,11 +99,10 @@ class ProductController extends Controller
     {
         $image = $product->image;
         if ($request->hasFile('image')) {
-            if ($product->image && Storage::exists($product->image)) {
-                Storage::delete($product->image);
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
             }
-            $image = Storage::putFileAs('uploads/images/products', $request->image, now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name).'_image.'.$request->image->getClientOriginalExtension());
-
+            $image = Storage::disk('public')->putFileAs('uploads/images/products', $request->image, now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name).'_image.'.$request->image->getClientOriginalExtension());
         }
 
         $product->update([
@@ -135,8 +134,8 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        if ($product->image && Storage::exists($product->image)) {
-            Storage::delete($product->image);
+        if ($product->image && Storage::disk('public')->exists($product->image)) {
+            Storage::disk('public')->delete($product->image);
         }
         $product->delete();
         Alert::success(__('Success'), __('Deleted Successfully'));

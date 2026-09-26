@@ -14,11 +14,12 @@ trait AppHelper
     public static function handleFileUpload($request, $fileKey, $directory, $existingFile = null)
     {
         if ($request->hasFile($fileKey)) {
-            if ($existingFile && Storage::exists($existingFile)) {
-                Storage::delete($existingFile);
+            $disk = Storage::disk('public');
+            if ($existingFile && $disk->exists($existingFile)) {
+                $disk->delete($existingFile);
             }
 
-            return Storage::putFileAs($directory, $request->file($fileKey), now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name)."_{$fileKey}.".$request->file($fileKey)->getClientOriginalExtension());
+            return $disk->putFileAs($directory, $request->file($fileKey), now()->format('Y-m-d').'_'.str_replace(' ', '_', $request->name)."_{$fileKey}.".$request->file($fileKey)->getClientOriginalExtension());
         }
 
         return $existingFile;

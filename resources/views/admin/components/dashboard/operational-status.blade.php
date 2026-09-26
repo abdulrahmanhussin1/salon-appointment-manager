@@ -48,7 +48,7 @@
                 <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2 mb-3">
                     <div>
                         <h5 class="card-title m-0 fs-6 fw-bold text-dark">
-                            <i class="bi bi-calendar-event text-primary me-2"></i>{{ __("Today's Appointments") }}
+                            <i class="bi bi-calendar-event text-primary me-2"></i><span x-text="filters.period === 'today' ? '{{ __("Today\'s Appointments") }}' : (filters.period === 'yesterday' ? '{{ __("Yesterday\'s Appointments") }}' : (filters.period === 'this_week' ? '{{ __("This Week\'s Appointments") }}' : (filters.period === 'this_month' ? '{{ __("This Month\'s Appointments") }}' : '{{ __("Appointments") }}')))">{{ __("Today's Appointments") }}</span>
                         </h5>
                         <span class="text-muted very-small">{{ __('Real-time operational workflow & check-in') }}</span>
                     </div>

@@ -31,7 +31,7 @@ class SupplierDataTable extends DataTable
                     $html .= '<a href="'.route('suppliers.edit', ['supplier' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
                 if (AppHelper::perUser('suppliers.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-supplier" data-id="'.$model->id.'" data-url="'.route('suppliers.destroy', ['supplier' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-supplier" data-id="'.$model->id.'" data-url="'.route('suppliers.destroy', ['supplier' => $model]).'">'.__('Delete').'</a></div></div>';
                 }
 
                 return $html;

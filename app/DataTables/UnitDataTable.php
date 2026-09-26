@@ -32,7 +32,7 @@ class UnitDataTable extends DataTable
                     $html .= '<a href="'.route('units.edit', ['unit' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
                 if (AppHelper::perUser('units.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-unit" data-id="'.$model->id.'" data-url="'.route('units.destroy', ['unit' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-unit" data-id="'.$model->id.'" data-url="'.route('units.destroy', ['unit' => $model]).'">'.__('Delete').'</a></div></div>';
                 }
 
                 return $html;

@@ -53,7 +53,14 @@
                             {{ __('Active') }}</option>
                         <option @if (isset($tool) && $tool->status == 'inactive') selected @endif value="inactive">
                             {{ __('Inactive') }}</option>
-                    </x-form-select>
+                    @if (isset($tool) && $tool->image)
+                        <div class="mb-3">
+                            <label class="form-label">{{ __('Current Image') }}</label>
+                            <div>
+                                <img src="{{ asset('storage/' . $tool->image) }}" alt="{{ $tool->name }}" style="max-width: 120px; max-height: 120px; object-fit: contain; border-radius: 8px; border: 1px solid #e2e8f0; padding: 4px;">
+                            </div>
+                        </div>
+                    @endif
                     <x-file-input name='image' id="image" label="Image" />
                     <div class="text-center mt-2">
                         <x-submit-button label='Confirm' />

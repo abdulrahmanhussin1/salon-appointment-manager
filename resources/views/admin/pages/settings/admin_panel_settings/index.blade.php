@@ -67,9 +67,8 @@
             <table class="table table-striped table-bordered my-4">
                 <tr>
                     <th>{{ __('Company Logo') }}</th>
-                    <td><img src="{{ !empty($setting->system_logo) ? (Storage::exists($setting->system_logo) ? Storage::url($setting->system_logo) : asset('admin-assets/assets/img/avatar.jpg')) : '' }}"
-                            width="
-                            100px"></td>
+                    <td><img src="{{ !empty($setting->system_logo) && (Storage::disk('public')->exists($setting->system_logo) || Storage::exists($setting->system_logo)) ? asset('storage/' . $setting->system_logo) : asset('admin-assets/assets/img/avatar.jpg') }}"
+                            width="100px" style="max-height: 100px; object-fit: contain;"></td>
                 </tr>
                 <tr>
                     <th>{{ __('Company Name') }}</th>

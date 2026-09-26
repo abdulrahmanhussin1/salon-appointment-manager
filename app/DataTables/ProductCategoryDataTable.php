@@ -32,7 +32,7 @@ class ProductCategoryDataTable extends DataTable
                     $html .= '<a href="'.route('product_categories.edit', ['product_category' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
                 if (AppHelper::perUser('product_categories.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-product_category" data-id="'.$model->id.'" data-url="'.route('product_categories.destroy', ['product_category' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-product_category" data-id="'.$model->id.'" data-url="'.route('product_categories.destroy', ['product_category' => $model]).'">'.__('Delete').'</a></div></div>';
                 }
 
                 return $html;

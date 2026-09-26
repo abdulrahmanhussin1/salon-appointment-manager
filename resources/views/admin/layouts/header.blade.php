@@ -63,7 +63,7 @@
 
                 <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#"
                     data-bs-toggle="dropdown">
-                    <img src="@if (Auth()->user()->photo && Storage::exists(Auth()->user()->photo)) {{ asset('storage') . '/' . Auth::user()->photo }} @else {{ asset('admin-assets/assets/img/avatar.jpg') }} @endif"
+                    <img src="@if (Auth()->user()->photo && (Storage::disk('public')->exists(Auth()->user()->photo) || Storage::exists(Auth()->user()->photo))) {{ asset('storage') . '/' . Auth::user()->photo }} @else {{ asset('admin-assets/assets/img/avatar.jpg') }} @endif"
                         alt="Profile" class="rounded-circle">
                     <span class="d-none d-md-block dropdown-toggle ps-2">{{ Str::ucfirst(Auth::user()->name) }}</span>
                 </a><!-- End Profile Iamge Icon -->

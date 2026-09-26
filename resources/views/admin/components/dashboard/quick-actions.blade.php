@@ -19,14 +19,14 @@
     @endif
 
     @if(\App\Traits\AppHelper::perUser('customers.create'))
-        <a href="{{ route('customers.create') }}" class="btn btn-sm btn-info text-white rounded-pill px-3 shadow-xs d-flex align-items-center gap-1">
+        <a href="{{ route('customers.index', ['open_create' => 1]) }}" class="btn btn-sm btn-info text-white rounded-pill px-3 shadow-xs d-flex align-items-center gap-1">
             <i class="bi bi-person-plus"></i>
             <span>{{ __('Add Customer') }}</span>
         </a>
     @endif
 
     @if(\App\Traits\AppHelper::perUser('expenses.create'))
-        <a href="{{ route('expenses.create') }}" class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-xs d-flex align-items-center gap-1">
+        <a href="{{ route('expenses.index', ['open_create' => 1]) }}" class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-xs d-flex align-items-center gap-1">
             <i class="bi bi-cash-coin"></i>
             <span>{{ __('Record Expense') }}</span>
         </a>
@@ -58,7 +58,7 @@
         @endif
 
         @if(\App\Traits\AppHelper::perUser('customers.create'))
-            <a href="{{ route('customers.create') }}" class="btn btn-info text-white rounded-pill shadow-lg d-flex align-items-center gap-2 py-2 px-3">
+            <a href="{{ route('customers.index', ['open_create' => 1]) }}" class="btn btn-info text-white rounded-pill shadow-lg d-flex align-items-center gap-2 py-2 px-3">
                 <span>{{ __('Add Customer') }}</span>
                 <i class="bi bi-person-plus fs-6"></i>
             </a>

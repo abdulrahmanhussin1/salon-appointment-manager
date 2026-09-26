@@ -32,7 +32,7 @@ class ExpenseTypeDataTable extends DataTable
                     $html .= '<a href="'.route('expense_types.edit', ['expense_type' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
                 if (AppHelper::perUser('expense_types.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-expense_type" data-id="'.$model->id.'" data-url="'.route('expense_types.destroy', ['expense_type' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-expense_type" data-id="'.$model->id.'" data-url="'.route('expense_types.destroy', ['expense_type' => $model]).'">'.__('Delete').'</a></div></div>';
                 }
 
                 return $html;

@@ -32,7 +32,7 @@ type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="tr
                     $html .= '<a href="'.route('service_categories.edit', ['service_category' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
                 if (AppHelper::perUser('service_categories.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-service_category" data-id="'.$model->id.'" data-url="'.route('service_categories.destroy', ['service_category' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-service_category" data-id="'.$model->id.'" data-url="'.route('service_categories.destroy', ['service_category' => $model]).'">'.__('Delete').'</a></div></div>';
                 }
 
                 return $html;

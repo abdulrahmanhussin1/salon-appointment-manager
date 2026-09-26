@@ -32,13 +32,13 @@ class UsersDataTable extends DataTable
                     $html .= '<a href="'.route('users.edit', ['user' => $model]).'" class="dropdown-item">'.__('Edit').'</a>';
                 }
                 if (AppHelper::perUser('users.destroy')) {
-                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-user" data-id="'.$model->id.'" data-url="'.route('users.destroy', ['user' => $model]).'">\'.__(\'Delete\').\'</a></div></div>';
+                    $html .= '<div class="dropdown-divider"></div><a href="#" class="dropdown-item text-danger delete-this-user" data-id="'.$model->id.'" data-url="'.route('users.destroy', ['user' => $model]).'">'.__('Delete').'</a></div></div>';
                 }
 
                 return $html;
             })
             ->addColumn('photo', function ($model) {
-                return $model->photo && Storage::exists($model->photo) ? '<img src="'.asset('storage').'/'.$model->photo.'" alt="avatar" style="width:50px">' : '<img src="'.asset('admin-assets/assets/img/avatar.jpg').'" alt="avatar" style="width:50px">';
+                return $model->photo && (Storage::disk('public')->exists($model->photo) || Storage::exists($model->photo)) ? '<img src="'.asset('storage').'/'.$model->photo.'" alt="avatar" style="width:50px">' : '<img src="'.asset('admin-assets/assets/img/avatar.jpg').'" alt="avatar" style="width:50px">';
             })
 
             ->addColumn('employee_id', function ($model) {

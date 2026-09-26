@@ -26,7 +26,7 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        abort(404);
+        return redirect()->route('customers.index', ['open_create' => 1]);
     }
 
     /**

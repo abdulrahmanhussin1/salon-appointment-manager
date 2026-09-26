@@ -84,6 +84,7 @@ enum AppointmentStatus: string
                 self::CONFIRMED,
                 self::REJECTED,
                 self::CANCELLED,
+                self::NO_SHOW,
                 self::EXPIRED,
             ],
             self::CONFIRMED => [

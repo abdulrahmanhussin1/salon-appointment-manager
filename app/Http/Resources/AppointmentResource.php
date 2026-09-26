@@ -24,36 +24,44 @@ class AppointmentResource extends JsonResource
             ? '#212529'
             : '#ffffff';
 
-        return [
-            'id' => $this->id,
-            'title' => $this->customer->name.' ('.$this->provider->name.')',
-            'start' => Carbon::parse($this->start_date)->setTimezone('UTC')->toIso8601String(),
-            'end' => Carbon::parse($this->end_date)->setTimezone('UTC')->toIso8601String(),
+            $hasActiveInvoice = $this->relationLoaded('salesInvoice')
+                ? ($this->salesInvoice && $this->salesInvoice->status === 'active')
+                : $this->salesInvoice()->where('status', 'active')->exists();
 
-            'customer_id' => $this->customer_id,
-            'provider_id' => $this->provider_id,
-            'service_id' => $this->service_id,
+            $invoiceId = $this->relationLoaded('salesInvoice')
+                ? $this->salesInvoice?->id
+                : $this->salesInvoice?->id;
 
-            'customer' => $this->customer->name,
-            'provider' => $this->provider->name,
-            'service' => $this->service->name,
+            return [
+                'id' => $this->id,
+                'title' => ($this->customer?->name ?? __('Unknown')).' ('.($this->provider?->name ?? __('Unassigned')).')',
+                'start' => Carbon::parse($this->start_date)->setTimezone('UTC')->toIso8601String(),
+                'end' => Carbon::parse($this->end_date)->setTimezone('UTC')->toIso8601String(),
 
-            'start_date' => Carbon::parse($this->start_date)->format('Y-m-d\TH:i'),
-            'end_date' => Carbon::parse($this->end_date)->format('Y-m-d\TH:i'),
+                'customer_id' => $this->customer_id,
+                'provider_id' => $this->provider_id,
+                'service_id' => $this->service_id,
 
-            'status' => $statusEnum?->value ?? 'requested',
-            'status_label' => $statusEnum?->label() ?? ucfirst($this->status ?? 'requested'),
-            'status_badge' => $statusEnum?->badgeClass() ?? 'bg-warning text-dark',
-            'backgroundColor' => $color,
-            'borderColor' => $color,
-            'textColor' => $textColor,
+                'customer' => $this->customer?->name ?? '',
+                'provider' => $this->provider?->name ?? '',
+                'service' => $this->service?->name ?? '',
 
-            'cancelled_at' => $this->cancelled_at?->toIso8601String(),
-            'cancellation_reason' => $this->cancellation_reason,
+                'start_date' => Carbon::parse($this->start_date)->format('Y-m-d\TH:i'),
+                'end_date' => Carbon::parse($this->end_date)->format('Y-m-d\TH:i'),
 
-            'can_checkout' => in_array($statusEnum, [AppointmentStatus::CONFIRMED, AppointmentStatus::CHECKED_IN, AppointmentStatus::IN_SERVICE], true) && ! $this->salesInvoice()->where('status', 'active')->exists(),
-            'invoice_id' => $this->salesInvoice?->id,
-            'checkout_url' => route('sales_invoices.create', ['appointment_id' => $this->id]),
-        ];
+                'status' => $statusEnum?->value ?? 'requested',
+                'status_label' => $statusEnum?->label() ?? ucfirst($this->status ?? 'requested'),
+                'status_badge' => $statusEnum?->badgeClass() ?? 'bg-warning text-dark',
+                'backgroundColor' => $color,
+                'borderColor' => $color,
+                'textColor' => $textColor,
+
+                'cancelled_at' => $this->cancelled_at?->toIso8601String(),
+                'cancellation_reason' => $this->cancellation_reason,
+
+                'can_checkout' => in_array($statusEnum, [AppointmentStatus::CONFIRMED, AppointmentStatus::CHECKED_IN, AppointmentStatus::IN_SERVICE], true) && ! $hasActiveInvoice,
+                'invoice_id' => $invoiceId,
+                'checkout_url' => route('sales_invoices.create', ['appointment_id' => $this->id]),
+            ];
     }
 }
